@@ -20,15 +20,18 @@ class RetroEntry:
     def __init__(self, final):
         self.final = final
         self.text = ""
-        self.index += 1
+        self.index = 0
+        self.x, self.y = (0, 0)
 
     def update(self):
         self.index += 0.01
-        img = font.render(self.text[:int(self.index)], True, ())
-        self.image = Texture.from_surface(font.render(el))
+        if int(self.index) >= 1:
+            img = font.render(self.text[:int(self.index)], True, WHITE)
+            self.image = Texture.from_surface(REN, img)
+            self.rect = img.get_rect(topleft=(self.x, self.y))
 
 
-rentry = RetroEntry()
+rentry = RetroEntry("Hello Traveler how are you")
 
 def main():
     running = __name__ == "__main__"
@@ -40,6 +43,9 @@ def main():
                 running = False
 
         fill_rect(REN, (100, 100, 100, 255), (0, 0, 800, 600))
+
+        rentry.update()
+
         draw_and_update_widgets()
         REN.present()
 
