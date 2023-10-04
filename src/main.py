@@ -10,9 +10,18 @@ WIDTH, HEIGHT = 1200, 600
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
 REN = Renderer(WIN)
 clock = pygame.time.Clock()
-font = pygame.font.Font(path("assets", "Oregon-Bound", "oregon-bound.ttf"), 18)
-player = Player()
+font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
+player = Character()
+ticks = pygame.time.get_ticks
 
+
+class TicTacToe:
+    # def __init__(self):
+
+    def update(self):
+        draw_line(REN, (255, 255, 255, 255), (100, 100), (400, 400))
+
+ttt = TicTacToe()
 
 class RetroEntry:
     def __init__(self, final):
@@ -86,7 +95,6 @@ def main():
     while running:
         clock.tick(30)
         for event in pygame.event.get():
-            process_widget_events(event, pygame.mouse.get_pos())
             if event.type == pygame.QUIT:
                 running = False
 
@@ -97,7 +105,7 @@ def main():
 
         rentry.update()
 
-        draw_and_update_widgets()
+        ttt.update()
         REN.present()
 
     pygame.quit()

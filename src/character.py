@@ -3,23 +3,23 @@ from settings import *
 possible_background = {
     'banker': [
 		'1. Be a banker from New York',
-        path('assets', 'banker.png')
+        os.path.join('assets', 'banker.png')
 	],
     'boss': [
 		'2. Be a boss from Ohio',
-        path('assets', 'boss.png')
+        os.path.join('assets', 'boss.png')
 	],
     'chef': [
 		'3. Be a chef from France',
-        path('assets', 'chef.png')
+        os.path.join('assets', 'chef.png')
 	] ,
     'farmer': [
 		'4. Be a farmer from Missouri',
-        path('assets', 'farmer.png')
+        os.path.join('assets', 'farmer.png')
 	],
     'man': [
 		'5. Be a man from Florida',
-        path('assets', 'man')
+        os.path.join('assets', 'man')
 	],
 }
 
