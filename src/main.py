@@ -30,7 +30,6 @@ class RetroEntry:
 
 rentry = RetroEntry()
 
-
 def main():
     running = __name__ == "__main__"
     while running:

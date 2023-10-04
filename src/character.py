@@ -2,6 +2,7 @@ from settings import *
 
 class Character():
     def __init__(self):
+        self.name = None
         self.hp = 5
         self.food = {
             'pickles': 3,
@@ -10,3 +11,5 @@ class Character():
             'stone baked garlic flat bread': 1,
         }
 
+    def setup(self, name):
+        self.name = name
