@@ -1,10 +1,6 @@
 from settings import *
 from character import *
 
-
-WHITE = (255, 255, 255, 255)
-BLACK = (0, 0, 0, 255)
-
 pygame.init()
 WIDTH, HEIGHT = 1200, 600
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
@@ -15,35 +11,23 @@ player = Character()
 ticks = pygame.time.get_ticks
 
 
-def writ(text, pos):
-    img = font.render(text, True, WHITE)
-    tex = Texture.from_surface(REN, img)
-    rect = img.get_rect(topleft=pos)
-    return tex, rect
-
-
-def ask_background(name):
-    bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
-    all_entries.append(bg_entry)
-
-
-def ask_bg_selection(*args):
-    bg_list = [data[0] for data in possible_backgrounds.values()]
-    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg)
-    all_entries.append(bg_select)
-
-
-def set_character_bg(bg):
-    bg_name = [k for k, v in possible_backgrounds.items() if v[0] == bg][0]
-    player.background = bg_name
-    print(bg_name)
-
-
 class TicTacToe:
-    # def __init__(self):
+    def __init__(self):
+        self.score = (0, 0)
+        self.size = 300
+        self.xo = WIDTH/2 - self.size/2
+        self.yo = HEIGHT/2 - self.size/2
+        self.lines = [
+            [(0, self.size/3),     (self.size, self.size/3)],
+            [(0, 2/3 * self.size), (self.size, 2/3 * self.size)],
+
+            [(self.size/3, 0),     (self.size/3, self.size)],
+            [(2/3 * self.size, 0), (2/3 * self.size, self.size)],
+        ]
 
     def update(self):
-        draw_line(REN, (255, 255, 255, 255), (100, 100), (400, 400))
+        for line in self.lines:
+            draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
 
 ttt = TicTacToe()
 
