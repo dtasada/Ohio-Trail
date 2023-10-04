@@ -31,6 +31,7 @@ class Character():
     def __init__(self):
         self.name = None
         self.hp = 5
+        self.money = 25
         self.food = {
             'eggplants': 3,
             'frikandelbroodje': 1,
