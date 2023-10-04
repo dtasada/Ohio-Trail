@@ -33,6 +33,7 @@ class RetroEntry:
 
     def process_event(self, event):
         name = pygame.key.name(event.key)
+        self.text = self.text.removesuffix("_")
         self.update_tex(self.text + name)
         if name == "return":
             print("ENTER")
@@ -67,7 +68,6 @@ class RetroEntry:
 
 
 rentry = RetroEntry("Hello traveler, what is your name?")
-
 
 def main():
     running = __name__ == "__main__"
