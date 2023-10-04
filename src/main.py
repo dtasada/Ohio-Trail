@@ -1,14 +1,21 @@
 from settings import *
 from character import *
 
-pygame.init()
-WIDTH, HEIGHT = 1200, 600
-WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
-REN = Renderer(WIN)
-clock = pygame.time.Clock()
-font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
-player = Character()
-ticks = pygame.time.get_ticks
+
+def ask_background(name):
+    bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
+    all_entries.append(bg_entry)
+
+
+def ask_bg_selection(*args):
+    bg_list = [data[0] for data in possible_backgrounds.values()]
+    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg)
+    all_entries.append(bg_select)
+
+
+def set_character_bg(bg):
+    bg_name = [k for k, v in possible_backgrounds.items() if v[0] == bg][0]
+    player.background = bg_name
 
 
 class TicTacToe:
@@ -36,7 +43,6 @@ class TicTacToe:
             draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
         writ('x', (self.cross_x, self.cross_y))
 
-ttt = TicTacToe()
 
 class RetroEntry:
     def __init__(self, final, pos, command, accepts_input=True):
@@ -155,6 +161,8 @@ class RetroSelection:
         self.draw()
 
 
+player = Character()
+ttt = TicTacToe()
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
 all_entries.append(name_entry)
