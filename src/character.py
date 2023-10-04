@@ -1,5 +1,6 @@
 from settings import *
 
+
 possible_background = [
     '1. Be a banker from New York',
     '2. Be a boss from Ohio',
@@ -26,6 +27,7 @@ clothing = {
     'Minecraft t-shirt': 20,
     '$19 Fortnite card': 20,
 }
+
 
 class Character():
     def __init__(self):
