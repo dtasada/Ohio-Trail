@@ -24,6 +24,8 @@ class TicTacToe:
         self.size = 300
         self.xo = WIDTH/2 - self.size/2
         self.yo = HEIGHT/2 - self.size/2
+        self.cross_x = self.size/3 + self.xo
+        self.cross_y = self.size/3 + self.yo
         self.lines = [
             [(0, self.size/3),     (self.size, self.size/3)],
             [(0, 2/3 * self.size), (self.size, 2/3 * self.size)],
@@ -31,6 +33,10 @@ class TicTacToe:
             [(self.size/3, 0),     (self.size/3, self.size)],
             [(2/3 * self.size, 0), (2/3 * self.size, self.size)],
         ]
+
+        self.cross_img = font.render('x', True, WHITE)
+        self.cross_image = Texture.from_surface(REN, cross_img)
+        self.cross_rect = cross_img.get_rect(topleft=(self.cross_x, self.cross_y))
 
     def update(self):
         for line in self.lines:
