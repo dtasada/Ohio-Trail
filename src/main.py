@@ -2,26 +2,6 @@ from settings import *
 from character import *
 
 
-WHITE = (255, 255, 255, 255)
-BLACK = (0, 0, 0, 255)
-
-pygame.init()
-WIDTH, HEIGHT = 1200, 600
-WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
-REN = Renderer(WIN)
-clock = pygame.time.Clock()
-font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
-player = Character()
-ticks = pygame.time.get_ticks
-
-
-def writ(text, pos):
-    img = font.render(text, True, WHITE)
-    tex = Texture.from_surface(REN, img)
-    rect = img.get_rect(topleft=pos)
-    return tex, rect
-
-
 def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_entries.append(bg_entry)
@@ -36,16 +16,33 @@ def ask_bg_selection(*args):
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v[0] == bg][0]
     player.background = bg_name
-    print(bg_name)
 
 
 class TicTacToe:
-    # def __init__(self):
+    def __init__(self):
+        self.score = (0, 0)
+        self.size = 300
+        self.xo = WIDTH/2 - self.size/2
+        self.yo = HEIGHT/2 - self.size/2
+        self.cross_x = self.size/3 + self.xo
+        self.cross_y = self.size/3 + self.yo
+        self.lines = [
+            [(0, self.size/3),     (self.size, self.size/3)],
+            [(0, 2/3 * self.size), (self.size, 2/3 * self.size)],
+
+            [(self.size/3, 0),     (self.size/3, self.size)],
+            [(2/3 * self.size, 0), (2/3 * self.size, self.size)],
+        ]
+
+        self.cross_img = font.render('x', True, WHITE)
+        self.cross_image = Texture.from_surface(REN, self.cross_img)
+        self.cross_rect = self.cross_img.get_rect(topleft=(self.cross_x, self.cross_y))
 
     def update(self):
-        draw_line(REN, (255, 255, 255, 255), (100, 100), (400, 400))
+        for line in self.lines:
+            draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
+        writ('x', (self.cross_x, self.cross_y))
 
-ttt = TicTacToe()
 
 class RetroEntry:
     def __init__(self, final, pos, command, accepts_input=True):
@@ -164,6 +161,8 @@ class RetroSelection:
         self.draw()
 
 
+player = Character()
+ttt = TicTacToe()
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
 all_entries.append(name_entry)
