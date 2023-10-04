@@ -1,24 +1,29 @@
 import pygame
+from pygame._sdl2.video import Window, Texture, Renderer, Image
 import random
 import sys
+from pyengine.pgbasics import *
 
 
 pygame.init()
-WIN = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("Ohio Trail")
+WIN = Window(size=(800, 600), title="Ohio Trail")
+REN = Renderer(WIN)
 clock = pygame.time.Clock()
 
-running = __name__ == "__main__"
 
-while running:
-    clock.tick(30)
+def main():
+    running = __name__ == "__main__"
+    while running:
+        clock.tick(30)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+        fill_rect(REN, [random.randint(0, 255) for _ in range(3)] + [255], (0, 0, 800, 600))
+        REN.present()
 
-    WIN.fill([random.randint(0, 255) for _ in range(3)])
-    pygame.display.update()
+    pygame.quit()
+    sys.exit()
 
-pygame.quit()
-sys.exit()
+
+main()
