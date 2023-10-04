@@ -1,12 +1,27 @@
 from settings import *
 
-possible_background = [
-    '1. Be a banker from New York',
-    '2. Be a boss from Ohio',
-    '3. Be a chef from France',
-    '4. Be a farmer from Missouri',
-    '5. Be a man from Florida',
-]
+possible_background = {
+    'banker': [
+		'1. Be a banker from New York',
+        path('assets', 'banker.png')
+	],
+    'boss': [
+		'2. Be a boss from Ohio',
+        path('assets', 'boss.png')
+	],
+    'chef': [
+		'3. Be a chef from France',
+        path('assets', 'chef.png')
+	] ,
+    'farmer': [
+		'4. Be a farmer from Missouri',
+        path('assets', 'farmer.png')
+	],
+    'man': [
+		'5. Be a man from Florida',
+        path('assets', 'man')
+	],
+}
 
 possible_food = {
     'Eggplants': 1,
@@ -17,6 +32,7 @@ possible_food = {
     'Beef Jerky': 2,
     'Sour Patch Kids': 2,
     'CocoNutz': 1,
+    'MrBeast Feastables': 1
 }
 
 clothing = {
