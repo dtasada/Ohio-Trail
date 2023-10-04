@@ -175,6 +175,7 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 for entry in all_entries:
                     entry.process_event(event)
+                ttt.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
