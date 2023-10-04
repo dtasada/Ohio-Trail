@@ -1,6 +1,7 @@
 from settings import *
 
-possible_background = {
+
+possible_backgrounds = {
     'banker': [
 		'1. Be a banker from New York',
         os.path.join('assets', 'banker.png')
@@ -42,6 +43,7 @@ clothing = {
     'Minecraft t-shirt': 20,
     '$19 Fortnite card': 20,
 }
+
 
 class Character():
     def __init__(self):
