@@ -8,16 +8,16 @@ possible_background = [
     '5. Be a man from Florida',
 ]
 
-possible_food = [
-    'Eggplants',
-    'Frikandelbroodje',
-    'Pickles',
-    'Stone baked garlic flat bread',
-    'Pineapple Pizza',
-    'Beef Jerky',
-    'Sour Patch Kids'
-    'CocoNutz',
-]
+possible_food = {
+    'Eggplants': 1,
+    'Frikandelbroodje': 1,
+    'Pickles': 1,
+    'Stone baked garlic flat bread': 4,
+    'Pineapple Pizza': 2,
+    'Beef Jerky': 2,
+    'Sour Patch Kids': 2,
+    'CocoNutz': 1,
+}
 
 clothing = {
     'Kilt': 10,
