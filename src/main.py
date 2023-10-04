@@ -15,12 +15,14 @@ WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
 REN = Renderer(WIN)
 clock = pygame.time.Clock()
 font = pygame.font.Font(path("assets", "Oregon-Bound", "oregon-bound.ttf"), 18)
+player = Player()
 
 
 class RetroEntry:
     def __init__(self, final):
         self.final = final + " "
         self.text = ""
+        self.answer = ""
         self.index = 0
         self.x, self.y = (0, 0)
         self.flickering = False
@@ -32,11 +34,25 @@ class RetroEntry:
             REN.blit(self.image, self.rect)
 
     def process_event(self, event):
-        name = pygame.key.name(event.key)
-        self.text = self.text.removesuffix("_")
-        self.update_tex(self.text + name)
-        if name == "return":
-            print("ENTER")
+        if self.flickering:
+            #
+            name = pygame.key.name(event.key)
+            self.text = self.text.removesuffix("_")
+            if name == "return":
+                player.setup(self.answer)
+            elif name == "backspace":
+                self.text = self.text[:-1]
+                self.answer = self.answer[:-1]
+            #
+            elif name == "space":
+                self.text += " "
+                self.answer += " "
+            elif len(name) > 1:
+                pass
+            else:
+                self.text += name
+                self.answer += name
+            self.update_tex(self.text)
 
     def update(self):
         # update the text
