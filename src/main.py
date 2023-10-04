@@ -1,4 +1,3 @@
-<<<<<<< HEAD:main.py
 import pygame
 from pygame._sdl2.video import Window, Texture, Renderer, Image
 import random
@@ -6,9 +5,6 @@ import sys
 from pyengine.pgbasics import *
 from pyengine.pgwidgets import *
 
-=======
-from settings import *
->>>>>>> f5e40b11781ff82e40d7e5fabc1e3ee10fd7c3ee:src/main.py
 
 WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
