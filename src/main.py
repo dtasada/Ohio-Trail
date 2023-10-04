@@ -35,12 +35,13 @@ class TicTacToe:
         ]
 
         self.cross_img = font.render('x', True, WHITE)
-        self.cross_image = Texture.from_surface(REN, cross_img)
-        self.cross_rect = cross_img.get_rect(topleft=(self.cross_x, self.cross_y))
+        self.cross_image = Texture.from_surface(REN, self.cross_img)
+        self.cross_rect = self.cross_img.get_rect(topleft=(self.cross_x, self.cross_y))
 
     def update(self):
         for line in self.lines:
             draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
+        writ('x', (self.cross_x, self.cross_y))
 
 
 class RetroEntry:
