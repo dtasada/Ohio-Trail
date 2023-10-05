@@ -78,6 +78,7 @@ class RetroEntry:
         if self.accepts_input and self.active:
             if self.flickering:
                 #
+                mods = pygame.key.get_mods()
                 name = pygame.key.name(event.key)
                 self.text = self.text.removesuffix("_")
                 if name == "return":
@@ -94,8 +95,11 @@ class RetroEntry:
                 elif len(name) > 1:
                     pass
                 else:
-                    self.text += name
-                    self.answer += name
+                    if len(self.answer) < 20:
+                        if mods in (1, 2):
+                            name = name.capitalize()
+                        self.text += name
+                        self.answer += name
                 self.update_tex(self.text)
 
     def update(self):

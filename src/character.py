@@ -24,15 +24,9 @@ possible_backgrounds = {
 	],
 }
 
-<<<<<<< HEAD
-bg_imgs = {k: pygame.transform.scale_by(pygame.image.load(v[1]), R) for k, v in possible_backgrounds.items() if k in ["banker"]}
-bg_rects = {k: v.get_rect(midright=(WIDTH - 30, HEIGHT / 2)) for k, v in bg_imgs.items()}
+bg_imgs = {k: pygame.transform.scale_by(pygame.image.load(v[1]), R) for k, v in possible_backgrounds.items() if k in ["banker", "chef"]}
+bg_rects = {k: v.get_rect(midright=(WIDTH - 120, HEIGHT / 2)) for k, v in bg_imgs.items()}
 bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
-=======
-# bg_imgs = {k: REN, pygame.image.load(v[1]) for k, v in possible_backgrounds.items()}
-# bg_rects = {k: v.get_rect(topleft=(100, 200)) for k, v in bg_imgs.items()}
-# bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
->>>>>>> 7db18539e862361f1e96c54e6c8c0c76d3dff08e
 
 bg_img_list = list(bg_imgs.values())
 bg_rect_list = list(bg_rects.values())
