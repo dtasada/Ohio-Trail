@@ -24,9 +24,9 @@ possible_backgrounds = {
 	],
 }
 
-bg_imgs = {k: REN, pygame.image.load(v[1]) for k, v in possible_backgrounds.items()}
-bg_rects = {k: v.get_rect(topleft=(100, 200)) for k, v in bg_imgs.items()}
-bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
+# bg_imgs = {k: REN, pygame.image.load(v[1]) for k, v in possible_backgrounds.items()}
+# bg_rects = {k: v.get_rect(topleft=(100, 200)) for k, v in bg_imgs.items()}
+# bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
 
 possible_food = {
     'Eggplants': 1,

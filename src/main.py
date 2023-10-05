@@ -48,9 +48,8 @@ class TicTacToe:
             self.pos[0] -= 1
 
     def update(self):
-        print(self.pos)
-        self.cross_x = self.pos[0] * self.size/3 + self.xo
-        self.cross_y = self.pos[1] * self.size/3 + self.yo
+        self.cross_x = self.pos[0] * self.size/3 + 1.07 * self.xo
+        self.cross_y = self.pos[1] * self.size/3 + 1.14 * self.yo
         self.cross, self.cross_rect = writ('x', (self.cross_x, self.cross_y), 40)
         REN.blit(self.cross, self.cross_rect)
         for line in self.lines:
@@ -179,10 +178,12 @@ class RetroSelection:
 bg_select = None
 player = Character()
 ttt = TicTacToe()
+
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
 all_entries.append(name_entry)
 
+update_objects = []
 
 def main():
     running = __name__ == "__main__"
@@ -195,7 +196,8 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 for entry in all_entries:
                     entry.process_event(event)
-                # ttt.process_event(event)
+                for obj in update_objects:
+                    obj.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
@@ -208,7 +210,8 @@ def main():
             except Exception:
                 pass
 
-        ttt.update()
+        for obj in update_objects:
+            obj.update()
         REN.present()
 
     pygame.quit()
