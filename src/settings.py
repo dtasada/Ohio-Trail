@@ -8,7 +8,7 @@ from contextlib import suppress
 
 pygame.init()
 R = 10
-WIDTH, HEIGHT = 1200, 600
+WIDTH, HEIGHT = 1280, 720
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
 REN = Renderer(WIN)
 clock = pygame.time.Clock()
