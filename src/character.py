@@ -24,9 +24,12 @@ possible_backgrounds = {
 	],
 }
 
-bg_imgs = {k: REN, pygame.image.load(v[1]) for k, v in possible_backgrounds.items()}
-bg_rects = {k: v.get_rect(topleft=(100, 200)) for k, v in bg_imgs.items()}
+bg_imgs = {k: pygame.transform.scale_by(pygame.image.load(v[1]), R) for k, v in possible_backgrounds.items() if k in ["banker"]}
+bg_rects = {k: v.get_rect(midright=(WIDTH - 30, HEIGHT / 2)) for k, v in bg_imgs.items()}
 bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
+
+bg_img_list = list(bg_imgs.values())
+bg_rect_list = list(bg_rects.values())
 
 possible_food = {
     'Eggplants': 1,

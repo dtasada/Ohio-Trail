@@ -3,9 +3,11 @@ from pygame._sdl2.video import Window, Texture, Renderer, Image
 import random
 import sys
 import os
+from contextlib import suppress
 
 
 pygame.init()
+R = 10
 WIDTH, HEIGHT = 1200, 600
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
 REN = Renderer(WIN)
@@ -13,7 +15,7 @@ clock = pygame.time.Clock()
 ticks = pygame.time.get_ticks
 WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
-fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), x) for x in range(1, 100)]
+fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), x) for x in range(0, 100)]
 font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
 
 

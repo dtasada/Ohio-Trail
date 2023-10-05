@@ -10,7 +10,7 @@ def ask_background(name):
 def ask_bg_selection(*args):
     global bg_select
     bg_list = [data[0] for data in possible_backgrounds.values()]
-    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg)
+    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_img_list, bg_rect_list)
     all_entries.append(bg_select)
 
 
@@ -71,8 +71,9 @@ class RetroEntry:
                     self.command(self.answer)
                     self.active = False
                 elif name == "backspace":
-                    self.text = self.text[:-1]
-                    self.answer = self.answer[:-1]
+                    if self.text != self.final:
+                        self.text = self.text[:-1]
+                        self.answer = self.answer[:-1]
                 #
                 elif name == "space":
                     self.text += " "
@@ -118,11 +119,18 @@ class RetroEntry:
 
 
 class RetroSelection:
-    def __init__(self, texts, pos, command):
+    def __init__(self, texts, pos, command, images=None, image_rects=None):
         self.texts = texts
         self.x, self.y = pos
         self.xo = 40
         self.yo = 40
+        self.images = images
+        if images is None:
+            self.images = []
+            self.image_rects = []
+        else:
+            self.images = images
+            self.image_rects = image_rects
         imgs = [font.render(text, True, WHITE) for text in texts]
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
         self.texs = [Texture.from_surface(REN, img) for img in imgs]
@@ -135,6 +143,9 @@ class RetroSelection:
     def draw(self):
         for tex, rect in zip(self.texs, self.rects):
             REN.blit(tex, rect)
+        if self.images:
+            with suppress(IndexError):
+                REN.blit(self.images[self.index], self.image_rects[self.index])
         REN.blit(self.gt, self.gt_rect)
 
     def process_event(self, event):
