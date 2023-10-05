@@ -4,25 +4,29 @@ from settings import *
 possible_backgrounds = {
     'banker': [
 		'1. Be a banker from New York',
-        os.path.join('assets', 'banker.png')
+        os.path.join('assets', 'characters', 'banker.png')
 	],
     'boss': [
 		'2. Be a boss from Ohio',
-        os.path.join('assets', 'boss.png')
+        os.path.join('assets', 'characters', 'boss.png')
 	],
     'chef': [
 		'3. Be a chef from France',
-        os.path.join('assets', 'chef.png')
+        os.path.join('assets', 'characters', 'chef.png')
 	] ,
     'farmer': [
 		'4. Be a farmer from Missouri',
-        os.path.join('assets', 'farmer.png')
+        os.path.join('assets', 'characters', 'farmer.png')
 	],
     'man': [
 		'5. Be a man from Florida',
-        os.path.join('assets', 'man')
+        os.path.join('assets', 'characters', 'man')
 	],
 }
+
+bg_imgs = {k: REN, pygame.image.load(v[1]) for k, v in possible_backgrounds.items()}
+bg_rects = {k: v.get_rect(topleft=(100, 200)) for k, v in bg_imgs.items()}
+bg_imgs = {k: Texture.from_surface(REN, v) for k, v in bg_imgs.items()}
 
 possible_food = {
     'Eggplants': 1,
