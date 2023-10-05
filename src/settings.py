@@ -27,8 +27,8 @@ def draw_line(renderer, color, p1, p2):
     renderer.draw_line(p1, p2)
 
 
-def writ(text, pos):
-    img = font.render(text, True, WHITE)
+def writ(text, pos, size=18):
+    img = fonts[size].render(text, True, WHITE)
     tex = Texture.from_surface(REN, img)
     rect = img.get_rect(topleft=pos)
     return tex, rect
