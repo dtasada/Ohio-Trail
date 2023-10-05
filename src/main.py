@@ -1,3 +1,4 @@
+from types import coroutine
 from settings import *
 from character import *
 
@@ -20,6 +21,17 @@ def set_character_bg(bg):
     voiceline_entry = RetroEntry("Everybody can cook!", (600, 200), lambda: None, accepts_input=False)
     all_entries.append(voiceline_entry)
 
+def ask_food():
+    food_entry = RetroEntry(f"What food do you want to purchase?", (0, 60), ask_food_selection, accepts_input=False)
+    food_entries.append(food_entry)
+
+def ask_food_selection():
+    global food_select
+    food_list = [data[0] for data in possible_food.keys()]
+    food_select = RetroSelection(food_list, (0, 60), set_character_food, food_img_list)
+
+def set_character_food():
+    
 
 class TicTacToe:
     def __init__(self):
@@ -30,6 +42,8 @@ class TicTacToe:
         self.pos = [1, 1]
         self.cross_x = self.size/3 + self.xo
         self.cross_y = self.size/3 + self.yo
+        self.crossed_positions = []
+        self.circled_positions = []
         self.lines = [
             [(0, self.size/3),     (self.size, self.size/3)],
             [(0, 2/3 * self.size), (self.size, 2/3 * self.size)],
@@ -47,11 +61,15 @@ class TicTacToe:
             self.pos[0] += 1
         if event.key in (pygame.K_LEFT, pygame.K_a) and self.pos[0] != 0:
             self.pos[0] -= 1
+        if event.key in (pygame.K_RETURN, pygame.K_SPACE) and not self.pos in ([crossed_position[0] for crossed_position in self.crossed_positions], [circled_position[0] for circled_position in self.circled_positions]):
+            self.crossed_positions.append((self.pos, self.cross_x, self.cross_y))
 
     def update(self):
         self.cross_x = self.pos[0] * self.size/3 + 1.07 * self.xo
         self.cross_y = self.pos[1] * self.size/3 + 1.14 * self.yo
         self.cross, self.cross_rect = writ('x', (self.cross_x, self.cross_y), 40)
+        for cross in self.crossed_positions:
+            writ('x', (cross[1], cross[2]), 40)
         REN.blit(self.cross, self.cross_rect)
         for line in self.lines:
             draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
@@ -197,9 +215,10 @@ ttt = TicTacToe()
 
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
+food_entry = RetroEntry("What food would you like to purchase?", (0, 0), command=ask_food)
 all_entries.append(name_entry)
 
-update_objects = []
+update_objects = [ ttt ]
 
 def main():
     running = __name__ == "__main__"
