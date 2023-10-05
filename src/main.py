@@ -9,15 +9,16 @@ def ask_background(name):
 
 def ask_bg_selection(*args):
     global bg_select
-    bg_list = [data[0] for data in possible_backgrounds.values()]
-    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_img_list, bg_rect_list)
+    bg_list = [data["desc"] for data in possible_backgrounds.values()]
+    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
     all_entries.append(bg_select)
 
 
 def set_character_bg(bg):
-    bg_name = [k for k, v in possible_backgrounds.items() if v[0] == bg][0]
+    bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
-    print(bg_name)
+    voiceline_entry = RetroEntry("Everybody can cook!", (600, 200), lambda: None, accepts_input=False)
+    all_entries.append(voiceline_entry)
 
 
 class TicTacToe:
