@@ -26,6 +26,7 @@ class TicTacToe:
         self.size = 300
         self.xo = WIDTH/2 - self.size/2
         self.yo = HEIGHT/2 - self.size/2
+        self.pos = [1, 1]
         self.cross_x = self.size/3 + self.xo
         self.cross_y = self.size/3 + self.yo
         self.lines = [
@@ -36,8 +37,20 @@ class TicTacToe:
             [(2/3 * self.size, 0), (2/3 * self.size, self.size)],
         ]
 
+    def process_event(self, event):
+        if event.key in (pygame.K_DOWN, pygame.K_s) and self.pos[1] != 2:
+            self.pos[1] += 1
+        if event.key in (pygame.K_UP, pygame.K_w) and self.pos[1] != 0:
+            self.pos[1] -= 1
+        if event.key in (pygame.K_RIGHT, pygame.K_d) and self.pos[0] != 2:
+            self.pos[0] += 1
+        if event.key in (pygame.K_LEFT, pygame.K_a) and self.pos[0] != 0:
+            self.pos[0] -= 1
+
     def update(self):
-        self.cross, self.cross_rect = writ('x', (self.cross_x, self.cross_y))
+        self.cross_x = self.pos[0] * self.size/3 + 1.07 * self.xo
+        self.cross_y = self.pos[1] * self.size/3 + 1.14 * self.yo
+        self.cross, self.cross_rect = writ('x', (self.cross_x, self.cross_y), 40)
         REN.blit(self.cross, self.cross_rect)
         for line in self.lines:
             draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
@@ -176,10 +189,12 @@ class RetroSelection:
 bg_select = None
 player = Character()
 ttt = TicTacToe()
+
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
 all_entries.append(name_entry)
 
+update_objects = []
 
 def main():
     running = __name__ == "__main__"
@@ -192,7 +207,8 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 for entry in all_entries:
                     entry.process_event(event)
-                # ttt.process_event(event)
+                for obj in update_objects:
+                    obj.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
@@ -205,7 +221,8 @@ def main():
             except Exception:
                 pass
 
-        ttt.update()
+        for obj in update_objects:
+            obj.update()
         REN.present()
 
     pygame.quit()
