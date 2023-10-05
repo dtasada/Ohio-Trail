@@ -8,6 +8,7 @@ def ask_background(name):
 
 
 def ask_bg_selection(*args):
+    global bg_select
     bg_list = [data[0] for data in possible_backgrounds.values()]
     bg_select = RetroSelection(bg_list, (0, 80), set_character_bg)
     all_entries.append(bg_select)
@@ -16,6 +17,7 @@ def ask_bg_selection(*args):
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v[0] == bg][0]
     player.background = bg_name
+    print(bg_name)
 
 
 class TicTacToe:
@@ -125,9 +127,10 @@ class RetroSelection:
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
         self.texs = [Texture.from_surface(REN, img) for img in imgs]
         self.selected = 0
-        self.gt, self.gt_rect = writ(">", (self.rects[0].x - 30, self.rects[1].y))
+        self.gt, self.gt_rect = writ(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
         self.command = command
+        self.index = 0
 
     def draw(self):
         for tex, rect in zip(self.texs, self.rects):
@@ -139,30 +142,33 @@ class RetroSelection:
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
                     self.gt_rect.y = self.rects[0].y
+                    self.index = 0
                 else:
                     self.gt_rect.y += self.yo
+                    self.index += 1
             elif event.key in (pygame.K_w, pygame.K_UP):
                 if self.gt_rect.y == self.rects[0].y:
                     self.gt_rect.y = self.rects[-1].y
+                    self.index = -1
                 else:
                     self.gt_rect.y -= self.yo
+                    self.index -= 1
             elif event.key == pygame.K_RETURN:
-                for i, rect in enumerate(self.rects):
-                    if self.gt_rect.y == rect.y:
-                        text = self.texts[i]
-                        self.command(text)
-                        self.active = False
-                        break
+                text = self.texts[self.index]
+                self.command(text)
+                self.active = False
 
     def update(self):
         self.draw()
 
 
+bg_select = None
 player = Character()
 ttt = TicTacToe()
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
 all_entries.append(name_entry)
+
 
 def main():
     running = __name__ == "__main__"
@@ -175,12 +181,18 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 for entry in all_entries:
                     entry.process_event(event)
-                ttt.process_event(event)
+                # ttt.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
         for entry in all_entries:
             entry.update()
+
+        if bg_select is not None:
+            try:
+                REN.blit(bg_imgs[bg_select.index], bg_rects[bg_select.index])
+            except Exception:
+                pass
 
         ttt.update()
         REN.present()
