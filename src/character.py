@@ -32,13 +32,13 @@ bg_img_list = list(bg_imgs.values())
 bg_rect_list = list(bg_rects.values())
 
 possible_food = {
-    'Eggplants': [
+    'Eggplant': [
         1, os.path.join('assets', 'food', 'eggplant.png')
     ],
     'Frikandelbroodje': [
         1, os.path.join('assets', 'food', 'frikandelbroodje.png')
     ],
-    'Pickles': [
+    'Pickle': [
         1, os.path.join('assets', 'food', 'pickle.png')
     ],
     'Stone baked garlic flat bread': [
@@ -78,10 +78,10 @@ class Character():
         self.hp = 5
         self.money = 25
         self.food = {
-            'eggplants': 3,
-            'frikandelbroodje': 1,
-            'pickles': 3,
-            'stone baked garlic flat bread': 1,
+            'Eggplant': 3,
+            'Frikandelbroodje': 1,
+            'Pickle': 3,
+            'Stone baked garlic flat bread': 1,
         }
 
     def setup(self, name, background):

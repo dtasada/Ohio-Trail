@@ -21,11 +21,12 @@ def set_character_bg(bg):
     print(bg_name)
 
 def ask_food():
-    food_entry = RetroEntry(f"What food do you want to purchase?", (0, 60), ask_food_selection,accepts_input=False)
+    food_entry = RetroEntry(f"What food do you want to purchase?", (0, 60), ask_food_selection, accepts_input=False)
+    food_entries.append(food_entry)
 
 def ask_food_selection():
     global food_select
-    food_list = [data for data in possible_food.keys()]
+    food_list = [data[0] for data in possible_food.keys()]
     food_select = RetroSelection(food_list, (0, 60), set_character_food, food_img_list)
 
 def set_character_food():
@@ -213,7 +214,7 @@ ttt = TicTacToe()
 
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
-food_entry = RetroEntry("What food would you like to purchase?", (0, 0), command=ask_background)
+food_entry = RetroEntry("What food would you like to purchase?", (0, 0), command=ask_food)
 all_entries.append(name_entry)
 
 update_objects = [ ttt ]
