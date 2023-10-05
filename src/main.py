@@ -2,11 +2,9 @@ from types import coroutine
 from settings import *
 from character import *
 
-
 def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_entries.append(bg_entry)
-
 
 def ask_bg_selection(*args):
     global bg_select
@@ -14,24 +12,11 @@ def ask_bg_selection(*args):
     bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
     all_entries.append(bg_select)
 
-
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     voiceline_entry = RetroEntry("Everybody can cook!", (600, 200), lambda: None, accepts_input=False)
     all_entries.append(voiceline_entry)
-
-def ask_food():
-    food_entry = RetroEntry(f"What food do you want to purchase?", (0, 60), ask_food_selection, accepts_input=False)
-    food_entries.append(food_entry)
-
-def ask_food_selection():
-    global food_select
-    food_list = [data[0] for data in possible_food.keys()]
-    food_select = RetroSelection(food_list, (0, 60), set_character_food, food_img_list)
-
-def set_character_food():
-    
 
 class TicTacToe:
     def __init__(self):
@@ -215,7 +200,6 @@ ttt = TicTacToe()
 
 all_entries = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
-food_entry = RetroEntry("What food would you like to purchase?", (0, 0), command=ask_food)
 all_entries.append(name_entry)
 
 update_objects = [ ttt ]

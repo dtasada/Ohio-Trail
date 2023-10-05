@@ -31,17 +31,6 @@ bg_imgs = [v["tex"] for v in possible_backgrounds.values()]
 bg_rects = [v["rect"] for v in possible_backgrounds.values()]
 
 possible_food = {
-<<<<<<< HEAD
-    "Eggplants": 1,
-    "Frikandelbroodje": 1,
-    "Pickles": 1,
-    "Stone baked garlic flat bread": 4,
-    "Pineapple Pizza": 2,
-    "Beef Jerky": 2,
-    "Sour Patch Kids": 2,
-    "CocoNutz": 1,
-    "MrBeast Feastables": 1
-=======
     'Eggplant': [
         1, os.path.join('assets', 'food', 'eggplant.png')
     ],
@@ -69,7 +58,6 @@ possible_food = {
     'MrBeast Feastables': [
         1, os.path.join('assets', 'food', 'feastable.png')
     ]
->>>>>>> db660e85218a1e2c7b6d36debd495c04cbbfc59a
 }
 
 food_img_list = {k: pygame.transform.scale_by(pygame.image.load(v[1]), R) for k, v in possible_food.items() if k in ["banker", "chef"]}
