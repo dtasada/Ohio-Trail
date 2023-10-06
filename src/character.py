@@ -1,4 +1,4 @@
-from settings import *
+from .settings import *
 
 
 possible_backgrounds = {
@@ -41,7 +41,7 @@ possible_foods = {
     "Eggplant": {
         "price": 1
     },
-    
+
     "Frikandelbroodje": {
         "price": 1,
     },
