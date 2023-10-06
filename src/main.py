@@ -2,11 +2,8 @@ from types import coroutine
 from settings import *
 from character import *
 
-<<<<<<< HEAD
 
 # storyline functions
-=======
->>>>>>> 16319fdc5bb61175af86f84b6b9c9b6afac6572a
 def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_widgets.append(bg_entry)
@@ -24,7 +21,6 @@ def set_character_bg(bg):
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
-<<<<<<< HEAD
 
 @pause1
 def ask_for_food():
@@ -39,8 +35,6 @@ def show_foods_list():
     all_widgets.append(food_select)
 
 
-=======
->>>>>>> 16319fdc5bb61175af86f84b6b9c9b6afac6572a
 class TicTacToe:
     def __init__(self):
         self.score = (0, 0)
@@ -234,11 +228,7 @@ ttt = TicTacToe()
 
 all_widgets = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
-<<<<<<< HEAD
 all_widgets.append(name_entry)
-=======
-all_entries.append(name_entry)
->>>>>>> 16319fdc5bb61175af86f84b6b9c9b6afac6572a
 
 # update_objects = [ttt]
 update_objects = []

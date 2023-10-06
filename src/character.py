@@ -37,43 +37,11 @@ for bg_name in possible_backgrounds:
 bg_imgs = [v["tex"] for v in possible_backgrounds.values()]
 bg_rects = [v["rect"] for v in possible_backgrounds.values()]
 
-<<<<<<< HEAD
 possible_foods = {
     "Eggplant": {
         "price": 1
     },
-=======
-possible_food = {
-    'Eggplant': [
-        1, os.path.join('assets', 'food', 'eggplant.png')
-    ],
-    'Frikandelbroodje': [
-        1, os.path.join('assets', 'food', 'frikandelbroodje.png')
-    ],
-    'Pickle': [
-        1, os.path.join('assets', 'food', 'pickle.png')
-    ],
-    'Stone baked garlic flat bread': [
-        4, os.path.join('assets', 'food', 'garlic_bread.png')
-    ],
-    'Pineapple Pizza': [
-        2, os.path.join('assets', 'food', 'pizza.png')
-    ],
-    'Beef Jerky': [
-        2, os.path.join('assets', 'food', 'beef_jerky.png')
-    ],
-    'Sour Patch Kids': [
-        2, os.path.join('assets', 'food', 'sourpatchkids.png')
-    ],
-    'CocoNutz': [
-        1, os.path.join('assets', 'food', 'coconutz.png')
-    ],
-    'MrBeast Feastables': [
-        1, os.path.join('assets', 'food', 'feastable.png')
-    ]
-}
->>>>>>> 16319fdc5bb61175af86f84b6b9c9b6afac6572a
-
+    
     "Frikandelbroodje": {
         "price": 1,
     },
