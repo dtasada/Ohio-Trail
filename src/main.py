@@ -8,11 +8,13 @@ def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_widgets.append(bg_entry)
 
+
 def ask_bg_selection(*args):
     global bg_select
     bg_list = [data["desc"] for data in possible_backgrounds.values()]
     bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
     all_widgets.append(bg_select)
+
 
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
@@ -206,6 +208,7 @@ class RetroSelection:
                 else:
                     self.gt_rect.y += self.yo
                     self.index += 1
+                beep_sound.play()
             elif event.key in (pygame.K_w, pygame.K_UP):
                 if self.gt_rect.y == self.rects[0].y:
                     self.gt_rect.y = self.rects[-1].y
@@ -213,6 +216,7 @@ class RetroSelection:
                 else:
                     self.gt_rect.y -= self.yo
                     self.index -= 1
+                beep_sound.play()
             elif event.key == pygame.K_RETURN:
                 text = self.texts[self.index]
                 self.command(text)
