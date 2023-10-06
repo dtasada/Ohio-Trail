@@ -18,22 +18,28 @@ def ask_bg_selection(*args):
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (200, 400), ask_for_food, accepts_input=False, wrap=WIDTH - 300, speed=0.4)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (200, 400), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=0.4)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
 
 @pause1
-def ask_for_food():
+def ask_food():
     food_entry = RetroEntry("Which product would you like to buy?", (0, 0), show_foods_list, accepts_input=False)
     all_widgets.clear()
     all_widgets.append(food_entry)
 
 
 def show_foods_list():
+    player.show_money = True
     food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
-    food_select = RetroSelection(food_list, (0, 0), lambda: print("asd"), food_imgs, food_rects)
+    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs, food_rects)
     all_widgets.append(food_select)
+
+
+def deduct_food_money(food):
+    food_name = food.split(" [")[0]
+    player.money -= possible_foods[food_name]["price"]
 
 
 class TicTacToe:
@@ -236,6 +242,7 @@ all_widgets.append(name_entry)
 # update_objects = [ttt]
 update_objects = []
 
+
 def main():
     running = True
     while running:
@@ -257,6 +264,9 @@ def main():
 
         for obj in update_objects:
             obj.update()
+        
+        player.update()
+        
         REN.present()
 
     pygame.quit()

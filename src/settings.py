@@ -11,7 +11,7 @@ from threading import Thread
 
 pygame.init()
 R = 10
-WIDTH, HEIGHT = 1280, 720
+WIDTH, HEIGHT = 1100, 650
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
 REN = Renderer(WIN)
 clock = pygame.time.Clock()

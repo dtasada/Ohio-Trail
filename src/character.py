@@ -94,17 +94,23 @@ clothing = {
 }
 
 
-class Character():
+class Character:
     def __init__(self):
         self.name = None
         self.hp = 5
         self.money = 25
+        self.show_money = False
         self.food = {
             "Eggplant": 3,
             "Frikandelbroodje": 1,
             "Pickle": 3,
             "Stone baked garlic flat bread": 1,
         }
+    
+    def update(self):
+        if self.show_money:
+            tex, rect = writ(f"${self.money}", (40, 350), 30)
+            REN.blit(tex, rect)
 
     def setup(self, name, background):
         self.name = name
