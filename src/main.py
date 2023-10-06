@@ -3,35 +3,39 @@ from settings import *
 from character import *
 
 
+# storyline functions
 def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
-    all_entries.append(bg_entry)
+    all_widgets.append(bg_entry)
 
 
 def ask_bg_selection(*args):
     global bg_select
     bg_list = [data["desc"] for data in possible_backgrounds.values()]
     bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
-    all_entries.append(bg_select)
+    all_widgets.append(bg_select)
 
 
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
-    voiceline_entry = RetroEntry("Everybody can cook!", (600, 200), lambda: None, accepts_input=False)
-    all_entries.append(voiceline_entry)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (200, 400), ask_for_food, accepts_input=False, wrap=WIDTH - 300, speed=0.4)
+    all_widgets.append(voiceline_entry)
+    possible_backgrounds[bg_name]["sound"].play()
 
-def ask_food():
-    food_entry = RetroEntry(f"What food do you want to purchase?", (0, 60), ask_food_selection, accepts_input=False)
-    food_entries.append(food_entry)
 
-def ask_food_selection():
-    global food_select
-    food_list = [data[0] for data in possible_food.keys()]
-    food_select = RetroSelection(food_list, (0, 60), set_character_food, food_img_list)
+@pause1
+def ask_for_food():
+    food_entry = RetroEntry("Which product would you like to buy?", (0, 0), show_foods_list, accepts_input=False)
+    all_widgets.clear()
+    all_widgets.append(food_entry)
 
-def set_character_food():
-    
+
+def show_foods_list():
+    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
+    food_select = RetroSelection(food_list, (0, 0), lambda: print("asd"), food_imgs, food_rects)
+    all_widgets.append(food_select)
+
 
 class TicTacToe:
     def __init__(self):
@@ -76,18 +80,20 @@ class TicTacToe:
 
 
 class RetroEntry:
-    def __init__(self, final, pos, command, accepts_input=True):
+    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6):
         self.final = final + " "
         self.text = ""
         self.answer = ""
         self.index = 0
         self.x, self.y = pos
+        self.speed = speed
         self.flickering = False
         self.has_underscore = False
         self.last_flicker = ticks()
         self.command = command
         self.active = True
         self.accepts_input = accepts_input
+        self.wrap = wrap
 
     def draw(self):
         if int(self.index) >= 1:
@@ -125,7 +131,7 @@ class RetroEntry:
         if self.active:
             # update the text
             if not self.flickering:
-                self.index += 0.6
+                self.index += self.speed
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
                 # if finished, start flickering the underscore (_)
@@ -152,6 +158,15 @@ class RetroEntry:
         img = font.render(text, True, WHITE)
         self.image = Texture.from_surface(REN, img)
         self.rect = img.get_rect(topleft=(self.x, self.y))
+        if isinstance(self.wrap, int):
+            cond = self.rect.right >= self.wrap
+        elif isinstance(self.wrap, str):
+            cond = self.text.endswith(self.wrap + " ")
+        if cond:
+            remaining_text = self.final.removeprefix(self.text)
+            new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, accepts_input=False)
+            all_widgets.append(new_text)
+            self.active = False
 
 
 class RetroSelection:
@@ -213,12 +228,12 @@ bg_select = None
 player = Character()
 ttt = TicTacToe()
 
-all_entries = []
+all_widgets = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
-food_entry = RetroEntry("What food would you like to purchase?", (0, 0), command=ask_food)
-all_entries.append(name_entry)
+all_widgets.append(name_entry)
 
-update_objects = [ ttt ]
+# update_objects = [ttt]
+update_objects = []
 
 def main():
     running = __name__ == "__main__"
@@ -229,21 +244,15 @@ def main():
                 running = False
 
             elif event.type == pygame.KEYDOWN:
-                for entry in all_entries:
+                for entry in all_widgets:
                     entry.process_event(event)
                 for obj in update_objects:
                     obj.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
-        for entry in all_entries:
+        for entry in all_widgets:
             entry.update()
-
-        if bg_select is not None:
-            try:
-                REN.blit(bg_imgs[bg_select.index], bg_rects[bg_select.index])
-            except Exception:
-                pass
 
         for obj in update_objects:
             obj.update()

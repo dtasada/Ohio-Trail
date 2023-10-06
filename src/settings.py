@@ -4,6 +4,9 @@ import random
 import sys
 import os
 from contextlib import suppress
+from typing import Tuple, Callable, Optional
+import time
+from threading import Thread
 
 
 pygame.init()
@@ -17,6 +20,18 @@ WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
 fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), x) for x in range(0, 100)]
 font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
+ZWS = "​"  # niet empty maar zero width space
+
+
+def pause1(func):
+    def threaded():
+        time.sleep(1)
+        func()
+
+    def inner():
+        Thread(target=threaded, daemon=True).start()
+
+    return inner
 
 
 def fill_rect(renderer, color, rect):
