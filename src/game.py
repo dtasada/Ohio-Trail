@@ -41,6 +41,7 @@ def show_foods_list():
 def deduct_food_money(food):
     food_name = food.split(" [")[0]
     player.money -= possible_foods[food_name]["price"]
+    pickup_sound.play()
 
 
 class TicTacToe:
