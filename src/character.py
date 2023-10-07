@@ -4,7 +4,7 @@ from .settings import *
 possible_backgrounds = {
     "banker": {
 		"desc": "1. Be a banker from New York",
-        "catchphrase": f"Impressive, {ZWS * 10}very nice.",
+        "catchphrase": f"Impressive,{ZWS * 10} very nice.",
 	},
 
     # "boss": {
@@ -16,19 +16,19 @@ possible_backgrounds = {
         "catchphrase": "Anyone can cook."
 	},
 
-    # "man": {
-	# 	"desc": "5. Be a man from Florida",
-    #     "catchphrase": "Wooooo! Yeah baby! That"s what I"ve been waiting for, that"s what it"s all about!"
-	# },
+    "man": {
+		"desc": "5. Be a man from Florida",
+        "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7} Yeah{ZWS * 10} baby!{ZWS * 10} That's what I've been waiting for, that's what it's all about! Woo!"
+	},
 }
 for bg_name in possible_backgrounds:
-    img = pygame.transform.scale_by(pygame.image.load(os.path.join("assets", "characters", f"{bg_name}.png")), R)
+    img = pygame.transform.scale_by(pygame.image.load(os.path.join("assets", "characters", f"{'chef'}.png")), R)
     tex = Texture.from_surface(REN, img)
     rect = img.get_rect(center=(WIDTH - 220, HEIGHT / 2))
     possible_backgrounds[bg_name]["img"] = img
     possible_backgrounds[bg_name]["tex"] = tex
     possible_backgrounds[bg_name]["rect"] = rect
-    if bg_name in ("banker", "chef"):
+    if bg_name in ("banker", "chef", "man"):
         try:
             sound = pygame.mixer.Sound(os.path.join("assets", "sfx", f"{bg_name}.wav"))
         except FileNotFoundError:
@@ -106,7 +106,7 @@ class Character:
             "Pickle": 3,
             "Stone baked garlic flat bread": 1,
         }
-    
+
     def update(self):
         if self.show_money:
             tex, rect = writ(f"${self.money}", (40, 350), 30)

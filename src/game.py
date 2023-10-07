@@ -18,7 +18,8 @@ def ask_bg_selection(*args):
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (200, 400), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=0.4)
+    speed = 0.7 if bg_name == "man" else 0.4
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -160,7 +161,10 @@ class RetroEntry:
 
     def update_tex(self, text):
         self.text = text
-        img = font.render(text, True, WHITE)
+        try:
+            img = font.render(text, True, WHITE)
+        except pygame.error:
+            img = pygame.Surface((1, 1), pygame.SRCALPHA)
         self.image = Texture.from_surface(REN, img)
         self.rect = img.get_rect(topleft=(self.x, self.y))
         if isinstance(self.wrap, int):
@@ -169,7 +173,7 @@ class RetroEntry:
             cond = self.text.endswith(self.wrap + " ")
         if cond:
             remaining_text = self.final.removeprefix(self.text)
-            new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, accepts_input=False)
+            new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, accepts_input=False, speed=self.speed)
             all_widgets.append(new_text)
             self.active = False
 
@@ -264,9 +268,9 @@ def main():
 
         for obj in update_objects:
             obj.update()
-        
+
         player.update()
-        
+
         REN.present()
 
     pygame.quit()
