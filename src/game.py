@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -86,7 +86,7 @@ class TicTacToe:
 
 
 class RetroEntry:
-    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6):
+    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6, typewriter=True):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -101,6 +101,8 @@ class RetroEntry:
         self.active = True
         self.accepts_input = accepts_input
         self.wrap = wrap
+        self.typewriter = typewriter
+        self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
 
     def draw(self):
         if int(self.index) >= 1:
@@ -142,7 +144,7 @@ class RetroEntry:
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
                 # type sound 
-                if int(self.index) > self.last_index and self.text[-1] != " ":
+                if int(self.index) > self.last_index and self.text[-1] != " " and self.typewriter:
                     typewriter_sound.play()
                     self.last_index = self.index
                 # if finished, start flickering the underscore (_)
@@ -178,7 +180,7 @@ class RetroEntry:
             cond = self.text.endswith(self.wrap + " ")
         if cond:
             remaining_text = self.final.removeprefix(self.text)
-            new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, accepts_input=False, speed=self.speed)
+            new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, **self.kwargs)
             all_widgets.append(new_text)
             self.active = False
 
@@ -260,15 +262,15 @@ def main():
                 running = False
 
             elif event.type == pygame.KEYDOWN:
-                for entry in all_widgets:
-                    entry.process_event(event)
+                for widget in all_widgets:
+                    widget.process_event(event)
                 for obj in update_objects:
                     obj.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
-        for entry in all_widgets:
-            entry.update()
+        for widget in all_widgets:
+            widget.update()
 
         for obj in update_objects:
             obj.update()
