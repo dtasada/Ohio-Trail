@@ -86,11 +86,12 @@ class TicTacToe:
 
 
 class RetroEntry:
-    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6):
+    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.1):
         self.final = final + " "
         self.text = ""
         self.answer = ""
         self.index = 0
+        self.last_index = self.index
         self.x, self.y = pos
         self.speed = speed
         self.flickering = False
@@ -140,6 +141,10 @@ class RetroEntry:
                 self.index += self.speed
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
+                #type sound 
+                if int(self.index) > self.last_index and self.final[int(self.index)] != " ":
+                    typewriter_sound.play()
+                    self.last_index = self.index
                 # if finished, start flickering the underscore (_)
                 if self.index >= len(self.final):
                     self.flickering = True

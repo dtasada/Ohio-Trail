@@ -21,6 +21,7 @@ BLACK = (0, 0, 0, 255)
 fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), x) for x in range(0, 100)]
 font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
 beep_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "beep.wav"))
+typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.wav"))
 ZWS = "​"  # niet empty maar zero width space
 
 
