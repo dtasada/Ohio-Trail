@@ -141,7 +141,7 @@ class RetroEntry:
                 self.index += self.speed
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
-                # type sound 
+                # type sound
                 if int(self.index) > self.last_index and self.text[-1] != " ":
                     typewriter_sound.play()
                     self.last_index = self.index
