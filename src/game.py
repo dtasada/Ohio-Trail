@@ -143,13 +143,8 @@ class RetroEntry:
                 self.index += self.speed
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
-<<<<<<< HEAD
                 # type sound
-                if int(self.index) > self.last_index and self.text[-1] != " ":
-=======
-                # type sound 
                 if int(self.index) > self.last_index and self.text[-1] != " " and self.typewriter:
->>>>>>> cb19ddb3e0c4a92f04ff254761fce5d7c9ca6475
                     typewriter_sound.play()
                     self.last_index = self.index
                 # if finished, start flickering the underscore (_)

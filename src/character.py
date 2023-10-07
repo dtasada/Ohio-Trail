@@ -28,7 +28,7 @@ for index, bg_name in enumerate(possible_backgrounds):
     possible_backgrounds[bg_name]["img"] = img
     possible_backgrounds[bg_name]["tex"] = tex
     possible_backgrounds[bg_name]["rect"] = rect
-    possible_backgrounds[bg_name]["desc"] = f"{index}. {possible_backgrounds[bg_name]['desc']}"
+    possible_backgrounds[bg_name]["desc"] = f"{index + 1}. {possible_backgrounds[bg_name]['desc']}"
     if bg_name in ("banker", "chef", "man"):
         try:
             sound = pygame.mixer.Sound(os.path.join("assets", "sfx", f"{bg_name}.wav"))
