@@ -16,10 +16,10 @@ possible_backgrounds = {
         "catchphrase": "Anyone can cook."
 	},
 
-    "man": {
-		"desc": "5. Be a man from Florida",
-        "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7} Yeah{ZWS * 10} baby!{ZWS * 10} That's what I've been waiting for, that's what it's all about! Woo!"
-	},
+    # "man": {
+	# 	"desc": "5. Be a man from Florida",
+    #     "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7} Yeah{ZWS * 10} baby!{ZWS * 10} That's what I've been waiting for, that's what it's all about! Woo!"
+	# },
 }
 for bg_name in possible_backgrounds:
     img = pygame.transform.scale_by(pygame.image.load(os.path.join("assets", "characters", f"{'chef'}.png")), R)
