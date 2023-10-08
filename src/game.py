@@ -42,7 +42,7 @@ def show_foods_list():
 
 def deduct_food_money(food):
     food_name = food.split(" [")[0]
-    if food_name != "Done ":
+    if player.money > 0:
         player.money -= possible_foods[food_name]["price"]
         pickup_sound.play()
         all_widgets.remove(food_select)
