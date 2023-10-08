@@ -32,6 +32,8 @@ def ask_food():
 
 
 def show_foods_list():
+    global food_select
+
     player.show_money = True
     food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
     food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs, food_rects)
@@ -40,9 +42,11 @@ def show_foods_list():
 
 def deduct_food_money(food):
     food_name = food.split(" [")[0]
-    player.money -= possible_foods[food_name]["price"]
-    pickup_sound.play()
-
+    if food_name != "Done ":
+        player.money -= possible_foods[food_name]["price"]
+        pickup_sound.play()
+        all_widgets.remove(food_select)
+        show_foods_list()
 
 class TicTacToe:
     def __init__(self):
