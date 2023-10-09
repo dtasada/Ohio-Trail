@@ -41,10 +41,10 @@ bg_rects = [ v["rect"] for v in possible_backgrounds.values() ]
 
 
 possible_daily_choice = {
+    "camp": "Set up camp",
+    "firewood": "Collect firewood",
     "food": "Search for food",
     "water": "Go get water",
-    "firewood": "Collect firewood",
-    "camp": "Maintain camp" if has_camp else "Set up camp",
     "skip": "Skip day",
 }
 

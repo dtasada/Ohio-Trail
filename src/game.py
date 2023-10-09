@@ -4,33 +4,35 @@ from types import coroutine
 
 # storyline functions
 def ask_background(name):
-    bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
-    all_widgets.append(bg_entry)
+    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
+    all_widgets.append(ent_bg)
 
+    
 def ask_bg_selection(*args):
-    global bg_select
     bg_list = [ data["desc"] for data in possible_backgrounds.values() ]
-    bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
-    all_widgets.append(bg_select)
+    sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
+    all_widgets.append(sel_bg)
 
 
 def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
-def daily_choice():
-    daily_choice_entry = RetroEntry("What do you want to do today?", (0, 60), daily_choice_selection, accepts_input=False)
+
+def ask_daily_choice():
     all_widgets.clear()
-    all_widgets.append(daily_choice_entry)
+    ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection, accepts_input=False)
+    all_widgets.append(ent_daily_choice)
+
 
 def daily_choice_selection():
-    global daily_choice_select
-    daily_choice_list = [ desc for desc in possible_daily_choice.keys() ]
-    daily_choice_select = RetroSelection(daily_choice_list, (20, 20), None)
+    daily_choice_list = list(possible_daily_choice.values())
+    sel_daily_choice = RetroSelection(daily_choice_list, (0, 0), lambda: None)
+    all_widgets.append(sel_daily_choice)
 
 
 @pause1
@@ -259,19 +261,14 @@ class GenText:
     def __init__(self, text, pos, size):
         self.tex, self.rect = write(text, pos, size)
 
-    def process_event(self, _):
-        pass
+    def process_event(self, event):
+        if event.key == pygame.K_SPACE:
+            all_widgets.clear()
+            all_widgets.append(name_entry)
 
     def update(self):
         REN.blit(self.tex, self.rect)
 
-def start_game():
-    if title_card in all_widgets:
-        # time.sleep(4)
-        all_widgets.pop()
-        all_widgets.append(name_entry)
-
-bg_select = None
 player = Character()
 ttt = TicTacToe()
 
@@ -285,12 +282,15 @@ title_card = GenText(r'''
   \___/ |_||_|  _|_|_  \___/  TS__[O] 
 _|"""""_|"""""_|"""""_|"""""|{======_ 
 "`-0-0-"`-0-0-"`-0-0-"`-0-0-./o--000" 
- _____                  _      _   
-|_   _|   _ _  __ _    (_)    | |  
-  | |    | '_|/ _` |   | |    | |  
- _|_|_  _|_|_ \__,_|  _|_|_  _|_|_ 
-|"""""_|"""""_|"""""_|"""""_|"""""|
-`-0-0-"`-0-0-"`-0-0-"`-0-0-"`-0-0-
+   _____                  _      _   
+  |_   _|   _ _  __ _    (_)    | |  
+    | |    | '_|/ _` |   | |    | |  
+   _|_|_  _|_|_ \__,_|  _|_|_  _|_|_ 
+  |"""""_|"""""_|"""""_|"""""_|"""""|
+  `-0-0-"`-0-0-"`-0-0-"`-0-0-"`-0-0-
+
+
+      Press any SPACE to continue
 ''', (96, 76), 24)
 all_widgets.append(title_card)
 # all_widgets.append(name_entry)
@@ -299,9 +299,8 @@ all_widgets.append(title_card)
 update_objects = []
 
 
-async def main():
+def main():
     running = True
-    start_game()
     while running:
         clock.tick(30)
         for event in pygame.event.get():
