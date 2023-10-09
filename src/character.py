@@ -112,10 +112,10 @@ class Character:
         self.money = 25
         self.show_money = False
         self.food = {
-            "Eggplant": 3,
-            "Frikandelbroodje": 1,
-            "Pickle": 3,
-            "Stone baked garlic flat bread": 1,
+            "Eggplant": int(random.gauss(1.5, 1.5)),
+            "Frikandelbroodje": int(random.gauss(0.5, 0.5)),
+            "Pickle": int(random.gauss(1, 1)),
+            "Stone baked garlic flat bread": int(random.gauss(0.5, 0.5)),
         }
 
     def update(self):

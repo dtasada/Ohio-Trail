@@ -18,7 +18,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -124,7 +124,7 @@ class RetroEntry:
         self.answer = ""
         self.index = 0
         self.last_index = self.index
-        self.x, self.y = pos
+        self.x, self.y = [i + 12 for i in pos]
         self.speed = speed
         self.flickering = False
         self.has_underscore = False
@@ -286,6 +286,7 @@ class GenText:
     def update(self):
         REN.blit(self.tex, self.rect)
 
+food_select = None
 player = Character()
 ttt = TicTacToe()
 
@@ -316,6 +317,12 @@ all_widgets.append(title_card)
 update_objects = []
 
 
+if food_select is not None:
+    for i, k in enumerate(possible_foods.keys()):
+        print(1, k)
+        if k in player.food.keys() and k != 0:
+            print(2, k)
+
 def main():
     running = True
     while running:
@@ -338,6 +345,12 @@ def main():
 
         for obj in update_objects:
             obj.update()
+
+        if food_select is not None:
+            for i, k in enumerate(possible_foods.keys()):
+                if k in player.food.keys() and k != 0:
+                    img, rect = write(f"{k}: {player.food[k]}", (38, 420 + i * 28))
+                    REN.blit(img, rect)
 
         player.update()
 
