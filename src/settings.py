@@ -37,6 +37,15 @@ def pause1(func):
 
     return inner
 
+def pause4(func):
+    def threaded():
+        time.sleep(4)
+        func()
+
+    def inner():
+        Thread(target=threaded, daemon=True).start()
+
+    return inner
 
 def fill_rect(renderer, color, rect):
     renderer.draw_color = color

@@ -7,7 +7,6 @@ def ask_background(name):
     bg_entry = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_widgets.append(bg_entry)
 
-
 def ask_bg_selection(*args):
     global bg_select
     bg_list = [data["desc"] for data in possible_backgrounds.values()]
@@ -256,12 +255,11 @@ class GenText:
     def update(self):
         REN.blit(self.tex, self.rect)
 
-async def start_game():
-    print('popping')
-    await asyncio.sleep(4)
-    print('popped')
-    all_widgets.pop()
-    all_widgets.append(name_entry)
+def start_game():
+    if title_card in all_widgets:
+        # time.sleep(4)
+        all_widgets.pop()
+        all_widgets.append(name_entry)
 
 bg_select = None
 player = Character()
@@ -293,6 +291,7 @@ update_objects = []
 
 async def main():
     running = True
+    start_game()
     while running:
         clock.tick(30)
         for event in pygame.event.get():
@@ -306,7 +305,6 @@ async def main():
                     obj.process_event(event)
 
 
-
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
         for widget in all_widgets:
@@ -316,9 +314,6 @@ async def main():
             obj.update()
 
         player.update()
-
-        if title_card in all_widgets:
-            await start_game()
 
         REN.present()
 
