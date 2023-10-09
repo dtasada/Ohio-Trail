@@ -23,6 +23,7 @@ def set_character_bg(bg):
     possible_backgrounds[bg_name]["sound"].play()
 
 
+@pause1
 def ask_daily_choice():
     all_widgets.clear()
     ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection, accepts_input=False)
@@ -201,12 +202,13 @@ class RetroEntry:
             self.active = False
 
 class RetroSelection:
-    def __init__(self, texts, pos, command, images=None, image_rects=None):
+    def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):
         self.texts = texts
         self.x, self.y = pos
         self.xo = 40
         self.yo = 40
         self.images = images
+        self.exit_sel = exit_sel
         if images is None:
             self.images = []
             self.image_rects = []
