@@ -9,7 +9,7 @@ def ask_background(name):
 
 def ask_bg_selection(*args):
     global bg_select
-    bg_list = [data["desc"] for data in possible_backgrounds.values()]
+    bg_list = [ data["desc"] for data in possible_backgrounds.values() ]
     bg_select = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
     all_widgets.append(bg_select)
 
@@ -18,9 +18,19 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
+
+def daily_choice():
+    daily_choice_entry = RetroEntry("What do you want to do today?", (0, 60), daily_choice_selection, accepts_input=False)
+    all_widgets.clear()
+    all_widgets.append(daily_choice_entry)
+
+def daily_choice_selection():
+    global daily_choice_select
+    daily_choice_list = [ desc for desc in possible_daily_choice.keys() ]
+    daily_choice_select = RetroSelection(daily_choice_list, (20, 20), None)
 
 
 @pause1
@@ -81,9 +91,9 @@ class TicTacToe:
     def update(self):
         self.cross_x = self.pos[0] * self.size/3 + 1.07 * self.xo
         self.cross_y = self.pos[1] * self.size/3 + 1.14 * self.yo
-        self.cross, self.cross_rect = writ('x', (self.cross_x, self.cross_y), 40)
+        self.cross, self.cross_rect = write('x', (self.cross_x, self.cross_y), 40)
         for cross in self.crossed_positions:
-            writ('x', (cross[1], cross[2]), 40)
+            write('x', (cross[1], cross[2]), 40)
         REN.blit(self.cross, self.cross_rect)
         for line in self.lines:
             draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
@@ -205,7 +215,7 @@ class RetroSelection:
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
         self.texs = [Texture.from_surface(REN, img) for img in imgs]
         self.selected = 0
-        self.gt, self.gt_rect = writ(">", (self.rects[0].x - 30, self.rects[0].y))
+        self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
         self.command = command
         self.index = 0
@@ -247,7 +257,7 @@ class RetroSelection:
 
 class GenText:
     def __init__(self, text, pos, size):
-        self.tex, self.rect = writ(text, pos, size)
+        self.tex, self.rect = write(text, pos, size)
 
     def process_event(self, _):
         pass

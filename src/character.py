@@ -1,5 +1,6 @@
 from .settings import *
 
+has_camp = False
 
 possible_backgrounds = {
     "banker": {
@@ -35,8 +36,17 @@ for index, bg_name in enumerate(possible_backgrounds):
         except FileNotFoundError:
             sound = pygame.mixer.Sound(os.path.join("assets", "sfx", f"{bg_name}.mp3"))
         possible_backgrounds[bg_name]["sound"] = sound
-bg_imgs = [v["tex"] for v in possible_backgrounds.values()]
-bg_rects = [v["rect"] for v in possible_backgrounds.values()]
+bg_imgs = [ v["tex"] for v in possible_backgrounds.values() ]
+bg_rects = [ v["rect"] for v in possible_backgrounds.values() ]
+
+
+possible_daily_choice = {
+    "food": "Search for food",
+    "water": "Go get water",
+    "firewood": "Collect firewood",
+    "camp": "Maintain camp" if has_camp else "Set up camp",
+    "skip": "Skip day",
+}
 
 possible_foods = {
     "Eggplant": {
@@ -110,7 +120,7 @@ class Character:
 
     def update(self):
         if self.show_money:
-            tex, rect = writ(f"${self.money}", (40, 350), 30)
+            tex, rect = write(f"${self.money}", (40, 350), 30)
             REN.blit(tex, rect)
 
     def setup(self, name, background):
