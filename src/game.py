@@ -39,7 +39,6 @@ def daily_choice_selection():
 def set_daily_choice(choice):
     match {v: k for k, v in possible_daily_choice.items()}[choice]:
         case "camp":
-            print('camp')
             pass
         case "firewood":
             pass
@@ -50,7 +49,6 @@ def set_daily_choice(choice):
         case "skip":
             pass
     all_widgets.clear()
-    
 
 
 @pause1
