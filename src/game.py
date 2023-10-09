@@ -1,5 +1,5 @@
-from types import coroutine
 from .character import *
+from types import coroutine
 
 
 # storyline functions
@@ -246,19 +246,52 @@ class RetroSelection:
         self.draw()
 
 
+class GenText:
+    def __init__(self, text, pos, size):
+        self.tex, self.rect = writ(text, pos, size)
+
+    def process_event(self, _):
+        pass
+
+    def update(self):
+        REN.blit(self.tex, self.rect)
+
+async def start_game():
+    print('popping')
+    await asyncio.sleep(4)
+    print('popped')
+    all_widgets.pop()
+    all_widgets.append(name_entry)
+
 bg_select = None
 player = Character()
 ttt = TicTacToe()
 
 all_widgets = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
-all_widgets.append(name_entry)
 
-# update_objects = [ttt]
+title_card = GenText(r'''
+   ___   _        _                   
+  / _ \ | |_     (_)    ___     o O O 
+ | (_) || ' \    | |   / _ \   o      
+  \___/ |_||_|  _|_|_  \___/  TS__[O] 
+_|"""""_|"""""_|"""""_|"""""|{======_ 
+"`-0-0-"`-0-0-"`-0-0-"`-0-0-./o--000" 
+ _____                  _      _   
+|_   _|   _ _  __ _    (_)    | |  
+  | |    | '_|/ _` |   | |    | |  
+ _|_|_  _|_|_ \__,_|  _|_|_  _|_|_ 
+|"""""_|"""""_|"""""_|"""""_|"""""|
+`-0-0-"`-0-0-"`-0-0-"`-0-0-"`-0-0-
+''', (96, 76), 24)
+all_widgets.append(title_card)
+# all_widgets.append(name_entry)
+
+# update_objects = [ ttt ]
 update_objects = []
 
 
-def main():
+async def main():
     running = True
     while running:
         clock.tick(30)
@@ -272,6 +305,8 @@ def main():
                 for obj in update_objects:
                     obj.process_event(event)
 
+
+
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
         for widget in all_widgets:
@@ -281,6 +316,9 @@ def main():
             obj.update()
 
         player.update()
+
+        if title_card in all_widgets:
+            await start_game()
 
         REN.present()
 

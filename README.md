@@ -1,11 +1,11 @@
 # Ohio-Trail
 
 ## Taakverdeling
-| Naam   | Taak  |
-| ------ | ----- |
-| Daniel | Intro |
-| Leo    |       |
-| Nathan |       |
+| Naam   | Taak               |
+| ------ | ------------------ |
+| Daniel | Side logic coderen |
+| Leo    | Main logic coderen |
+| Nathan | Pixelart maken     |
 
 ## TODO:
 * [] Finish Intro hook and character selection

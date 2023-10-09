@@ -1,4 +1,5 @@
 from src.game import main
+from asyncio import run
 
 
-main()
+run(main())

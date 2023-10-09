@@ -1,12 +1,13 @@
-import pygame
+from contextlib import suppress
 from pygame._sdl2.video import Window, Texture, Renderer, Image
+from threading import Thread
+from typing import Tuple, Callable, Optional
+import asyncio
+import os
+import pygame
 import random
 import sys
-import os
-from contextlib import suppress
-from typing import Tuple, Callable, Optional
 import time
-from threading import Thread
 
 
 pygame.init()
