@@ -32,8 +32,25 @@ def ask_daily_choice():
 
 def daily_choice_selection():
     daily_choice_list = list(possible_daily_choice.values())
-    sel_daily_choice = RetroSelection(daily_choice_list, (0, 0), lambda: None)
+    sel_daily_choice = RetroSelection(daily_choice_list, (0, 0), set_daily_choice)
     all_widgets.append(sel_daily_choice)
+
+
+def set_daily_choice(choice):
+    match {v: k for k, v in possible_daily_choice.items()}[choice]:
+        case "camp":
+            print('camp')
+            pass
+        case "firewood":
+            pass
+        case "food":
+            pass
+        case "water":
+            pass
+        case "skip":
+            pass
+    all_widgets.clear()
+    
 
 
 @pause1

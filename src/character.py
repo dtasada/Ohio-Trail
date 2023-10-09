@@ -19,7 +19,7 @@ possible_backgrounds = {
 
     "man": {
 		"desc": "Be a man from Florida",
-         "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7} Yeah{ZWS * 10} baby!{ZWS * 10} That's what I've been waiting for, that's what it's all about! Woo!"
+         "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7} Yeah{ZWS * 10} baby!"
 	},
 }
 for index, bg_name in enumerate(possible_backgrounds):
