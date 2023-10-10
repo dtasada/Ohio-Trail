@@ -65,8 +65,9 @@ def write(text, pos, size=18):
     rect = img.get_rect(topleft=pos)
     return tex, rect
 
+
 class Animation:
-    def __init__(self, path, pos, frame_count=1, framerate=0, R=1):
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=    2):
         self.R = R
         self.path = os.path.join("assets", f"{path}.png")
         self.pos = pos
@@ -88,7 +89,7 @@ class Animation:
         if self.frame_count > 1:
             self.index += (1/30) / self.framerate
             # print(self.rects[int(self.index)])
-            print(self.img)
+            print(self.rects[int(self.index)])
             REN.draw_color = (255, 0, 0, 255)
             REN.fill_rect(self.rects[int(self.index)])
             REN.blit(self.texs[int(self.index)], self.rects[int(self.index)])
