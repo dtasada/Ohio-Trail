@@ -35,7 +35,7 @@ towards Cleveland, Ohio.{ZWS * 20}
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: all_widgets.clear(), reverse_data=(12, "4 people."))
+    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: time.sleep(1); all_widgets.clear(), reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
 
 
@@ -144,9 +144,12 @@ class RetroEntry:
         self.speed = speed
         self.flickering = False
         self.has_underscore = False
+        #
         self.reversing = False
         self.reverse_length, self.reverse_string = reverse_data
-        self.reversing_done = False
+        self.has_to_reverse = self.reverse_length is not None
+        self.finished_reversing = False
+        #
         self.last_flicker = ticks()
         self.last_finished_writing = ticks()
         self.deleted = 0
@@ -199,14 +202,17 @@ class RetroEntry:
                         self.update_tex(self.final[:int(self.index)])
                     # type sound
                     if int(self.index) > self.last_index and (self.text[-1] not in (" ", ZWS)) and self.typewriter:
-                        # typewriter_sound.play()
+                        typewriter_sound.play()
                         self.last_index = self.index
                     # if finished, start flickering the underscore (_)
                     if self.index >= len(self.final):
                         self.flickering = True
                         self.last_flicker = ticks()
                         self.last_finished_writing = ticks()
-                        if not self.accepts_input:
+                        cond = True
+                        if self.has_to_reverse:
+                            cond = self.finished_reversing
+                        if not self.accepts_input and cond:
                             self.command()
             else:
                 self.index -= self.speed
@@ -216,6 +222,7 @@ class RetroEntry:
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         self.reversing = False
+                        self.finished_reversing = True
                         self.final = self.text + self.reverse_string
             if self.accepts_input:
                 # execute when flickering
