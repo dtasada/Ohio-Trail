@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -306,10 +306,10 @@ money_warning = None
 player = Character()
 ttt = TicTacToe()
 
-all_widgets = []
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
-title_card = GenText(r'''
+random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
+title_card_string = r'''
    ___   _        _
   / _ \ | |_     (_)    ___     o O O
  | (_) || ' \    | |   / _ \   o
@@ -324,13 +324,9 @@ _|"""""_|"""""_|"""""_|"""""|{======_
   `-0-0-"`-0-0-"`-0-0-"`-0-0-"`-0-0-
 
 
-      Press any SPACE to continue
-''', (96, 76), 24)
-all_widgets.append(title_card)
-# all_widgets.append(name_entry)
-
-# update_objects = [ ttt ]
-update_objects = []
+'''
+title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24)
+all_widgets = [title_card]
 
 
 if food_select is not None:
@@ -350,17 +346,11 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 for widget in all_widgets:
                     widget.process_event(event)
-                for obj in update_objects:
-                    obj.process_event(event)
-
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
         for widget in all_widgets:
             widget.update()
-
-        for obj in update_objects:
-            obj.update()
 
         if food_select is not None:
             i = 0

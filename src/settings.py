@@ -66,7 +66,7 @@ def write(text, pos, size=18):
     return tex, rect
 
 class Animation:
-    def __init__(self, path, pos, frame_count=1, framerate=0, R=5):
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=1):
         self.R = R
         self.path = os.path.join("assets", f"{path}.png")
         self.pos = pos
@@ -86,9 +86,12 @@ class Animation:
 
     def update(self):
         if self.frame_count > 1:
-            for tex in self.texs:
-                self.index += (1/30) / self.framerate
-                # REN.blit(tex, self.rects[math.floor(self.index)])
+            self.index += (1/30) / self.framerate
+            # print(self.rects[int(self.index)])
+            print(self.img)
+            REN.draw_color = (255, 0, 0, 255)
+            REN.fill_rect(self.rects[int(self.index)])
+            REN.blit(self.texs[int(self.index)], self.rects[int(self.index)])
         else:
             print('else')
 
