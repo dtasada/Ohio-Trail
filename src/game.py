@@ -6,10 +6,10 @@ from types import coroutine
 # storyline functions
 def ask_background(name):
     player.name = name
-    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
+    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
     all_widgets.append(ent_bg)
 
-    
+
 def ask_bg_selection(*args):
     bg_list = [ data["desc"] for data in possible_backgrounds.values() ]
     sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
@@ -20,29 +20,29 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
+
 
 @pause1
 def intro():
     all_widgets.clear()
+    trip_type = {"banker": "business", "chef": "culinary"}.get(player.background, "pleasure")
     intro_hook = f"""Your name is {player.name}. You have boarded a plane headed
 towards Cleveland, Ohio.{ZWS * 20}
 
-You are on a {'cooking' if player.background == 'chef' else 'business' if player.background == 'banker' else 'pleasure'} trip.{ZWS * 20}
+You are on a {trip_type} trip.{ZWS * 20}
 
-With you on the plane are another 200 people.
-    """
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, accepts_input=False, backspace=(11, '4 people.'))
+With you on the plane are another 200 people."""
+    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: all_widgets.clear(), reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
-
 
 
 @pause1
 def ask_daily_choice():
     all_widgets.clear()
-    ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection, accepts_input=False)
+    ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection)
     all_widgets.append(ent_daily_choice)
 
 
@@ -69,7 +69,7 @@ def set_daily_choice(choice):
 
 @pause1
 def ask_food():
-    food_entry = RetroEntry("Which product would you like to buy?", (0, 0), show_foods_list, accepts_input=False)
+    food_entry = RetroEntry("Which product would you like to buy?", (0, 0), show_foods_list)
     all_widgets.clear()
     all_widgets.append(food_entry)
 
@@ -134,7 +134,7 @@ class TicTacToe:
 
 
 class RetroEntry:
-    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6, typewriter=True, backspace=(None, None)):
+    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None)):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -144,14 +144,18 @@ class RetroEntry:
         self.speed = speed
         self.flickering = False
         self.has_underscore = False
+        self.reversing = False
+        self.reverse_length, self.reverse_string = reverse_data
+        self.reversing_done = False
         self.last_flicker = ticks()
+        self.last_finished_writing = ticks()
+        self.deleted = 0
         self.command = command
         self.active = True
         self.accepts_input = accepts_input
         self.wrap = wrap
         self.typewriter = typewriter
         self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
-        self.backspace_index, self.backspace_text = backspace
 
     def draw(self):
         if int(self.index) >= 1:
@@ -188,25 +192,31 @@ class RetroEntry:
     def update(self):
         if self.active:
             # update the text
-            if not self.flickering:
-                self.index += self.speed
-                if int(self.index) >= 1:
-                    self.update_tex(self.final[:int(self.index)])
-                    # if self.backspace_index != None:
-                    #     for _ in range(1, self.backspace_index):
-                    #         list(self.text).pop()
-                    #         print(self.text)
-                    #         self.index -= self.backspace_index
-                # type sound
-                if int(self.index) > self.last_index and (not self.text[-1] in (" ", ZWS)) and self.typewriter:
-                    typewriter_sound.play()
+            if not self.reversing:
+                if not self.flickering:
+                    self.index += self.speed
+                    if int(self.index) >= 1:
+                        self.update_tex(self.final[:int(self.index)])
+                    # type sound
+                    if int(self.index) > self.last_index and (self.text[-1] not in (" ", ZWS)) and self.typewriter:
+                        # typewriter_sound.play()
+                        self.last_index = self.index
+                    # if finished, start flickering the underscore (_)
+                    if self.index >= len(self.final):
+                        self.flickering = True
+                        self.last_flicker = ticks()
+                        self.last_finished_writing = ticks()
+                        if not self.accepts_input:
+                            self.command()
+            else:
+                self.index -= self.speed
+                if ceil(self.index) < self.last_index:
+                    self.update_tex(self.text[:-1])
                     self.last_index = self.index
-                # if finished, start flickering the underscore (_)
-                if self.index >= len(self.final):
-                    self.flickering = True
-                    self.last_flicker = ticks()
-                    if not self.accepts_input:
-                        self.command()
+                    self.deleted += 1
+                    if self.deleted >= self.reverse_length:
+                        self.reversing = False
+                        self.final = self.text + self.reverse_string
             if self.accepts_input:
                 # execute when flickering
                 if self.flickering:
@@ -217,6 +227,14 @@ class RetroEntry:
                             self.update_tex(self.text + "_")
                         self.has_underscore = not self.has_underscore
                         self.last_flicker = ticks()
+
+        if not self.reversing:
+            if self.index >= len(self.final):
+                if self.reverse_string is not None:
+                    if ticks() - self.last_finished_writing >= 1_000:
+                        self.last_index = self.index
+                        self.reversing = True
+                        self.flickering = False
         # draw the player
         self.draw()
 
@@ -313,19 +331,19 @@ player = Character()
 ttt = TicTacToe()
 
 all_widgets = []
-name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), command=ask_background)
+name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 title_card = GenText(r'''
-   ___   _        _                   
-  / _ \ | |_     (_)    ___     o O O 
- | (_) || ' \    | |   / _ \   o      
-  \___/ |_||_|  _|_|_  \___/  TS__[O] 
-_|"""""_|"""""_|"""""_|"""""|{======_ 
-"`-0-0-"`-0-0-"`-0-0-"`-0-0-./o--000" 
-   _____                  _      _   
-  |_   _|   _ _  __ _    (_)    | |  
-    | |    | '_|/ _` |   | |    | |  
-   _|_|_  _|_|_ \__,_|  _|_|_  _|_|_ 
+   ___   _        _
+  / _ \ | |_     (_)    ___     o O O
+ | (_) || ' \    | |   / _ \   o
+  \___/ |_||_|  _|_|_  \___/  TS__[O]
+_|"""""_|"""""_|"""""_|"""""|{======_
+"`-0-0-"`-0-0-"`-0-0-"`-0-0-./o--000"
+   _____                  _      _
+  |_   _|   _ _  __ _    (_)    | |
+    | |    | '_|/ _` |   | |    | |
+   _|_|_  _|_|_ \__,_|  _|_|_  _|_|_
   |"""""_|"""""_|"""""_|"""""_|"""""|
   `-0-0-"`-0-0-"`-0-0-"`-0-0-"`-0-0-
 
