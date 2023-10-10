@@ -2,6 +2,7 @@ from contextlib import suppress
 from pygame._sdl2.video import Window, Texture, Renderer, Image
 from threading import Thread
 from typing import Tuple, Callable, Optional
+import math
 import os
 import pygame
 import random
@@ -61,3 +62,33 @@ def write(text, pos, size=18):
     tex = Texture.from_surface(REN, img)
     rect = img.get_rect(topleft=pos)
     return tex, rect
+
+class Animation:
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=5):
+        self.R = R
+        self.path = os.path.join("assets", f"{path}.png")
+        self.pos = pos
+        self.framerate = framerate
+        self.index = 0
+        self.frame_count = frame_count
+        if self.frame_count > 1:
+            self.img = pygame.transform.scale_by(pygame.image.load(self.path), self.R)
+            self.frame_width = self.img.get_width() / self.frame_count
+            self.frame_height = self.img.get_height()
+            self.texs =[Texture.from_surface(REN, self.img.subsurface(x * self.frame_width, 0, self.frame_width, self.frame_height)) for x in range(self.frame_count)]
+            self.rects = [tex.get_rect(topleft=self.pos) for tex in self.texs]
+        else:
+            self.img = pygame.transform.scale_by(pygame.image.load(self.path), self.R)
+            self.tex = Texture.from_surface(REN, self.img)
+            self.rect = self.tex.get_rect()
+
+    def update(self):
+        if self.frame_count > 1:
+            for tex in self.texs:
+                self.index += (1/30) / self.framerate
+                # REN.blit(tex, self.rects[math.floor(self.index)])
+        else:
+            print('else')
+
+    def process_event(self, _):
+        pass

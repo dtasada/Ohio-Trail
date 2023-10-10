@@ -1,6 +1,5 @@
-from os import access
 from .character import *
-from types import coroutine
+from .ttt import *
 
 
 # storyline functions
@@ -20,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -35,7 +34,9 @@ You are on a {'cooking' if player.background == 'chef' else 'business' if player
 With you on the plane are another 200 people.
     """
     ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, accepts_input=False, backspace=(11, '4 people.'))
+    plane_anim = Animation('intro-hook', (0, 500), 5, 0.5)
     all_widgets.append(ent_intro)
+    all_widgets.append(plane_anim)
 
 
 
@@ -83,54 +84,21 @@ def show_foods_list():
     all_widgets.append(food_select)
 
 
+
 def deduct_food_money(food):
     food_name = food.split(" [")[0]
-    if player.money > 0:
-        player.money -= possible_foods[food_name]["price"]
+    price = possible_foods[food_name]["price"]
+    if player.money - price >= 0:
+        print(player.money)
+        print(price)
+        if food_name in player.food:
+            player.food[food_name] += 1
+        else:
+            player.food[food_name] = 1
+        player.money -= price
         pickup_sound.play()
-        all_widgets.remove(food_select)
-        show_foods_list()
-
-class TicTacToe:
-    def __init__(self):
-        self.score = (0, 0)
-        self.size = 300
-        self.xo = WIDTH/2 - self.size/2
-        self.yo = HEIGHT/2 - self.size/2
-        self.pos = [1, 1]
-        self.cross_x = self.size/3 + self.xo
-        self.cross_y = self.size/3 + self.yo
-        self.crossed_positions = []
-        self.circled_positions = []
-        self.lines = [
-            [(0, self.size/3),     (self.size, self.size/3)],
-            [(0, 2/3 * self.size), (self.size, 2/3 * self.size)],
-
-            [(self.size/3, 0),     (self.size/3, self.size)],
-            [(2/3 * self.size, 0), (2/3 * self.size, self.size)],
-        ]
-
-    def process_event(self, event):
-        if event.key in (pygame.K_DOWN, pygame.K_s) and self.pos[1] != 2:
-            self.pos[1] += 1
-        if event.key in (pygame.K_UP, pygame.K_w) and self.pos[1] != 0:
-            self.pos[1] -= 1
-        if event.key in (pygame.K_RIGHT, pygame.K_d) and self.pos[0] != 2:
-            self.pos[0] += 1
-        if event.key in (pygame.K_LEFT, pygame.K_a) and self.pos[0] != 0:
-            self.pos[0] -= 1
-        if event.key in (pygame.K_RETURN, pygame.K_SPACE) and not self.pos in ([crossed_position[0] for crossed_position in self.crossed_positions], [circled_position[0] for circled_position in self.circled_positions]):
-            self.crossed_positions.append((self.pos, self.cross_x, self.cross_y))
-
-    def update(self):
-        self.cross_x = self.pos[0] * self.size/3 + 1.07 * self.xo
-        self.cross_y = self.pos[1] * self.size/3 + 1.14 * self.yo
-        self.cross, self.cross_rect = write('x', (self.cross_x, self.cross_y), 40)
-        for cross in self.crossed_positions:
-            write('x', (cross[1], cross[2]), 40)
-        REN.blit(self.cross, self.cross_rect)
-        for line in self.lines:
-            draw_line(REN, WHITE, (line[0][0] + self.xo, line[0][1] + self.yo), (line[1][0] + self.xo, line[1][1] + self.yo))
+    all_widgets.remove(food_select)
+    show_foods_list()
 
 
 class RetroEntry:
@@ -309,6 +277,7 @@ class GenText:
         REN.blit(self.tex, self.rect)
 
 food_select = None
+money_warning = None
 player = Character()
 ttt = TicTacToe()
 
@@ -369,10 +338,12 @@ def main():
             obj.update()
 
         if food_select is not None:
-            for i, k in enumerate(possible_foods.keys()):
-                if k in player.food.keys() and k != 0:
+            i = 0
+            for k in possible_foods.keys():
+                if k in player.food.keys() and player.food[k] != 0:
                     img, rect = write(f"{k}: {player.food[k]}", (38, 420 + i * 28))
                     REN.blit(img, rect)
+                    i += 1
 
         player.update()
 
