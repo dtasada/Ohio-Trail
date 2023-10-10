@@ -1,9 +1,11 @@
+from os import access
 from .character import *
 from types import coroutine
 
 
 # storyline functions
 def ask_background(name):
+    player.name = name
     ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection, accepts_input=False)
     all_widgets.append(ent_bg)
 
@@ -18,9 +20,23 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
+
+@pause1
+def intro():
+    all_widgets.clear()
+    intro_hook = f"""Your name is {player.name}. You have boarded a plane headed
+towards Cleveland, Ohio.{ZWS * 20}
+
+You are on a {'cooking' if player.background == 'chef' else 'business' if player.background == 'banker' else 'pleasure'} trip.{ZWS * 20}
+
+With you on the plane are another 200 people.
+    """
+    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, accepts_input=False, backspace=(11, '4 people.'))
+    all_widgets.append(ent_intro)
+
 
 
 @pause1
@@ -118,7 +134,7 @@ class TicTacToe:
 
 
 class RetroEntry:
-    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6, typewriter=True):
+    def __init__(self, final, pos, command, accepts_input=True, wrap=WIDTH, speed=0.6, typewriter=True, backspace=(None, None)):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -135,6 +151,7 @@ class RetroEntry:
         self.wrap = wrap
         self.typewriter = typewriter
         self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
+        self.backspace_index, self.backspace_text = backspace
 
     def draw(self):
         if int(self.index) >= 1:
@@ -176,7 +193,7 @@ class RetroEntry:
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
                 # type sound
-                if int(self.index) > self.last_index and self.text[-1] != " " and self.typewriter:
+                if int(self.index) > self.last_index and (not self.text[-1] in (" ", ZWS)) and self.typewriter:
                     typewriter_sound.play()
                     self.last_index = self.index
                 # if finished, start flickering the underscore (_)
@@ -215,6 +232,11 @@ class RetroEntry:
             new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, **self.kwargs)
             all_widgets.append(new_text)
             self.active = False
+        # if self.backspace_index != None:
+        #     for _ in range(1, self.backspace_index):
+        #         list(self.text).pop()
+        #         print(self.text)
+                # self.index -= self.backspace_index
 
 class RetroSelection:
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):

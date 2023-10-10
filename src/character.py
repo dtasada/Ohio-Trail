@@ -14,7 +14,7 @@ possible_backgrounds = {
 
     "chef": {
 		"desc": "Be a chef from France",
-        "catchphrase": "Anyone can cook."
+        "catchphrase": "Anyone can cook!"
 	},
 
     "man": {
