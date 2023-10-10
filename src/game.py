@@ -192,6 +192,11 @@ class RetroEntry:
                 self.index += self.speed
                 if int(self.index) >= 1:
                     self.update_tex(self.final[:int(self.index)])
+                    # if self.backspace_index != None:
+                    #     for _ in range(1, self.backspace_index):
+                    #         list(self.text).pop()
+                    #         print(self.text)
+                    #         self.index -= self.backspace_index
                 # type sound
                 if int(self.index) > self.last_index and (not self.text[-1] in (" ", ZWS)) and self.typewriter:
                     typewriter_sound.play()
@@ -232,11 +237,6 @@ class RetroEntry:
             new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, **self.kwargs)
             all_widgets.append(new_text)
             self.active = False
-        # if self.backspace_index != None:
-        #     for _ in range(1, self.backspace_index):
-        #         list(self.text).pop()
-        #         print(self.text)
-                # self.index -= self.backspace_index
 
 class RetroSelection:
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):
