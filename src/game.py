@@ -68,7 +68,7 @@ Objective: survive for as long as possible.
 @pause1
 def list_opts_entry():
     all_widgets.clear()
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), list_opts)
+    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts)
     all_widgets.append(ent_location)
 
 def list_opts():
@@ -78,13 +78,13 @@ def list_opts():
             opts_list = [
                 "Loot corpses",
                 "Explore planewreck",
-                ["Walk to campsite", "campsite"],
-                ["Walk to forest", "forest"],
+                "Walk to campsite",
+                "Walk to forest",
             ]
         case "campsite":
             opts_list = [
-                ["Go to campfire", "campfire"],
-                ["Go to tent", "tent"],
+                "Go to campfire",
+                "Go to tent",
             ]
         case "campfire":
             opts_list = [
@@ -106,9 +106,9 @@ def list_opts():
     all_widgets.append(sel_opts)
 
 
-def set_player_location(location):
-    if location in possible_locations:
-        player.location = location
+def set_player_location(arg):
+    if arg in possible_locations:
+        player.location = location.split(' ')[-1]
     list_opts()
 
 
