@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -35,13 +35,30 @@ You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
     plane_anim = Animation('intro-hook', (0, 100), 5, 0.35)
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, reverse_data=(12, "4 people."))
+    ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
 
 
 @pause1
+def intro_p2():
+    print(1)
+    all_widgets.clear()
+    intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+
+You are one of only 5 survivors.{ZWS * 20}
+
+You and 4 NPCs are now stranded on an island.{ZWS *20}
+
+Objective: survive for as long as possible.
+"""
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), lambda: None)
+    all_widgets.append(ent_intro_p2)
+
+
+@pause1
 def ask_daily_choice():
+    player.show_money = False
     all_widgets.clear()
     ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection)
     all_widgets.append(ent_daily_choice)
@@ -77,27 +94,27 @@ def ask_food():
 
 def show_foods_list():
     global food_select
-
     player.show_money = True
-    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
-    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs, food_rects)
+    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()] + ["Leave Shop"]
+    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs + [None], food_rects)
     all_widgets.append(food_select)
 
 
 def deduct_food_money(food):
-    food_name = food.split(" [")[0]
-    price = possible_foods[food_name]["price"]
-    if player.money - price >= 0:
-        print(player.money)
-        print(price)
-        if food_name in player.food:
-            player.food[food_name] += 1
-        else:
-            player.food[food_name] = 1
-        player.money -= price
-        pickup_sound.play()
-    all_widgets.remove(food_select)
-    show_foods_list()
+    if food == "Leave Shop":
+        ask_daily_choice()
+    else:
+        food_name = food.split(" [")[0]
+        price = possible_foods[food_name]["price"]
+        if player.money - price >= 0:
+            if food_name in player.food:
+                player.food[food_name] += 1
+            else:
+                player.food[food_name] = 1
+            player.money -= price
+            pickup_sound.play()
+        all_widgets.remove(food_select)
+        show_foods_list()
 
 @pause1
 def skip_day():
@@ -197,9 +214,13 @@ class RetroEntry:
                     self.last_index = self.index
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
-                        self.reversing = False
-                        self.finished_reversing = True
-                        self.final = self.text + self.reverse_string
+                        if self.reverse_string is None:
+                            self.command()
+                            self.active = False
+                        else:
+                            self.reversing = False
+                            self.finished_reversing = True
+                            self.final = self.text + self.reverse_string
             if self.accepts_input:
                 # execute when flickering
                 if self.flickering:
@@ -213,7 +234,7 @@ class RetroEntry:
 
         if not self.reversing:
             if self.index >= len(self.final):
-                if self.reverse_string is not None:
+                if self.reverse_length is not None:
                     if ticks() - self.last_finished_writing >= 1_000:
                         self.last_index = self.index
                         self.reversing = True
@@ -268,7 +289,8 @@ class RetroSelection:
             REN.blit(tex, rect)
         if self.images:
             with suppress(IndexError):
-                REN.blit(self.images[self.index], self.image_rects[self.index])
+                if self.images[self.index] is not None:
+                    REN.blit(self.images[self.index], self.image_rects[self.index])
         REN.blit(self.gt, self.gt_rect)
 
     def process_event(self, event):
@@ -363,11 +385,11 @@ def main():
             if getattr(widget, "kill", False):
                 all_widgets.remove(widget)
 
-        if food_select is not None:
+        if player.show_money:
             i = 0
             for k in possible_foods.keys():
                 if k in player.food.keys() and player.food[k] != 0:
-                    img, rect = write(f"{k}: {player.food[k]}", (38, 420 + i * 28))
+                    img, rect = write(f"{k}: {player.food[k]}", (38, 460 + i * 28))
                     REN.blit(img, rect)
                     i += 1
 

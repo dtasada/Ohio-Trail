@@ -14,7 +14,7 @@ possible_backgrounds = {
 
     "chef": {
 		"desc": "Be a chef from France",
-        "catchphrase": "Anyone can cook."
+        "catchphrase": "Anyone can cook!"
 	},
 
     "man": {
@@ -120,7 +120,7 @@ class Character:
 
     def update(self):
         if self.show_money:
-            tex, rect = write(f"${self.money}", (40, 350), 30)
+            tex, rect = write(f"${self.money}", (40, 370), 30)
             REN.blit(tex, rect)
 
     def setup(self, name, background):
