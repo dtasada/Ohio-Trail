@@ -51,8 +51,51 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), lambda: None)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts)
     all_widgets.append(ent_intro_p2)
+
+
+@pause1
+def list_opts():
+    all_widgets.clear()
+    opts_list = []
+    match player.location:
+        case "planewreck":
+            opts_list = [
+                "Loot corpses",
+                "Explore planewreck",
+                "Walk to campsite",
+                "Walk to forest",
+            ]
+        case "campsite":
+            opts_list = [
+                "Go to campfire",
+                "Go to tent",
+            ]
+        case "campfire":
+            opts_list = [
+                "Add firewood",
+                "Enjoy warmth",
+            ]
+        case "tent":
+            opts_list = [
+                "Open chest",
+                "Sleep",
+            ]
+        case "forest":
+            opts_list = [
+                "Explore forest",
+                "Collect firewood",
+            ]
+    opts_list.append(f"Leave the {player.location}")
+    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), set_player_location)
+    sel_opts = RetroSelection(opts_list, (0, 60), lambda: None)
+    all_widgets.append(ent_location)
+    all_widgets.append(sel_opts)
+
+def set_player_location(location):
+    player.location = location
+    list_opts()
 
 
 @pause1
@@ -156,6 +199,11 @@ class RetroEntry:
             REN.blit(self.image, self.rect)
 
     def process_event(self, event):
+        if event.key == pygame.K_SPACE:
+            def skip():
+                pass
+                # Skip function pls
+            skip()
         if self.accepts_input and self.active:
             if self.flickering:
                 #

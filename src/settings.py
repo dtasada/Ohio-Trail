@@ -29,6 +29,16 @@ pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
 ZWS = "​"  # niet empty maar zero width space
 day = 1
 
+def pause_half(func):
+    def threaded():
+        time.sleep(0.5)
+        func()
+
+    def inner():
+        Thread(target=threaded, daemon=True).start()
+
+    return inner
+
 def pause1(func):
     def threaded():
         time.sleep(1)
