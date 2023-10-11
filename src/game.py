@@ -44,15 +44,15 @@ towards Cleveland, Ohio.{ZWS * 20}
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35)
+    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35, stay=True)
     ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
-    all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
+    all_widgets.append(ent_intro) # important that this is the last thing appended
 
 
 @pause1
 def intro_p2():
-    all_widgets.clear()
+    all_widgets.pop()
     intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
 
 You are one of only 5 survivors.{ZWS * 20}
@@ -61,15 +61,15 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts_entry_wait)
     all_widgets.append(ent_intro_p2)
 
 
-@pause1
 def list_opts_entry():
     all_widgets.clear()
     ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts)
     all_widgets.append(ent_location)
+list_opts_entry_wait = pause4(list_opts_entry)
 
 def list_opts():
     opts_list = []
@@ -102,14 +102,16 @@ def list_opts():
                 "Collect firewood",
             ]
     opts_list.append(f"Leave the {player.location}")
-    sel_opts = RetroSelection(opts_list, (0, 60), set_player_location)
+    sel_opts = RetroSelection(opts_list, (0, 0), set_player_location)
     all_widgets.append(sel_opts)
 
 
 def set_player_location(arg):
+    print(arg)
     if arg in possible_locations:
-        player.location = location.split(' ')[-1]
-    list_opts()
+        print(5)
+        player.location = arg.split(' ')[-1]
+    list_opts_entry()
 
 
 @pause1
@@ -213,11 +215,6 @@ class RetroEntry:
             REN.blit(self.image, self.rect)
 
     def process_event(self, event):
-        if event.key == pygame.K_SPACE:
-            def skip():
-                pass
-                # Skip function pls
-            skip()
         if self.accepts_input and self.active:
             if self.flickering:
                 #

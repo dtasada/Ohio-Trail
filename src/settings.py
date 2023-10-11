@@ -15,6 +15,7 @@ pygame.init()
 R = 10
 WIDTH, HEIGHT = 1100, 650
 WIN = Window(size=(WIDTH, HEIGHT), title="Ohio Trail")
+WIN.set_icon(pygame.image.load(os.path.join("assets", "logo.png")))
 REN = Renderer(WIN)
 clock = pygame.time.Clock()
 ticks = pygame.time.get_ticks
@@ -77,8 +78,9 @@ def write(text, pos, size=18):
 
 
 class Animation:
-    def __init__(self, path, pos, frame_count=1, framerate=0, R=5):
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=5, stay=False):
         self.R = R
+        self.stay = stay
         self.path = os.path.join("assets", f"{path}.png")
         self.pos = pos
         self.framerate = framerate
@@ -100,7 +102,10 @@ class Animation:
         if self.frame_count > 1:
             self.index += (1 / 30) * self.framerate
             if int(self.index) >= len(self.texs):
-                self.kill = True
+                if self.stay is False:
+                    self.kill = True
+                else:
+                    REN.blit(self.texs[-1], self.rects[-1])
             else:
                 REN.blit(self.texs[int(self.index)], self.rects[int(self.index)])
         else:
