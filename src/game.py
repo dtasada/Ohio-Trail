@@ -3,10 +3,20 @@ from .ttt import *
 
 
 # storyline functions
+@pause1
+def stop_program():
+    pygame.quit()
+    sys.exit()
+
+
 def ask_background(name):
-    player.name = name
-    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
-    all_widgets.append(ent_bg)
+    if name.lower() == "joe":
+        ent_balls = RetroEntry("Ligma balls", (0, 60), stop_program)
+        all_widgets.append(ent_balls)
+    else:
+        player.name = name
+        ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
+        all_widgets.append(ent_bg)
 
 
 def ask_bg_selection():
@@ -92,6 +102,7 @@ def list_opts():
     sel_opts = RetroSelection(opts_list, (0, 60), lambda: None)
     all_widgets.append(ent_location)
     all_widgets.append(sel_opts)
+
 
 def set_player_location(location):
     player.location = location
