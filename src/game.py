@@ -61,7 +61,7 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts_entry_wait)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), pause4(list_opts_entry))
     all_widgets.append(ent_intro_p2)
 
 
@@ -69,48 +69,52 @@ def list_opts_entry():
     all_widgets.clear()
     ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts)
     all_widgets.append(ent_location)
-list_opts_entry_wait = pause4(list_opts_entry)
 
 def list_opts():
     opts_list = []
     match player.location:
         case "planewreck":
             opts_list = [
-                "Loot corpses",
                 "Explore planewreck",
+                "Loot corpses",
                 "Walk to campsite",
                 "Walk to forest",
             ]
         case "campsite":
             opts_list = [
                 "Go to campfire",
+                "Go to planewreck",
                 "Go to tent",
             ]
         case "campfire":
             opts_list = [
                 "Add firewood",
                 "Enjoy warmth",
+                "Leave the campfire",
             ]
         case "tent":
             opts_list = [
                 "Open chest",
                 "Sleep",
+                "Leave the tent"
             ]
         case "forest":
             opts_list = [
-                "Explore forest",
                 "Collect firewood",
+                "Explore forest",
+                "Walk back to camp",
             ]
-    opts_list.append(f"Leave the {player.location}")
     sel_opts = RetroSelection(opts_list, (0, 0), set_player_location)
     all_widgets.append(sel_opts)
 
 
 def set_player_location(arg):
-    print(arg)
-    if arg in possible_locations:
+    location = arg.split(' ')[-1]
+    if location in possible_locations:
         print(5)
-        player.location = arg.split(' ')[-1]
+        player.location = location
+    if location == "leave" and location in ("campfire", "text"):
+        player.location = "campsite"
     list_opts_entry()
 
 
