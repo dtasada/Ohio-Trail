@@ -198,7 +198,6 @@ def skip_day():
     day += 1
 
 
-<<<<<<< HEAD
 class Retro:
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
@@ -206,11 +205,7 @@ class Retro:
 
 
 class RetroEntry(Retro):
-    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None)):
-=======
-class RetroEntry:
     def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False):
->>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -296,15 +291,7 @@ class RetroEntry:
                         if self.has_to_reverse:
                             cond = self.finished_reversing
                         if not self.accepts_input and cond:
-<<<<<<< HEAD
                             self.finish()
-=======
-                            try:
-                                self.command(speed=1000)
-                            except:
-                                self.command()
-                            self.active = False
->>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -313,15 +300,7 @@ class RetroEntry:
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         if self.reverse_string is None:
-<<<<<<< HEAD
                             self.finish()
-=======
-                            try:
-                                self.command(speed=1000)
-                            except:
-                                self.command()
-                            self.active = False
->>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
                         else:
                             self.reversing = False
                             self.finished_reversing = True
