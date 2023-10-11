@@ -43,7 +43,7 @@ towards Cleveland, Ohio.{ZWS * 20}
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35, stay=True)
+    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35, should_stay=True)
     ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
     all_widgets.append(plane_anim)
     all_widgets.append(ent_intro) # important that this is the last thing appended
@@ -60,23 +60,25 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts_entry_wait)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), pause4(list_opts_entry))
     all_widgets.append(ent_intro_p2)
 
 
-def list_opts_entry():
-    all_widgets.clear()
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts)
+def list_opts_entry(speed=0.6):
+    for x in all_widgets[:]:
+        if x != pls_explore:
+            all_widgets.remove(x)
+    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts, speed=speed)
     all_widgets.append(ent_location)
-list_opts_entry_wait = pause4(list_opts_entry)
+
 
 def list_opts():
     opts_list = []
     match player.location:
         case "planewreck":
             opts_list = [
-                "Loot corpses",
                 "Explore planewreck",
+                "Loot corpses",
                 "Walk to campsite",
                 "Walk to forest",
             ]
@@ -84,33 +86,47 @@ def list_opts():
             opts_list = [
                 "Go to campfire",
                 "Go to tent",
+                "Go to planewreck",
             ]
         case "campfire":
             opts_list = [
                 "Add firewood",
                 "Enjoy warmth",
+                "Leave the campfire",
             ]
         case "tent":
             opts_list = [
-                "Open chest",
+                "Explore tent",
                 "Sleep",
+                "Leave the tent"
             ]
         case "forest":
             opts_list = [
-                "Explore forest",
                 "Collect firewood",
+                "Explore forest",
+                "Walk back to the campsite",
             ]
-    opts_list.append(f"Leave the {player.location}")
     sel_opts = RetroSelection(opts_list, (0, 0), set_player_location)
     all_widgets.append(sel_opts)
 
 
 def set_player_location(arg):
-    print(arg)
-    if arg in possible_locations:
-        print(5)
-        player.location = arg.split(' ')[-1]
-    list_opts_entry()
+    if player.explored_planewreck or arg in ("Explore planewreck", "Loot corpses"):
+        player.explored_planewreck = True
+        if pls_explore in all_widgets:
+            all_widgets.remove(pls_explore)
+
+        location = arg.split(' ')[-1]
+        if location in possible_locations and "Explore" not in arg:
+            player.location = location
+        elif "Explore" in arg:
+            pass
+        if "Leave" in arg and location in ("campfire", "text"):
+            player.location = "campsite"
+        list_opts_entry()
+    else:
+        if pls_explore not in all_widgets:
+            all_widgets.append(pls_explore)
 
 
 @pause1
@@ -182,6 +198,7 @@ def skip_day():
     day += 1
 
 
+<<<<<<< HEAD
 class Retro:
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
@@ -190,6 +207,10 @@ class Retro:
 
 class RetroEntry(Retro):
     def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None)):
+=======
+class RetroEntry:
+    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False):
+>>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -214,6 +235,7 @@ class RetroEntry(Retro):
         self.wrap = wrap
         self.typewriter = typewriter
         self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
+        self.next_should_be_immediate = next_should_be_immediate
 
     def draw(self):
         if int(self.index) >= 1:
@@ -274,7 +296,15 @@ class RetroEntry(Retro):
                         if self.has_to_reverse:
                             cond = self.finished_reversing
                         if not self.accepts_input and cond:
+<<<<<<< HEAD
                             self.finish()
+=======
+                            try:
+                                self.command(speed=1000)
+                            except:
+                                self.command()
+                            self.active = False
+>>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -283,7 +313,15 @@ class RetroEntry(Retro):
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         if self.reverse_string is None:
+<<<<<<< HEAD
                             self.finish()
+=======
+                            try:
+                                self.command(speed=1000)
+                            except:
+                                self.command()
+                            self.active = False
+>>>>>>> 017ae5c202529e0f0d1b18c444c935a119815ada
                         else:
                             self.reversing = False
                             self.finished_reversing = True
@@ -409,6 +447,7 @@ money_warning = None
 player = Character()
 ttt = TicTacToe()
 
+pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')

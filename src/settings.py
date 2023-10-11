@@ -30,16 +30,6 @@ pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
 ZWS = "​"  # niet empty maar zero width space
 day = 1
 
-def pause_half(func):
-    def threaded():
-        time.sleep(0.5)
-        func()
-
-    def inner():
-        Thread(target=threaded, daemon=True).start()
-
-    return inner
-
 def pause1(func):
     def threaded():
         time.sleep(1)
@@ -78,9 +68,9 @@ def write(text, pos, size=18):
 
 
 class Animation:
-    def __init__(self, path, pos, frame_count=1, framerate=0, R=5, stay=False):
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=5, should_stay=False):
         self.R = R
-        self.stay = stay
+        self.should_stay = should_stay
         self.path = os.path.join("assets", f"{path}.png")
         self.pos = pos
         self.framerate = framerate
@@ -102,7 +92,7 @@ class Animation:
         if self.frame_count > 1:
             self.index += (1 / 30) * self.framerate
             if int(self.index) >= len(self.texs):
-                if self.stay is False:
+                if self.should_stay is False:
                     self.kill = True
                 else:
                     REN.blit(self.texs[-1], self.rects[-1])
