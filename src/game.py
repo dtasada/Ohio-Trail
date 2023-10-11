@@ -182,7 +182,13 @@ def skip_day():
     day += 1
 
 
-class RetroEntry:
+class Retro:
+    def finish(self, *args, **kwargs):
+        self.command(*args, **kwargs)
+        self.active = False
+
+
+class RetroEntry(Retro):
     def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None)):
         self.final = final + " "
         self.text = ""
@@ -214,32 +220,38 @@ class RetroEntry:
             REN.blit(self.image, self.rect)
 
     def process_event(self, event):
-        if self.accepts_input and self.active:
-            if self.flickering:
-                #
-                mods = pygame.key.get_mods()
-                name = pygame.key.name(event.key)
-                self.text = self.text.removesuffix("_")
-                if name == "return":
-                    self.command(self.answer)
-                    self.active = False
-                elif name == "backspace":
-                    if self.text != self.final:
-                        self.text = self.text[:-1]
-                        self.answer = self.answer[:-1]
-                #
-                elif name == "space":
-                    self.text += " "
-                    self.answer += " "
-                elif len(name) > 1:
-                    pass
-                else:
-                    if len(self.answer) < 20:
-                        if mods in (1, 2):
-                            name = name.capitalize()
-                        self.text += name
-                        self.answer += name
-                self.update_tex(self.text)
+        if self.active:
+            if event.key == pygame.K_COMMA:
+                try:
+                    self.finish("ligma")
+                except TypeError:
+                    self.finish()
+
+            if self.accepts_input:
+                if self.flickering:
+                    #
+                    mods = pygame.key.get_mods()
+                    name = pygame.key.name(event.key)
+                    self.text = self.text.removesuffix("_")
+                    if name == "return":
+                        self.finish(self.answer)
+                    elif name == "backspace":
+                        if self.text != self.final:
+                            self.text = self.text[:-1]
+                            self.answer = self.answer[:-1]
+                    #
+                    elif name == "space":
+                        self.text += " "
+                        self.answer += " "
+                    elif len(name) > 1:
+                        pass
+                    else:
+                        if len(self.answer) < 20:
+                            if mods in (1, 2):
+                                name = name.capitalize()
+                            self.text += name
+                            self.answer += name
+                    self.update_tex(self.text)
 
     def update(self):
         if self.active:
@@ -262,8 +274,7 @@ class RetroEntry:
                         if self.has_to_reverse:
                             cond = self.finished_reversing
                         if not self.accepts_input and cond:
-                            self.command()
-                            self.active = False
+                            self.finish()
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -272,8 +283,7 @@ class RetroEntry:
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         if self.reverse_string is None:
-                            self.command()
-                            self.active = False
+                            self.finish()
                         else:
                             self.reversing = False
                             self.finished_reversing = True
@@ -318,7 +328,7 @@ class RetroEntry:
             self.active = False
 
 
-class RetroSelection:
+class RetroSelection(Retro):
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):
         self.texts = texts
         self.x, self.y = pos
@@ -352,6 +362,9 @@ class RetroSelection:
 
     def process_event(self, event):
         if self.active:
+            if event.key == pygame.K_COMMA:
+                self.finish(self.texts[0])
+
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
                     self.gt_rect.y = self.rects[0].y
@@ -370,8 +383,7 @@ class RetroSelection:
                 beep_sound.play()
             elif event.key == pygame.K_RETURN:
                 text = self.texts[self.index]
-                self.command(text)
-                self.active = False
+                self.finish(text)
 
     def update(self):
         self.draw()
@@ -420,7 +432,7 @@ title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, si
 all_widgets = [title_card]
 
 
-def main():
+def main(debug=False):
     running = True
     while running:
         clock.tick(30)
@@ -429,7 +441,7 @@ def main():
                 running = False
 
             elif event.type == pygame.KEYDOWN:
-                for widget in all_widgets:
+                for widget in all_widgets[:]:
                     widget.process_event(event)
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))

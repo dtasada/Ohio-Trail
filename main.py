@@ -3,4 +3,4 @@
 from src.game import main
 
 
-main()
+main(debug=True)
