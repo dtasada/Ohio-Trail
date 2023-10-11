@@ -3,7 +3,6 @@ from .ttt import *
 
 
 # storyline functions
-@pause1
 def stop_program():
     pygame.quit()
     sys.exit()
