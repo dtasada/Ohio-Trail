@@ -88,11 +88,11 @@ def set_daily_choice(choice):
         case "firewood":
             pass
         case "food":
-            pass
+            ask_food()
         case "water":
             pass
         case "skip":
-            pass
+            skip_day()
     all_widgets.clear()
 
 
@@ -126,6 +126,14 @@ def deduct_food_money(food):
             pickup_sound.play()
         all_widgets.remove(food_select)
         show_foods_list()
+
+@pause1
+def skip_day():
+    global day
+    skip_entry = RetroEntry(f"Day {day}", (0, 0), ask_daily_choice, speed= 0.2, reverse_data=(6, f"Day {day + 1}"))
+    all_widgets.clear()
+    all_widgets.append(skip_entry)
+    day += 1
 
 
 class RetroEntry:
