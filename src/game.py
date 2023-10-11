@@ -35,19 +35,23 @@ You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
     plane_anim = Animation('intro-hook', (0, 100), 5, 0.35)
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, reverse_data=(12, "4 people."))
+    ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
 
 def intro_p2():
+    print(1)
     all_widgets.clear()
-    hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+    intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+
 You are one of only 5 survivors.{ZWS * 20}
 
 You and 4 NPCs are now stranded on an island.{ZWS *20}
-Your job is to survive for as long as possible.
+
+Objective: survive for as long as possible.
 """
-    ent_hook = RetroEntry(hook, (0, 0), lambda: None)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), lambda: None)
+    all_widgets.append(ent_intro_p2)
 
 
 @pause1
@@ -88,7 +92,6 @@ def ask_food():
 def show_foods_list():
     global food_select
 
-    player.show_money = True
     food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
     food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs, food_rects)
     all_widgets.append(food_select)
@@ -370,7 +373,7 @@ def main():
             i = 0
             for k in possible_foods.keys():
                 if k in player.food.keys() and player.food[k] != 0:
-                    img, rect = write(f"{k}: {player.food[k]}", (38, 420 + i * 28))
+                    img, rect = write(f"{k}: {player.food[k]}", (38, 460 + i * 28))
                     REN.blit(img, rect)
                     i += 1
 

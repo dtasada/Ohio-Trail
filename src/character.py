@@ -105,7 +105,6 @@ class Character:
         self.name = None
         self.hp = 5
         self.money = 25
-        self.show_money = False
         self.food = {
             "Eggplant": int(random.gauss(1.5, 1.5)),
             "Frikandelbroodje": int(random.gauss(0.5, 0.5)),
@@ -114,8 +113,8 @@ class Character:
         }
 
     def update(self):
-        if self.show_money:
-            tex, rect = write(f"${self.money}", (40, 350), 30)
+        if food_select is not None:
+            tex, rect = write(f"${self.money}", (40, 370), 30)
             REN.blit(tex, rect)
 
     def setup(self, name, background):
