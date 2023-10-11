@@ -56,21 +56,25 @@ Objective: survive for as long as possible.
 
 
 @pause1
-def list_opts():
+def list_opts_entry():
     all_widgets.clear()
+    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), list_opts)
+    all_widgets.append(ent_location)
+
+def list_opts():
     opts_list = []
     match player.location:
         case "planewreck":
             opts_list = [
                 "Loot corpses",
                 "Explore planewreck",
-                "Walk to campsite",
-                "Walk to forest",
+                ["Walk to campsite", "campsite"],
+                ["Walk to forest", "forest"],
             ]
         case "campsite":
             opts_list = [
-                "Go to campfire",
-                "Go to tent",
+                ["Go to campfire", "campfire"],
+                ["Go to tent", "tent"],
             ]
         case "campfire":
             opts_list = [
@@ -88,13 +92,12 @@ def list_opts():
                 "Collect firewood",
             ]
     opts_list.append(f"Leave the {player.location}")
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), set_player_location)
-    sel_opts = RetroSelection(opts_list, (0, 60), lambda: None)
-    all_widgets.append(ent_location)
+    sel_opts = RetroSelection(opts_list, (0, 60), set_player_location)
     all_widgets.append(sel_opts)
 
 def set_player_location(location):
-    player.location = location
+    if location in possible_locations:
+        player.location = location
     list_opts()
 
 
