@@ -88,10 +88,14 @@ def list_opts():
                 "Collect firewood",
             ]
     opts_list.append(f"Leave the {player.location}")
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), lambda: None)
+    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), set_player_location)
     sel_opts = RetroSelection(opts_list, (0, 60), lambda: None)
     all_widgets.append(ent_location)
     all_widgets.append(sel_opts)
+
+def set_player_location(location):
+    player.location = location
+    list_opts()
 
 
 @pause1
