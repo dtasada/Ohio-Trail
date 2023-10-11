@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -91,14 +91,16 @@ def ask_food():
 
 def show_foods_list():
     global food_select
-
-    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()]
-    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs, food_rects)
+    player.show_money = True
+    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()] + ["Leave Shop"]
+    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs + [None], food_rects)
     all_widgets.append(food_select)
 
 
 
 def deduct_food_money(food):
+    if food == "Leave Shop":
+        exit()
     food_name = food.split(" [")[0]
     price = possible_foods[food_name]["price"]
     if player.money - price >= 0:
@@ -274,7 +276,8 @@ class RetroSelection:
             REN.blit(tex, rect)
         if self.images:
             with suppress(IndexError):
-                REN.blit(self.images[self.index], self.image_rects[self.index])
+                if self.images[self.index] is not None:
+                    REN.blit(self.images[self.index], self.image_rects[self.index])
         REN.blit(self.gt, self.gt_rect)
 
     def process_event(self, event):

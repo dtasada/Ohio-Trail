@@ -105,6 +105,7 @@ class Character:
         self.name = None
         self.hp = 5
         self.money = 25
+        self.show_money = False
         self.food = {
             "Eggplant": int(random.gauss(1.5, 1.5)),
             "Frikandelbroodje": int(random.gauss(0.5, 0.5)),

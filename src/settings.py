@@ -9,6 +9,7 @@ import random
 import sys
 import time
 
+food_select = None
 
 pygame.init()
 R = 10
@@ -23,9 +24,8 @@ fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.t
 font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
 beep_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "beep.wav"))
 typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.wav"))
-# typewriter_sound.set_volume(0.1)
+typewriter_sound.set_volume(0.1)
 pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
-# pickup_sound.set_volume(0.1)
 ZWS = "​"  # niet empty maar zero width space
 
 
