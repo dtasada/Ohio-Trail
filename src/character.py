@@ -105,13 +105,19 @@ clothing = {
 }
 
 
+possible_locations = [
+    "planewreck",
+    "campsite",
+    "campfire",
+    "tent",
+    "forest",
+]
 class Character:
     def __init__(self):
         self.name = None
         self.hp = 5
         self.money = 25
         self.show_money = False
-        # possible locations: ["planewreck", "camp": "player_tent" "campfire", "forest"]
         self.location = "planewreck"
         self.food = {
             "Eggplant": int(random.gauss(1.5, 1.5)),
