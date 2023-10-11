@@ -3,10 +3,20 @@ from .ttt import *
 
 
 # storyline functions
+@pause1
+def stop_program():
+    pygame.quit()
+    sys.exit()
+
+
 def ask_background(name):
-    player.name = name
-    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
-    all_widgets.append(ent_bg)
+    if name.lower() == "joe":
+        ent_balls = RetroEntry("Ligma balls", (0, 60), stop_program)
+        all_widgets.append(ent_balls)
+    else:
+        player.name = name
+        ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
+        all_widgets.append(ent_bg)
 
 
 def ask_bg_selection():
@@ -94,6 +104,7 @@ def list_opts():
     opts_list.append(f"Leave the {player.location}")
     sel_opts = RetroSelection(opts_list, (0, 60), set_player_location)
     all_widgets.append(sel_opts)
+
 
 def set_player_location(location):
     if location in possible_locations:
@@ -371,8 +382,10 @@ class RetroSelection:
 
 
 class GenText:
-    def __init__(self, text, pos, size):
+    def __init__(self, text, pos, size, sine=(None, None)):
         self.tex, self.rect = write(text, pos, size)
+        self.amp, self.freq = sine
+        self.og_y = self.rect.y
 
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
@@ -380,6 +393,7 @@ class GenText:
             all_widgets.append(name_entry)
 
     def update(self):
+        self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
         REN.blit(self.tex, self.rect)
 
 food_select = None
@@ -406,7 +420,7 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 
 '''
-title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24)
+title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, sine=(15, 0.002))
 all_widgets = [title_card]
 
 
