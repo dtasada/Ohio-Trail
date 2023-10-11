@@ -1,5 +1,5 @@
 from contextlib import suppress
-from math import floor, ceil
+from math import floor, ceil, sin
 from pygame._sdl2.video import Window, Texture, Renderer, Image
 from threading import Thread
 from typing import Tuple, Callable, Optional

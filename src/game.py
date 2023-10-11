@@ -320,8 +320,10 @@ class RetroSelection:
 
 
 class GenText:
-    def __init__(self, text, pos, size):
+    def __init__(self, text, pos, size, sine=(None, None)):
         self.tex, self.rect = write(text, pos, size)
+        self.amp, self.freq = sine
+        self.og_y = self.rect.y
 
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
@@ -329,6 +331,7 @@ class GenText:
             all_widgets.append(name_entry)
 
     def update(self):
+        self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
         REN.blit(self.tex, self.rect)
 
 food_select = None
@@ -355,7 +358,7 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 
 '''
-title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24)
+title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, sine=(15, 0.002))
 all_widgets = [title_card]
 
 
