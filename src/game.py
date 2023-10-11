@@ -65,6 +65,7 @@ def list_opts():
                 "Loot corpses",
                 "Explore planewreck",
                 "Walk to campsite",
+                "Walk to forest",
             ]
         case "campsite":
             opts_list = [
@@ -80,13 +81,15 @@ def list_opts():
             opts_list = [
                 "Open chest",
                 "Sleep",
-                "Leave",
             ]
         case "forest":
-            opts_list = ["Explore forest"]
-    opts_list.append(f"Leave {player.location}")
+            opts_list = [
+                "Explore forest",
+                "Collect firewood",
+            ]
+    opts_list.append(f"Leave the {player.location}")
     ent_location = RetroEntry(f"You are at the {player.location}", (0,0), lambda: None)
-    sel_opts = RetroSelection(opts_list, (0, 60), lambda: print('123123'))
+    sel_opts = RetroSelection(opts_list, (0, 60), lambda: None)
     all_widgets.append(ent_location)
     all_widgets.append(sel_opts)
 
