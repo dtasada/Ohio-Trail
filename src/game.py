@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_food, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -51,8 +51,20 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), lambda: None)
+    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), list_opts)
     all_widgets.append(ent_intro_p2)
+
+
+@pause1
+def list_opts():
+    opts_list = []
+    match player.location:
+        case "planewreck":
+            opts_list.append("Loot corpses")
+            opts_list.append("Explore shipwreck")
+    print(opts_list)
+    sel_opts = RetroSelection(opts_list, (0, 0), lambda: print('123123'))
+    all_widgets.append(sel_opts)
 
 
 @pause1
@@ -148,6 +160,11 @@ class RetroEntry:
             REN.blit(self.image, self.rect)
 
     def process_event(self, event):
+        if event.key == pygame.K_SPACE:
+            def skip():
+                pass
+                # Skip function pls
+            skip()
         if self.accepts_input and self.active:
             if self.flickering:
                 #
