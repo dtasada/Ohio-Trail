@@ -125,8 +125,9 @@ def set_player_location(arg):
             player.location = "campsite"
         list_opts_entry()
     else:
-        if pls_explore not in all_widgets:
-            all_widgets.append(pls_explore)
+        if pls_explore in all_widgets:
+            all_widgets.remove(pls_explore)
+        all_widgets.append(pls_explore)
 
 
 @pause1
@@ -291,7 +292,7 @@ class RetroEntry(Retro):
                         if self.has_to_reverse:
                             cond = self.finished_reversing
                         if not self.accepts_input and cond:
-                            self.finish()
+                            self.finish(**({"speed": 1000} if self.next_should_be_immediate else {}))
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -300,7 +301,7 @@ class RetroEntry(Retro):
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         if self.reverse_string is None:
-                            self.finish()
+                            self.finish(**({"speed": 1000} if self.next_should_be_immediate else {}))
                         else:
                             self.reversing = False
                             self.finished_reversing = True
