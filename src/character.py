@@ -1,6 +1,5 @@
 from .settings import *
 
-
 has_camp = False
 
 possible_backgrounds = {
@@ -8,10 +7,16 @@ possible_backgrounds = {
 		"desc": "Be a banker from New York",
         "catchphrase": f"Impressive,{ZWS * 10} very nice.",
 	},
+
+    # "boss": {
+	# 	"desc": "2. Be a boss from Ohio",
+	# },
+
     "chef": {
 		"desc": "Be a chef from France",
-        "catchphrase": "Anyone can cook."
+        "catchphrase": "Anyone can cook!"
 	},
+
     "man": {
 		"desc": "Be a man from Florida",
          "catchphrase": f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\nYeah{ZWS * 10} baby!"
@@ -38,7 +43,7 @@ bg_rects = [ v["rect"] for v in possible_backgrounds.values() ]
 possible_daily_choice = {
     "camp": "Set up camp",
     "firewood": "Collect firewood",
-    "food": "Buy food",
+    "food": "Search for food",
     "water": "Go get water",
     "skip": "Skip day",
 }
@@ -114,7 +119,7 @@ class Character:
         }
 
     def update(self):
-        if food_select is not None:
+        if self.show_money:
             tex, rect = write(f"${self.money}", (40, 370), 30)
             REN.blit(tex, rect)
 

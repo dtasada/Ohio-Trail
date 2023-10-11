@@ -39,6 +39,8 @@ With you on the plane are another 200 people."""
     all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
 
+
+@pause1
 def intro_p2():
     print(1)
     all_widgets.clear()
@@ -56,6 +58,7 @@ Objective: survive for as long as possible.
 
 @pause1
 def ask_daily_choice():
+    player.show_money = False
     all_widgets.clear()
     ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection)
     all_widgets.append(ent_daily_choice)
@@ -97,23 +100,21 @@ def show_foods_list():
     all_widgets.append(food_select)
 
 
-
 def deduct_food_money(food):
     if food == "Leave Shop":
-        exit()
-    food_name = food.split(" [")[0]
-    price = possible_foods[food_name]["price"]
-    if player.money - price >= 0:
-        print(player.money)
-        print(price)
-        if food_name in player.food:
-            player.food[food_name] += 1
-        else:
-            player.food[food_name] = 1
-        player.money -= price
-        pickup_sound.play()
-    all_widgets.remove(food_select)
-    show_foods_list()
+        ask_daily_choice()
+    else:
+        food_name = food.split(" [")[0]
+        price = possible_foods[food_name]["price"]
+        if player.money - price >= 0:
+            if food_name in player.food:
+                player.food[food_name] += 1
+            else:
+                player.food[food_name] = 1
+            player.money -= price
+            pickup_sound.play()
+        all_widgets.remove(food_select)
+        show_foods_list()
 
 
 class RetroEntry:
@@ -205,9 +206,13 @@ class RetroEntry:
                     self.last_index = self.index
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
-                        self.reversing = False
-                        self.finished_reversing = True
-                        self.final = self.text + self.reverse_string
+                        if self.reverse_string is None:
+                            self.command()
+                            self.active = False
+                        else:
+                            self.reversing = False
+                            self.finished_reversing = True
+                            self.final = self.text + self.reverse_string
             if self.accepts_input:
                 # execute when flickering
                 if self.flickering:
@@ -221,7 +226,7 @@ class RetroEntry:
 
         if not self.reversing:
             if self.index >= len(self.final):
-                if self.reverse_string is not None:
+                if self.reverse_length is not None:
                     if ticks() - self.last_finished_writing >= 1_000:
                         self.last_index = self.index
                         self.reversing = True
@@ -372,7 +377,7 @@ def main():
             if getattr(widget, "kill", False):
                 all_widgets.remove(widget)
 
-        if food_select is not None:
+        if player.show_money:
             i = 0
             for k in possible_foods.keys():
                 if k in player.food.keys() and player.food[k] != 0:
