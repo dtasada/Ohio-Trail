@@ -27,7 +27,7 @@ typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.
 pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
 # pickup_sound.set_volume(0.1)
 ZWS = "​"  # niet empty maar zero width space
-
+day = 1
 
 def pause1(func):
     def threaded():

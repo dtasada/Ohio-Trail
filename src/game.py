@@ -19,7 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), ask_daily_choice, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
 
@@ -60,11 +60,11 @@ def set_daily_choice(choice):
         case "firewood":
             pass
         case "food":
-            pass
+            ask_food()
         case "water":
             pass
         case "skip":
-            pass
+            skip_day()
     all_widgets.clear()
 
 
@@ -84,7 +84,6 @@ def show_foods_list():
     all_widgets.append(food_select)
 
 
-
 def deduct_food_money(food):
     food_name = food.split(" [")[0]
     price = possible_foods[food_name]["price"]
@@ -99,6 +98,14 @@ def deduct_food_money(food):
         pickup_sound.play()
     all_widgets.remove(food_select)
     show_foods_list()
+
+@pause1
+def skip_day():
+    global day
+    skip_entry = RetroEntry(f"Day {day}", (0, 0), ask_daily_choice, speed= 0.2, reverse_data=(6, f"Day {day + 1}"))
+    all_widgets.clear()
+    all_widgets.append(skip_entry)
+    day += 1
 
 
 class RetroEntry:
