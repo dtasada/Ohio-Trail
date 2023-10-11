@@ -35,9 +35,19 @@ You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
     plane_anim = Animation('intro-hook', (0, 500), 5, 0.5)
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: all_widgets.clear(), reverse_data=(12, "4 people."))
+    ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
+
+def intro_p2():
+    all_widgets.clear()
+    hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+You are one of only 5 survivors.{ZWS * 20}
+
+You and 4 NPCs are now stranded on an island.{ZWS *20}
+Your job is to survive for as long as possible.
+"""
+    ent_hook = RetroEntry(hook, (0, 0), lambda: None)
 
 
 @pause1
