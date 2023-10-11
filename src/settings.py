@@ -67,7 +67,7 @@ def write(text, pos, size=18):
 
 
 class Animation:
-    def __init__(self, path, pos, frame_count=1, framerate=0, R=    2):
+    def __init__(self, path, pos, frame_count=1, framerate=0, R=5):
         self.R = R
         self.path = os.path.join("assets", f"{path}.png")
         self.pos = pos
@@ -84,15 +84,15 @@ class Animation:
             self.img = pygame.transform.scale_by(pygame.image.load(self.path), self.R)
             self.tex = Texture.from_surface(REN, self.img)
             self.rect = self.tex.get_rect()
+        self.kill = False
 
     def update(self):
         if self.frame_count > 1:
-            self.index += (1/30) / self.framerate
-            # print(self.rects[int(self.index)])
-            print(self.rects[int(self.index)])
-            REN.draw_color = (255, 0, 0, 255)
-            REN.fill_rect(self.rects[int(self.index)])
-            REN.blit(self.texs[int(self.index)], self.rects[int(self.index)])
+            self.index += (1 / 30) * self.framerate
+            if int(self.index) >= len(self.texs):
+                self.kill = True
+            else:
+                REN.blit(self.texs[int(self.index)], self.rects[int(self.index)])
         else:
             print('else')
 
