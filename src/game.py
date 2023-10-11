@@ -111,11 +111,11 @@ def list_opts():
 
 
 def set_player_location(arg):
+    global pls_explore
     if player.explored_planewreck or arg in ("Explore planewreck", "Loot corpses"):
         player.explored_planewreck = True
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
-
         location = arg.split(' ')[-1]
         if location in possible_locations and "Explore" not in arg:
             player.location = location
@@ -127,6 +127,7 @@ def set_player_location(arg):
     else:
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
+        pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
         all_widgets.append(pls_explore)
 
 
@@ -203,10 +204,12 @@ class Retro:
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
         self.active = False
+        if self.autokill:
+            all_widgets.remove(self)
 
 
 class RetroEntry(Retro):
-    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False):
+    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -232,6 +235,7 @@ class RetroEntry(Retro):
         self.typewriter = typewriter
         self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
         self.next_should_be_immediate = next_should_be_immediate
+        self.autokill = autokill
 
     def draw(self):
         if int(self.index) >= 1:
@@ -347,7 +351,7 @@ class RetroEntry(Retro):
 
 
 class RetroSelection(Retro):
-    def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):
+    def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None, autokill=False):
         self.texts = texts
         self.x, self.y = pos
         self.xo = 40
@@ -368,6 +372,7 @@ class RetroSelection(Retro):
         self.active = True
         self.command = command
         self.index = 0
+        self.autokill = autokill
 
     def draw(self):
         for tex, rect in zip(self.texs, self.rects):
@@ -427,7 +432,7 @@ money_warning = None
 player = Character()
 ttt = TicTacToe()
 
-pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
+pls_explore = None
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
