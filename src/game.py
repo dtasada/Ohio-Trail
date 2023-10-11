@@ -42,7 +42,6 @@ With you on the plane are another 200 people."""
 
 @pause1
 def intro_p2():
-    print(1)
     all_widgets.clear()
     intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
 
@@ -359,12 +358,6 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24)
 all_widgets = [title_card]
 
-
-if food_select is not None:
-    for i, k in enumerate(possible_foods.keys()):
-        print(1, k)
-        if k in player.food.keys() and k != 0:
-            print(2, k)
 
 def main():
     running = True
