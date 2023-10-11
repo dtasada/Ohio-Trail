@@ -34,8 +34,8 @@ towards Cleveland, Ohio.{ZWS * 20}
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    plane_anim = Animation('intro-hook', (0, 500), 5, 0.5)
-    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: all_widgets.clear(), reverse_data=(12, "4 people."))
+    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35)
+    ent_intro = RetroEntry(intro_hook, (0, 0), lambda: None, reverse_data=(12, "4 people."))
     all_widgets.append(ent_intro)
     all_widgets.append(plane_anim)
 
@@ -182,6 +182,7 @@ class RetroEntry:
                             cond = self.finished_reversing
                         if not self.accepts_input and cond:
                             self.command()
+                            self.active = False
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -230,6 +231,7 @@ class RetroEntry:
             new_text = RetroEntry(remaining_text, (self.rect.x, self.rect.y + 30), self.command, **self.kwargs)
             all_widgets.append(new_text)
             self.active = False
+
 
 class RetroSelection:
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None):
@@ -349,8 +351,10 @@ def main():
 
         fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
 
-        for widget in all_widgets:
+        for widget in all_widgets[:]:
             widget.update()
+            if getattr(widget, "kill", False):
+                all_widgets.remove(widget)
 
         if food_select is not None:
             i = 0
