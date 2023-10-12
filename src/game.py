@@ -122,18 +122,24 @@ def set_player_location(arg):
             all_widgets.remove(pls_explore)
 
         location = arg.split(' ')[-1]
-        if location not in possible_locations:
-
+        if location in possible_locations:
             if "Explore" in arg:
-                if "explored_planewreck" in player.completed:
+                print(3)
+                print(player.completed)
+                print("found_people" in player.completed)
+                if "found_people" in player.completed:
                     ent_explore_planewreck = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
                 else:
-                    print(3)
+                    print(4)
                     ent_explore_planewreck = RetroEntry("You've found some people!", (0, 600), list_opts_entry)
                     player.completed.append("explored_planewreck")
                 all_widgets.append(ent_explore_planewreck)
-
-            elif arg == "Loot corpses":
+                print("found_people" in player.completed)
+                print(ent_explore_planewreck in all_widgets)
+            else:
+                player.location = location
+        else:
+            if arg == "Loot corpses":
                 if "looted_corpses" in player.completed:
                     ent_loot_corpses = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
                 else:
@@ -142,11 +148,6 @@ def set_player_location(arg):
                     player.completed.append("looted_corpses")
 
                 all_widgets.append(ent_loot_corpses)
-
-            else:
-                player.location = location
-
-
 
         if "Leave" in arg and location in ("campfire", "text"):
             player.location = "campsite"
