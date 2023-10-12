@@ -124,6 +124,7 @@ class Character:
             # "explored_tent",
             # "looted_corpses",
             # "found_people",
+            # "set_up_camp"
         ]
         self.food = {
             "Eggplant": int(random.gauss(1.5, 1.5)),
