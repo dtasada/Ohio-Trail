@@ -80,11 +80,15 @@ def list_opts():
             opts_list = [
                 "Explore the planewreck",
                 "Loot corpses",
-                "Walk to the campsite",
+                "Set up camp",
                 "Walk to the forest",
             ]
             if "explored_planewreck" in player.completed and "found_people" not in player.completed:
                 opts_list.insert(2, "Talk to people")
+            if "set_up_camp" in player.completed:
+                opts_list.remove("Set up camp")
+                opts_list.insert(3, "Walk to the campsite")
+
         case "campsite":
             opts_list = [
                 "Go to the campfire",
@@ -148,8 +152,12 @@ def set_player_location(arg):
                     player.completed.append("looted_corpses")
 
                 all_widgets.append(ent_loot_corpses)
+            
+            if arg == "Set up camp":
+                player.completed.append("set_up_camp")
+                player.location = "campsite"
 
-        if "Leave" in arg and location in ("campfire", "text"):
+        if "Leave" in arg and location in ("campfire", "tent"):
             player.location = "campsite"
         list_opts_entry()
     else:
