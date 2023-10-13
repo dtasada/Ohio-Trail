@@ -21,8 +21,8 @@ clock = pygame.time.Clock()
 ticks = pygame.time.get_ticks
 WHITE = (255, 255, 255, 255)
 BLACK = (0, 0, 0, 255)
-fonts = [pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), x) for x in range(0, 100)]
-font = pygame.font.Font(os.path.join("assets", "oregon-bound", "oregon-bound.ttf"), 18)
+fonts = [pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), x) for x in range(0, 100)]
+font = pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), 18)
 beep_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "beep.wav"))
 typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.wav"))
 typewriter_sound.set_volume(0.1)

@@ -1,3 +1,4 @@
+from os import access
 from .character import *
 from .ttt import *
 
@@ -77,16 +78,22 @@ def list_opts():
     match player.location:
         case "planewreck":
             opts_list = [
-                "Explore planewreck",
+                "Explore the planewreck",
                 "Loot corpses",
-                "Walk to campsite",
-                "Walk to forest",
+                "Set up camp",
+                "Walk to the forest",
             ]
+            if "explored_planewreck" in player.completed and "found_people" not in player.completed:
+                opts_list.insert(2, "Talk to people")
+            if "set_up_camp" in player.completed:
+                opts_list.remove("Set up camp")
+                opts_list.insert(3, "Walk to the campsite")
+
         case "campsite":
             opts_list = [
-                "Go to campfire",
-                "Go to tent",
-                "Go to planewreck",
+                "Go to the campfire",
+                "Go to your tent",
+                "Go to the planewreck",
             ]
         case "campfire":
             opts_list = [
@@ -96,14 +103,14 @@ def list_opts():
             ]
         case "tent":
             opts_list = [
-                "Explore tent",
+                "Explore the tent",
                 "Sleep",
-                "Leave the tent"
+                "Leave the tent",
             ]
         case "forest":
             opts_list = [
                 "Collect firewood",
-                "Explore forest",
+                "Explore the forest",
                 "Walk back to the campsite",
             ]
     sel_opts = RetroSelection(opts_list, (0, 0), set_player_location)
@@ -112,16 +119,42 @@ def list_opts():
 
 def set_player_location(arg):
     global pls_explore
+<<<<<<< HEAD
     if player.explored_planewreck or arg in ("Explore planewreck", "Loot corpses"):
         player.explored_planewreck = True
+=======
+    if "explored_planewreck" in player.completed or arg in ("Explore the planewreck", "Loot corpses"):
+        player.completed.append("explored_planewreck")
+>>>>>>> dbc29aadc76428519895f8dcf0ed1e28e4d5edd6
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
         location = arg.split(' ')[-1]
-        if location in possible_locations and "Explore" not in arg:
-            player.location = location
-        elif "Explore" in arg:
-            pass
-        if "Leave" in arg and location in ("campfire", "text"):
+        if location in possible_locations:
+            if "Explore" in arg:
+                if "found_people" in player.completed:
+                    ent_explore_planewreck = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
+                else:
+                    ent_explore_planewreck = RetroEntry("You've found some people!", (0, 600), list_opts_entry)
+                    player.completed.append("explored_planewreck")
+                all_widgets.append(ent_explore_planewreck)
+            else:
+                player.location = location
+        else:
+            if arg == "Loot corpses":
+                if "looted_corpses" in player.completed:
+                    ent_loot_corpses = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
+                else:
+                    money_found = random.gauss(5, 4)
+                    ent_loot_corpses = RetroEntry(f"You have found ${money_found} in the casualties' pockets.", (0, 600), list_opts_entry)
+                    player.completed.append("looted_corpses")
+
+                all_widgets.append(ent_loot_corpses)
+            
+            if arg == "Set up camp":
+                player.completed.append("set_up_camp")
+                player.location = "campsite"
+
+        if "Leave" in arg and location in ("campfire", "tent"):
             player.location = "campsite"
         list_opts_entry()
     else:
@@ -429,10 +462,14 @@ class GenText:
 
 food_select = None
 money_warning = None
+pls_explore = None
 player = Character()
 ttt = TicTacToe()
 
+<<<<<<< HEAD
 pls_explore = None
+=======
+>>>>>>> dbc29aadc76428519895f8dcf0ed1e28e4d5edd6
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')

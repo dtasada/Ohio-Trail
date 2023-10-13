@@ -119,8 +119,13 @@ class Character:
         self.money = 25
         self.show_money = False
         self.location = "planewreck"
-        self.explored_planewreck = False
-        self.explored_tent = False
+        self.completed = [ # Keep empty
+            # "explored_planewreck",
+            # "explored_tent",
+            # "looted_corpses",
+            # "found_people",
+            # "set_up_camp"
+        ]
         self.food = {
             "Eggplant": int(random.gauss(1.5, 1.5)),
             "Frikandelbroodje": int(random.gauss(0.5, 0.5)),
