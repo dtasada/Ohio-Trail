@@ -11,7 +11,7 @@
 * [x] Finish Intro hook and character selection
 * [x] Define game story
 * [x] Define game environment and mechanics
-* [] Complete starting sequence with first choices
+* [ ] Complete starting sequence with first choices
 
 ## Game Story:
 Player gets stuck on an island. He and 4 NPCs build civilisation on said island.
