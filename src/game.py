@@ -119,16 +119,11 @@ def list_opts():
 
 def set_player_location(arg):
     global pls_explore
-<<<<<<< HEAD
-    if player.explored_planewreck or arg in ("Explore planewreck", "Loot corpses"):
-        player.explored_planewreck = True
-=======
     if "explored_planewreck" in player.completed or arg in ("Explore the planewreck", "Loot corpses"):
         player.completed.append("explored_planewreck")
->>>>>>> dbc29aadc76428519895f8dcf0ed1e28e4d5edd6
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
-        location = arg.split(' ')[-1]
+        location = arg.split(" ")[-1]
         if location in possible_locations:
             if "Explore" in arg:
                 if "found_people" in player.completed:
@@ -149,7 +144,7 @@ def set_player_location(arg):
                     player.completed.append("looted_corpses")
 
                 all_widgets.append(ent_loot_corpses)
-            
+
             if arg == "Set up camp":
                 player.completed.append("set_up_camp")
                 player.location = "campsite"
@@ -466,10 +461,7 @@ pls_explore = None
 player = Character()
 ttt = TicTacToe()
 
-<<<<<<< HEAD
 pls_explore = None
-=======
->>>>>>> dbc29aadc76428519895f8dcf0ed1e28e4d5edd6
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
