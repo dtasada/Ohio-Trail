@@ -118,9 +118,8 @@ def list_opts():
 
 
 def set_player_location(arg):
-    print(1)
+    global pls_explore
     if "explored_planewreck" in player.completed or arg in ("Explore the planewreck", "Loot corpses"):
-        print(2)
         player.completed.append("explored_planewreck")
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
@@ -128,18 +127,12 @@ def set_player_location(arg):
         location = arg.split(' ')[-1]
         if location in possible_locations:
             if "Explore" in arg:
-                print(3)
-                print(player.completed)
-                print("found_people" in player.completed)
                 if "found_people" in player.completed:
                     ent_explore_planewreck = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
                 else:
-                    print(4)
                     ent_explore_planewreck = RetroEntry("You've found some people!", (0, 600), list_opts_entry)
                     player.completed.append("explored_planewreck")
                 all_widgets.append(ent_explore_planewreck)
-                print("found_people" in player.completed)
-                print(ent_explore_planewreck in all_widgets)
             else:
                 player.location = location
         else:
@@ -163,6 +156,7 @@ def set_player_location(arg):
     else:
         if pls_explore in all_widgets:
             all_widgets.remove(pls_explore)
+        pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
         all_widgets.append(pls_explore)
 
 
@@ -460,10 +454,10 @@ class GenText:
 
 food_select = None
 money_warning = None
+pls_explore = None
 player = Character()
 ttt = TicTacToe()
 
-pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
