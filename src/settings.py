@@ -9,7 +9,6 @@ import random
 import sys
 import time
 
-food_select = None
 
 pygame.init()
 R = 10
@@ -30,6 +29,7 @@ pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
 ZWS = "​"  # niet empty maar zero width space
 day = 1
 
+
 def pause1(func):
     def threaded():
         time.sleep(1)
@@ -49,6 +49,7 @@ def pause4(func):
         Thread(target=threaded, daemon=True).start()
 
     return inner
+
 
 def fill_rect(renderer, color, rect):
     renderer.draw_color = color

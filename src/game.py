@@ -1,25 +1,15 @@
 from os import access
 from .character import *
-from .ttt import *
 
 
 # storyline functions
-def stop_program():
-    pygame.quit()
-    sys.exit()
+def enter_background(name):
+    player.name = name
+    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), enter_bg_selection)
+    all_widgets.append(ent_bg)
 
 
-def ask_background(name):
-    if name.lower() == "joe":
-        ent_balls = RetroEntry("Ligma balls", (0, 60), stop_program)
-        all_widgets.append(ent_balls)
-    else:
-        player.name = name
-        ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
-        all_widgets.append(ent_bg)
-
-
-def ask_bg_selection():
+def enter_bg_selection():
     bg_list = [data["desc"] for data in possible_backgrounds.values()]
     sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
     all_widgets.append(sel_bg)
@@ -29,6 +19,7 @@ def set_character_bg(bg):
     bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
     player.background = bg_name
     speed = 0.7 if bg_name == "man" else 0.4
+    #
     voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
     possible_backgrounds[bg_name]["sound"].play()
@@ -36,24 +27,32 @@ def set_character_bg(bg):
 
 @pause1
 def intro():
+    #
     all_widgets.clear()
+    #
     trip_type = {"banker": "business", "chef": "culinary"}.get(player.background, "pleasure")
-    intro_hook = f"""Your name is {player.name}. You have boarded a plane headed
+    text_intro = \
+    f"""Your name is {player.name}. You have boarded a plane headed
+
 towards Cleveland, Ohio.{ZWS * 20}
 
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35, should_stay=True)
-    ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
-    all_widgets.append(plane_anim)
-    all_widgets.append(ent_intro) # important that this is the last thing appended
+
+    # plane crashing animation and
+    anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
+    all_widgets.append(anim_plane)
+    #
+    info_intro = RetroEntry(text_intro, (0, 0), intro_crash, reverse_data=(12, "4 people."))
+    all_widgets.append(info_intro)  # important that this is the last thing appended
 
 
 @pause1
-def intro_p2():
+def intro_crash():
     all_widgets.pop()
-    intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+    text_intro_crash = \
+    f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
 
 You are one of only 5 survivors.{ZWS * 20}
 
@@ -61,174 +60,15 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), pause4(list_opts_entry))
-    all_widgets.append(ent_intro_p2)
+    info_intro_crash = RetroEntry(text_intro_crash, (0, 0), crash_choice)
+    all_widgets.append(info_intro_crash)
 
 
-def list_opts_entry(speed=0.6):
-    for x in all_widgets[:]:
-        if x != pls_explore:
-            all_widgets.remove(x)
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts, speed=speed)
-    all_widgets.append(ent_location)
+def crash_choice():
+    print("asd")
 
 
-def list_opts():
-    opts_list = []
-    match player.location:
-        case "planewreck":
-            opts_list = [
-                "Explore the planewreck",
-                "Loot corpses",
-                "Set up camp",
-                "Walk to the forest",
-            ]
-            if "explored_planewreck" in player.completed and "found_people" not in player.completed:
-                opts_list.insert(2, "Talk to people")
-            if "set_up_camp" in player.completed:
-                opts_list.remove("Set up camp")
-                opts_list.insert(3, "Walk to the campsite")
-
-        case "campsite":
-            opts_list = [
-                "Go to the campfire",
-                "Go to your tent",
-                "Go to the planewreck",
-            ]
-        case "campfire":
-            opts_list = [
-                "Add firewood",
-                "Enjoy warmth",
-                "Leave the campfire",
-            ]
-        case "tent":
-            opts_list = [
-                "Explore the tent",
-                "Sleep",
-                "Leave the tent",
-            ]
-        case "forest":
-            opts_list = [
-                "Collect firewood",
-                "Explore the forest",
-                "Walk back to the campsite",
-            ]
-    sel_opts = RetroSelection(opts_list, (0, 0), set_player_location)
-    all_widgets.append(sel_opts)
-
-
-def set_player_location(arg):
-    global pls_explore
-    if "explored_planewreck" in player.completed or arg in ("Explore the planewreck", "Loot corpses"):
-        player.completed.append("explored_planewreck")
-        if pls_explore in all_widgets:
-            all_widgets.remove(pls_explore)
-        location = arg.split(" ")[-1]
-        if location in possible_locations:
-            if "Explore" in arg:
-                if "found_people" in player.completed:
-                    ent_explore_planewreck = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
-                else:
-                    ent_explore_planewreck = RetroEntry("You've found some people!", (0, 600), list_opts_entry)
-                    player.completed.append("explored_planewreck")
-                all_widgets.append(ent_explore_planewreck)
-            else:
-                player.location = location
-        else:
-            if arg == "Loot corpses":
-                if "looted_corpses" in player.completed:
-                    ent_loot_corpses = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
-                else:
-                    money_found = random.gauss(5, 4)
-                    ent_loot_corpses = RetroEntry(f"You have found ${money_found} in the casualties' pockets.", (0, 600), list_opts_entry)
-                    player.completed.append("looted_corpses")
-
-                all_widgets.append(ent_loot_corpses)
-
-            if arg == "Set up camp":
-                player.completed.append("set_up_camp")
-                player.location = "campsite"
-
-        if "Leave" in arg and location in ("campfire", "tent"):
-            player.location = "campsite"
-        list_opts_entry()
-    else:
-        if pls_explore in all_widgets:
-            all_widgets.remove(pls_explore)
-        pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
-        all_widgets.append(pls_explore)
-
-
-@pause1
-def ask_daily_choice():
-    player.show_money = False
-    all_widgets.clear()
-    ent_daily_choice = RetroEntry("What do you want to do today?", (0, 0), daily_choice_selection)
-    all_widgets.append(ent_daily_choice)
-
-
-def daily_choice_selection():
-    daily_choice_list = list(possible_daily_choice.values())
-    sel_daily_choice = RetroSelection(daily_choice_list, (0, 0), set_daily_choice)
-    all_widgets.append(sel_daily_choice)
-
-
-def set_daily_choice(choice):
-    match {v: k for k, v in possible_daily_choice.items()}[choice]:
-        case "camp":
-            pass
-        case "firewood":
-            pass
-        case "food":
-            ask_food()
-        case "water":
-            pass
-        case "skip":
-            skip_day()
-    all_widgets.clear()
-
-
-@pause1
-def ask_food():
-    food_entry = RetroEntry("Which product would you like to buy?", (0, 0), show_foods_list)
-    all_widgets.clear()
-    all_widgets.append(food_entry)
-
-
-def show_foods_list():
-    global food_select
-    player.show_money = True
-    food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()] + ["Leave Shop"]
-    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs + [None], food_rects)
-    all_widgets.append(food_select)
-
-
-def deduct_food_money(food):
-    if food == "Leave Shop":
-        ask_daily_choice()
-    else:
-        food_name = food.split(" [")[0]
-        price = possible_foods[food_name]["price"]
-        if player.money - price >= 0:
-            if food_name in player.food:
-                player.food[food_name] += 1
-            else:
-                player.food[food_name] = 1
-            player.money -= price
-            pickup_sound.play()
-        all_widgets.remove(food_select)
-        show_foods_list()
-
-@pause1
-def skip_day():
-    global day
-    skip_entry = RetroEntry(f"Day {day}", (0, 0), ask_daily_choice, speed= 0.2, reverse_data=(6, f"Day {day + 1}"))
-    all_widgets.clear()
-    all_widgets.append(skip_entry)
-    day += 1
-
-
-class Retro:
+class _Retro:
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
         self.active = False
@@ -236,7 +76,7 @@ class Retro:
             all_widgets.remove(self)
 
 
-class RetroEntry(Retro):
+class RetroEntry(_Retro):
     def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
         self.final = final + " "
         self.text = ""
@@ -378,7 +218,7 @@ class RetroEntry(Retro):
             self.active = False
 
 
-class RetroSelection(Retro):
+class RetroSelection(_Retro):
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None, autokill=False):
         self.texts = texts
         self.x, self.y = pos
@@ -440,7 +280,7 @@ class RetroSelection(Retro):
         self.draw()
 
 
-class GenText:
+class TitleCard:
     def __init__(self, text, pos, size, sine=(None, None)):
         self.tex, self.rect = write(text, pos, size)
         self.amp, self.freq = sine
@@ -449,20 +289,14 @@ class GenText:
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
             all_widgets.clear()
-            all_widgets.append(name_entry)
+            all_widgets.append(enter_name)
 
     def update(self):
         self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
         REN.blit(self.tex, self.rect)
 
-food_select = None
-money_warning = None
-pls_explore = None
-player = Character()
-ttt = TicTacToe()
 
-pls_explore = None
-name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
+player = Character()
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
 title_card_string = r'''
@@ -481,7 +315,8 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 
 '''
-title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, sine=(15, 0.002))
+title_card = TitleCard(f"{title_card_string}{' ' * 8}{random_ahh}", (96, 76), 24, sine=(15, 0.002))
+enter_name = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=enter_background)
 all_widgets = [title_card]
 
 
