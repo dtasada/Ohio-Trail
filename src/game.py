@@ -1,6 +1,8 @@
-from os import access
+import sys
+from typing import Callable, List
+from math import sin
+from contextlib import suppress
 from .character import *
-from .ttt import *
 
 
 # storyline functions
@@ -20,18 +22,20 @@ def ask_background(name):
 
 
 def ask_bg_selection():
-    bg_list = [data["desc"] for data in possible_backgrounds.values()]
-    sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, bg_imgs, bg_rects)
+    bg_list = [i.desc for i in possible_backgrounds]
+    sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, [v.tex for v in possible_backgrounds], [v.rect for v in possible_backgrounds])
     all_widgets.append(sel_bg)
 
 
 def set_character_bg(bg):
-    bg_name = [k for k, v in possible_backgrounds.items() if v["desc"] == bg][0]
-    player.background = bg_name
-    speed = 0.7 if bg_name == "man" else 0.4
-    voiceline_entry = RetroEntry(possible_backgrounds[bg_name]["catchphrase"], (150, 420), intro, accepts_input=False, wrap=WIDTH - 300, speed=speed, typewriter=False)
+    background = [i for i in possible_backgrounds if i.desc == bg][0]
+    player.background = background.name
+    speed = 0.7 if background.name == "man" else 0.4
+    voiceline_entry = RetroEntry(background.catchphrase, (150, 420), intro, accepts_input=False, wrap=window.size[0] - 300, speed=speed, typewriter=False)
     all_widgets.append(voiceline_entry)
-    possible_backgrounds[bg_name]["sound"].play()
+    for i in possible_backgrounds:
+        if i.desc == bg:
+            i.sound.play()
 
 
 @pause1
@@ -199,7 +203,7 @@ def show_foods_list():
     global food_select
     player.show_money = True
     food_list = [f"{k} [${v['price']}]" for k, v in possible_foods.items()] + ["Leave Shop"]
-    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, food_imgs + [None], food_rects)
+    food_select = RetroSelection(food_list, (0, 0), deduct_food_money, [v.tex for v in possible_foods] + [None], [v.rect for v in possible_foods])
     all_widgets.append(food_select)
 
 
@@ -229,15 +233,21 @@ def skip_day():
 
 
 class Retro:
+    autokill: bool
+    command: Callable
+
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
         self.active = False
         if self.autokill:
             all_widgets.remove(self)
 
+    def update(self): ...
+    def process_event(self, event): ...
+
 
 class RetroEntry(Retro):
-    def __init__(self, final, pos, command, accepts_input=False, wrap=WIDTH, speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
+    def __init__(self, final, pos, command, accepts_input=False, wrap=window.size[0], speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -267,7 +277,7 @@ class RetroEntry(Retro):
 
     def draw(self):
         if int(self.index) >= 1:
-            REN.blit(self.image, self.rect)
+            renderer.blit(self.image, self.rect)
 
     def process_event(self, event):
         if self.active:
@@ -362,10 +372,10 @@ class RetroEntry(Retro):
     def update_tex(self, text):
         self.text = text
         try:
-            img = font.render(text, True, WHITE)
+            img = font.render(text, True, Color.WHITE)
         except pygame.error:
             img = pygame.Surface((1, 1), pygame.SRCALPHA)
-        self.image = Texture.from_surface(REN, img)
+        self.image = Texture.from_surface(renderer, img)
         self.rect = img.get_rect(topleft=(self.x, self.y))
         if isinstance(self.wrap, int):
             cond = self.rect.right >= self.wrap
@@ -392,9 +402,9 @@ class RetroSelection(Retro):
         else:
             self.images = images
             self.image_rects = image_rects
-        imgs = [font.render(text, True, WHITE) for text in texts]
+        imgs = [font.render(text, True, Color.WHITE) for text in texts]
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
-        self.texs = [Texture.from_surface(REN, img) for img in imgs]
+        self.texs = [Texture.from_surface(renderer, img) for img in imgs]
         self.selected = 0
         self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
@@ -404,12 +414,12 @@ class RetroSelection(Retro):
 
     def draw(self):
         for tex, rect in zip(self.texs, self.rects):
-            REN.blit(tex, rect)
+            renderer.blit(tex, rect)
         if self.images:
             with suppress(IndexError):
                 if self.images[self.index] is not None:
-                    REN.blit(self.images[self.index], self.image_rects[self.index])
-        REN.blit(self.gt, self.gt_rect)
+                    renderer.blit(self.images[self.index], self.image_rects[self.index])
+        renderer.blit(self.gt, self.gt_rect)
 
     def process_event(self, event):
         if self.active:
@@ -453,13 +463,12 @@ class GenText:
 
     def update(self):
         self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
-        REN.blit(self.tex, self.rect)
+        renderer.blit(self.tex, self.rect)
 
 food_select = None
 money_warning = None
 pls_explore = None
 player = Character()
-ttt = TicTacToe()
 
 pls_explore = None
 name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
@@ -482,7 +491,7 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 '''
 title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, sine=(15, 0.002))
-all_widgets = [title_card]
+all_widgets: List[Retro | GenText | Animation] = [title_card]
 
 
 def main(debug=False):
@@ -497,24 +506,24 @@ def main(debug=False):
                 for widget in all_widgets[:]:
                     widget.process_event(event)
 
-        fill_rect(REN, (0, 0, 0, 255), (0, 0, WIDTH, HEIGHT))
+        fill_rect(renderer, (0, 0, 0, 255), (0, 0, *window.size))
 
         for widget in all_widgets[:]:
-            widget.update()
+            widget.update() 
             if getattr(widget, "kill", False):
                 all_widgets.remove(widget)
 
         if player.show_money:
             i = 0
-            for k in possible_foods.keys():
-                if k in player.food.keys() and player.food[k] != 0:
-                    img, rect = write(f"{k}: {player.food[k]}", (38, 460 + i * 28))
-                    REN.blit(img, rect)
+            for food in player.food:
+                if player.food[food] != 0:
+                    img, rect = write(f"{food}: {player.food[food]}", (38, 460 + i * 28))
+                    renderer.blit(img, rect)
                     i += 1
 
         player.update()
 
-        REN.present()
+        renderer.present()
 
     pygame.quit()
     sys.exit()
