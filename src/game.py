@@ -1,29 +1,19 @@
 import sys
 from typing import Callable, List
-from math import sin
+from math import sin, ceil
 from contextlib import suppress
 from .character import *
 
 
 # storyline functions
-def stop_program():
-    pygame.quit()
-    sys.exit()
+def enter_background(name):
+    player.name = name
+    ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), enter_bg_selection)
+    all_widgets.append(ent_bg)
 
-
-def ask_background(name):
-    if name.lower() == "joe":
-        ent_balls = RetroEntry("Ligma balls", (0, 60), stop_program)
-        all_widgets.append(ent_balls)
-    else:
-        player.name = name
-        ent_bg = RetroEntry(f"And {name}, what may your background be?", (0, 60), ask_bg_selection)
-        all_widgets.append(ent_bg)
-
-
-def ask_bg_selection():
+def enter_bg_selection():
     bg_list = [i.desc for i in possible_backgrounds]
-    sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, [v.tex for v in possible_backgrounds], [v.rect for v in possible_backgrounds])
+    sel_bg = RetroSelection(bg_list, (0, 80), set_character_bg, [i.tex for i in possible_backgrounds], [i.rect for i in possible_backgrounds])
     all_widgets.append(sel_bg)
 
 
@@ -40,24 +30,32 @@ def set_character_bg(bg):
 
 @pause1
 def intro():
+    #
     all_widgets.clear()
+    #
     trip_type = {"banker": "business", "chef": "culinary"}.get(player.background, "pleasure")
-    intro_hook = f"""Your name is {player.name}. You have boarded a plane headed
+    text_intro = \
+    f"""Your name is {player.name}. You have boarded a plane headed
+
 towards Cleveland, Ohio.{ZWS * 20}
 
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
-    plane_anim = Animation('intro-hook', (0, 100), 5, 0.35, should_stay=True)
-    ent_intro = RetroEntry(intro_hook, (0, 0), intro_p2, reverse_data=(12, "4 people."))
-    all_widgets.append(plane_anim)
-    all_widgets.append(ent_intro) # important that this is the last thing appended
+
+    # plane crashing animation and
+    anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
+    all_widgets.append(anim_plane)
+    #
+    info_intro = RetroEntry(text_intro, (0, 0), intro_crash, reverse_data=(12, "4 people."))
+    all_widgets.append(info_intro)  # important that this is the last thing appended
 
 
 @pause1
-def intro_p2():
+def intro_crash():
     all_widgets.pop()
-    intro_p2_hook = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
+    text_intro_crash = \
+    f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
 
 You are one of only 5 survivors.{ZWS * 20}
 
@@ -65,16 +63,12 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    ent_intro_p2 = RetroEntry(intro_p2_hook, (0, 0), pause4(list_opts_entry))
-    all_widgets.append(ent_intro_p2)
+    info_intro_crash = RetroEntry(text_intro_crash, (0, 0), crash_choice)
+    all_widgets.append(info_intro_crash)
 
 
-def list_opts_entry(speed=0.6):
-    for x in all_widgets[:]:
-        if x != pls_explore:
-            all_widgets.remove(x)
-    ent_location = RetroEntry(f"You are at the {player.location}", (0,0), command=list_opts, speed=speed)
-    all_widgets.append(ent_location)
+def crash_choice():
+    print("asd")
 
 
 def list_opts():
@@ -232,10 +226,9 @@ def skip_day():
     day += 1
 
 
-class Retro:
+class _Retro:
     autokill: bool
     command: Callable
-
     def finish(self, *args, **kwargs):
         self.command(*args, **kwargs)
         self.active = False
@@ -246,7 +239,7 @@ class Retro:
     def process_event(self, event): ...
 
 
-class RetroEntry(Retro):
+class RetroEntry(_Retro):
     def __init__(self, final, pos, command, accepts_input=False, wrap=window.size[0], speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
         self.final = final + " "
         self.text = ""
@@ -388,7 +381,7 @@ class RetroEntry(Retro):
             self.active = False
 
 
-class RetroSelection(Retro):
+class RetroSelection(_Retro):
     def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None, autokill=False):
         self.texts = texts
         self.x, self.y = pos
@@ -450,7 +443,7 @@ class RetroSelection(Retro):
         self.draw()
 
 
-class GenText:
+class TitleCard:
     def __init__(self, text, pos, size, sine=(None, None)):
         self.tex, self.rect = write(text, pos, size)
         self.amp, self.freq = sine
@@ -459,19 +452,13 @@ class GenText:
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
             all_widgets.clear()
-            all_widgets.append(name_entry)
+            all_widgets.append(enter_name)
 
     def update(self):
         self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
         renderer.blit(self.tex, self.rect)
 
-food_select = None
-money_warning = None
-pls_explore = None
 player = Character()
-
-pls_explore = None
-name_entry = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=ask_background)
 
 random_ahh = ' '.join(random.sample(['press', 'space', 'to', 'continue'], 4)).capitalize().replace('space', 'SPACE').replace('Space', 'SPACE')
 title_card_string = r'''
@@ -490,8 +477,10 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 
 '''
-title_card = GenText(f"{title_card_string}       {random_ahh}", (96, 76), 24, sine=(15, 0.002))
-all_widgets: List[Retro | GenText | Animation] = [title_card]
+
+title_card = TitleCard(f"{title_card_string}{' ' * 8}{random_ahh}", (96, 76), 24, sine=(15, 0.002))
+enter_name = RetroEntry("Hello traveler, what is your name?", (0, 0), accepts_input=True, command=enter_background)
+all_widgets: List[_Retro | TitleCard | Animation] = [title_card]
 
 
 def main(debug=False):

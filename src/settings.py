@@ -5,7 +5,6 @@ import pygame
 import time
 from typing import Tuple
 
-food_select = None
 
 pygame.init()
 scaling = 10
