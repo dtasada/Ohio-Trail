@@ -50,14 +50,6 @@ possible_backgrounds: List[Background] = [
     ),
 ]
 
-possible_daily_choice = {
-    "camp": "Set up camp",
-    "firewood": "Collect firewood",
-    "food": "Search for food",
-    "water": "Go get water",
-    "skip": "Skip day",
-}
-
 
 class Food(Enum):
     EGGPLANT = _Food("Eggplant", 1)
@@ -67,18 +59,6 @@ class Food(Enum):
     SOUR_PATCH_KIDS = _Food("Sour Patch Kids", 2)
     MRBEAST_FEASTABLES = _Food("MrBeast Feastables", 5)
     PINK_SAUCE = _Food("Pink-Sauce", 1)
-    # "Pineapple Pizza": { "price": 2 },
-    # "Beef Jerky": { "price": 2 }
-    # "CocoNutz": { "price": 1 },
-
-
-clothing = {
-    "Kilt": 10,
-    "Skinny jeans": 10,
-    "Among Us hoodie": 69,
-    "Minecraft t-shirt": 20,
-    "$19 Fortnite card": 20,
-}
 
 
 class Locations(Enum):
@@ -89,21 +69,22 @@ class Locations(Enum):
     FOREST = auto()
 
 
-class Character:
-    class Completed(IntFlag):
-        EXPLORED_PLANEWRECK = auto()
-        EXPLORED_TENT = auto()
-        LOOTED_CORPSES = auto()
-        FOUND_PEOPLE = auto()
-        SET_UP_CAMP = auto()
+class Completed(IntFlag):
+    EXPLORED_PLANEWRECK = auto()
+    EXPLORED_TENT = auto()
+    LOOTED_CORPSES = auto()
+    FOUND_PEOPLE = auto()
+    SET_UP_CAMP = auto()
 
+
+class Character:
     def __init__(self):
         self.name = None
         self.hp = 5
         self.money = 25
         self.show_money = False
         self.location = "planewreck"
-        self.completed: List[Character.Completed] = []
+        self.completed: List[Completed] = []
         self.food: Dict[Food, int] = {
             Food.EGGPLANT: int(random.gauss(1.5, 1.5)),
             Food.FRIKANDELBROODJE: int(random.gauss(0.5, 0.5)),
