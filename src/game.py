@@ -71,7 +71,7 @@ Objective: survive for as long as possible.
 def select_planewreck():
     all_widgets.clear()
     crash_opts = RetroSelection([
-        Actions.LOOT_CORPSES, Actions.EXPLORE_PLANE, "Go to the forest"
+        Action.LOOT_CORPSES, Action.EXPLORE_PLANE, "Go to the forest"
     ], (0, 0), planewreck_choices)
     all_widgets.append(crash_opts)
 
@@ -82,48 +82,6 @@ def info_loot_corpses():
 
 def info_explore_planewreck():
     print("you found bodies")
-
-
-def set_player_location(arg):
-    global pls_explore
-    if "explored_planewreck" in player.completed or arg in ("Explore the planewreck", "Loot corpses"):
-        player.completed.append("explored_planewreck")
-        if pls_explore in all_widgets:
-            all_widgets.remove(pls_explore)
-        location = arg.split(" ")[-1]
-        if location in possible_locations:
-            if "Explore" in arg:
-                if "found_people" in player.completed:
-                    ent_explore_planewreck = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
-                else:
-                    ent_explore_planewreck = RetroEntry("You've found some people!", (0, 600), list_opts_entry)
-                    player.completed.append("explored_planewreck")
-                all_widgets.append(ent_explore_planewreck)
-            else:
-                player.location = location
-        else:
-            if arg == "Loot corpses":
-                if "looted_corpses" in player.completed:
-                    ent_loot_corpses = RetroEntry("You've found nothing new.", (0, 600), list_opts_entry)
-                else:
-                    money_found = random.gauss(5, 4)
-                    ent_loot_corpses = RetroEntry(f"You have found ${money_found} in the casualties' pockets.", (0, 600), list_opts_entry)
-                    player.completed.append("looted_corpses")
-
-                all_widgets.append(ent_loot_corpses)
-
-            if arg == "Set up camp":
-                player.completed.append("set_up_camp")
-                player.location = "campsite"
-
-        if "Leave" in arg and location in ("campfire", "tent"):
-            player.location = "campsite"
-        list_opts_entry()
-    else:
-        if pls_explore in all_widgets:
-            all_widgets.remove(pls_explore)
-        pls_explore = RetroEntry("Maybe you should explore the planewreck first!", (0, 600), list_opts_entry, next_should_be_immediate=True)
-        all_widgets.append(pls_explore)
 
 
 class _Retro:
@@ -289,12 +247,8 @@ class RetroSelection(_Retro):
         self.yo = 40
         self.images = images
         self.exit_sel = exit_sel
-        if images is None:
-            self.images = []
-            self.image_rects = []
-        else:
-            self.images = images
-            self.image_rects = image_rects
+        self.images = images or []
+        self.image_rects = image_rects or []
         imgs = [font.render(text, True, Color.WHITE) for text in texts]
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
         self.texs = [Texture.from_surface(renderer, img) for img in imgs]

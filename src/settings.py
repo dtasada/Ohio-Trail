@@ -4,6 +4,7 @@ import os
 import pygame
 import time
 from typing import Tuple
+from enum import Enum
 
 
 pygame.init()
@@ -63,6 +64,14 @@ def write(text, pos, size=18):
     tex = Texture.from_surface(renderer, img)
     rect = img.get_rect(topleft=pos)
     return tex, rect
+
+
+def str_to_enum(string: str) -> str:
+    return string.replace(" ", "_").upper()
+
+
+def enum_to_str(string: str) -> str:
+    return string.replace("_", " ").title()
 
 
 class Animation:
