@@ -65,7 +65,7 @@ Objective: survive for as long as possible.
 
 
 def crash_choice():
-    print("asd")
+    
 
 
 class _Retro:
