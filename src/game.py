@@ -72,7 +72,7 @@ def select_planewreck():
     all_widgets.clear()
     crash_opts = RetroSelection([
         Actions.LOOT_CORPSES, Actions.EXPLORE_PLANE, "Go to the forest"
-    ], (0, 0), planewreck_choices)
+    ], (0, 0))
     all_widgets.append(crash_opts)
 
 
@@ -282,7 +282,7 @@ class RetroEntry(_Retro):
 
 
 class RetroSelection(_Retro):
-    def __init__(self, texts, pos, command, images=None, image_rects=None, exit_sel=None, autokill=False):
+    def __init__(self, texts, pos, command=None, images=None, image_rects=None, exit_sel=None, autokill=False):
         self.texts = texts
         self.x, self.y = pos
         self.xo = 40
@@ -303,7 +303,16 @@ class RetroSelection(_Retro):
         self.active = True
         self.command = command
         self.index = 0
-        self.autokill = autokill
+        self.autokill = autokil
+    
+    def finish(self, text):
+        if self.command is not None:
+            self.command(text)
+        else:
+            
+        self.active = False
+        if self.autokill:
+            all_widgets.remove(self)
 
     def draw(self):
         for tex, rect in zip(self.texs, self.rects):
