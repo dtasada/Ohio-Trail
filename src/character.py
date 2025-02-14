@@ -1,9 +1,13 @@
-from enum import Enum, IntFlag, auto
-from typing import List, Dict
-import random
 from .settings import *
+from .game import game
 
-has_camp = False
+from enum import Enum, IntFlag, auto
+from pygame._sdl2.video import Texture
+from typing import List, Dict
+from pathlib import Path
+
+import pygame
+import random
 
 
 class Background:
@@ -11,16 +15,16 @@ class Background:
         self.name: str = name
         self.desc: str = desc
         self.catchphrase: str = catchphrase
-        self.img = pygame.transform.scale_by(
-            pygame.image.load(os.path.join("assets", "characters", f"{self.name}.png")),
-            scaling,
+        self.img: pygame.Surface = pygame.transform.scale_by(
+            pygame.image.load(Path("assets", "characters", f"{self.name}.png")),
+            SCALING,
         )
-        self.tex = Texture.from_surface(renderer, self.img)
-        self.rect = self.img.get_rect(center=(window.size[0] - 220, window.size[1] / 2))
+        self.tex = Texture.from_surface(game.renderer, self.img)
+        self.rect = self.img.get_rect(
+            center=(game.window.size[0] - 220, game.window.size[1] / 2)
+        )
         self.desc = f"{index}. {self.desc}"
-        self.sound = pygame.mixer.Sound(
-            os.path.join("assets", "sfx", f"{self.name}.wav")
-        )
+        self.sound = pygame.mixer.Sound(Path("assets", "sfx", f"{self.name}.wav"))
 
 
 class _Food:
@@ -29,12 +33,14 @@ class _Food:
         self.price = price
         self.img = pygame.transform.scale_by(
             pygame.image.load(
-                os.path.join("assets", "food", f"{name.lower().replace(' ', '-')}.png")
+                Path("assets", "food", f"{name.lower().replace(' ', '-')}.png")
             ),
-            scaling,
+            SCALING,
         )
-        self.tex = Texture.from_surface(renderer, self.img)
-        self.rect = self.img.get_rect(center=(window.size[0] - 300, window.size[1] / 2))
+        self.tex = Texture.from_surface(game.renderer, self.img)
+        self.rect = self.img.get_rect(
+            center=(game.window.size[0] - 300, game.window.size[1] / 2)
+        )
 
 
 possible_backgrounds: List[Background] = [
@@ -95,8 +101,11 @@ class Character:
     def update(self):
         if self.show_money:
             tex, rect = write(f"${self.money}", (40, 370), 30)
-            renderer.blit(tex, rect)
+            game.renderer.blit(tex, rect)
 
     def setup(self, name, background):
         self.name = name
         self.background = background
+
+
+player = Character()

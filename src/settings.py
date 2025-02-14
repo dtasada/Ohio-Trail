@@ -1,30 +1,20 @@
-from pygame._sdl2.video import Window, Texture, Renderer
+from pygame._sdl2.video import Texture
 from threading import Thread
-import os
+from typing import Tuple
+from pathlib import Path
 import pygame
 import time
-from typing import Tuple
-from enum import Enum
 
+from .game import game
 
-pygame.init()
-scaling = 10
-window = Window(size=(1100, 650), title="Ohio Trail")
-window.set_icon(pygame.image.load(os.path.join("assets", "logo.png")))
-renderer = Renderer(window)
-clock = pygame.time.Clock()
-ticks = pygame.time.get_ticks
-fonts = [
-    pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), x)
+# Globals
+ZWS = "​"  # niet empty maar zero width space
+SCALING = 10
+FONTS = [
+    pygame.font.Font(Path("assets", "fonts", "oregon-bound.ttf"), x)
     for x in range(0, 100)
 ]
-font = pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), 18)
-beep_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "beep.wav"))
-typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.wav"))
-typewriter_sound.set_volume(0.1)
-pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
-ZWS = "​"  # niet empty maar zero width space
-day = 1
+FONT = FONTS[18]
 
 
 def pause1(func):
@@ -60,8 +50,8 @@ def draw_line(renderer, color, p1, p2):
 
 
 def write(text, pos, size=18):
-    img = fonts[size].render(text, True, Color.WHITE)
-    tex = Texture.from_surface(renderer, img)
+    img = FONTS[size].render(text, True, Color.WHITE)
+    tex = Texture.from_surface(game.renderer, img)
     rect = img.get_rect(topleft=pos)
     return tex, rect
 
@@ -86,7 +76,7 @@ class Animation:
     ):
         self.scaling = scaling
         self.should_stay = should_stay
-        self.path = os.path.join("assets", f"{path}.png")
+        self.path = Path("assets", f"{path}.png")
         self.pos = pos
         self.framerate = framerate
         self.index = 0
@@ -99,7 +89,7 @@ class Animation:
             self.frame_height = self.img.get_height()
             self.texs = [
                 Texture.from_surface(
-                    renderer,
+                    game.renderer,
                     self.img.subsurface(
                         x * self.frame_width, 0, self.frame_width, self.frame_height
                     ),
@@ -111,7 +101,7 @@ class Animation:
             self.img = pygame.transform.scale_by(
                 pygame.image.load(self.path), self.scaling
             )
-            self.tex = Texture.from_surface(renderer, self.img)
+            self.tex = Texture.from_surface(game.renderer, self.img)
             self.rect = self.tex.get_rect()
         self.kill = False
 
@@ -122,9 +112,11 @@ class Animation:
                 if self.should_stay is False:
                     self.kill = True
                 else:
-                    renderer.blit(self.texs[-1], self.rects[-1])
+                    game.renderer.blit(self.texs[-1], self.rects[-1])
             else:
-                renderer.blit(self.texs[int(self.index)], self.rects[int(self.index)])
+                game.renderer.blit(
+                    self.texs[int(self.index)], self.rects[int(self.index)]
+                )
         else:
             print("else")
 
@@ -135,3 +127,15 @@ class Animation:
 class Color:
     WHITE = (255, 255, 255, 255)
     BLACK = (0, 0, 0, 255)
+
+
+class Sound:
+    @staticmethod
+    def load(path: Path, volume: float = 1) -> pygame.mixer.Sound:
+        sound = pygame.mixer.Sound(path)
+        sound.set_volume(volume)
+        return sound
+
+    PICKUP = load(Path("assets", "sfx", "pickup.wav"))
+    BEEP = load(Path("assets", "sfx", "beep.wav"))
+    TYPEWRITER = load(Path("assets", "sfx", "typewriter.wav"), 0.1)
