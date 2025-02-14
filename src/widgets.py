@@ -31,7 +31,7 @@ class RetroEntry(_Retro):
         command=None,
         selection=None,
         accepts_input=False,
-        wrap: int | str = game.window.size[0],
+        wrap: int | str = game.window.size[0] - 50,
         speed=0.6,
         typewriter=True,
         reverse_data=(None, None),
@@ -204,16 +204,18 @@ class RetroEntry(_Retro):
             if isinstance(self.wrap, int)
             else self.text.endswith(self.wrap + " ")
         )
-        if condition:
-            remaining_text = self.final.removeprefix(self.text)
-            new_text = RetroEntry(
-                remaining_text,
-                (self.rect.x, self.rect.y + 30),
-                self.command,
-                **self.kwargs,
-            )
-            active_widgets.append(new_text)
-            self.active = False
+        # if condition:
+        #     self.text += "\n\n"
+        # if condition:
+        #     remaining_text = self.final.removeprefix(self.text)
+        #     new_text = RetroEntry(
+        #         remaining_text,
+        #         (self.rect.x, self.rect.y + 30),
+        #         self.command,
+        #         **self.kwargs,
+        #     )
+        #     active_widgets.append(new_text)
+        #     self.active = False
 
 
 class RetroSelection(_Retro):

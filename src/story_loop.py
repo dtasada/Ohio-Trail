@@ -3,6 +3,7 @@ from .game import game
 from .widgets import *
 from enum import member
 from functools import partial
+from pprint import pprint
 
 
 def ask_background(name):
@@ -50,13 +51,16 @@ def intro():
     trip_type = {"banker": "business", "chef": "culinary"}.get(
         player.background, "pleasure"
     )
-    text_intro = f"""Your name is {player.name}. You have boarded a plane headed
-
-towards Cleveland, Ohio.{ZWS * 20}
+    text_intro = f"""Your name is {player.name}. You have boarded a plane headed towards
+    
+Cleveland, Ohio.{ZWS * 20}
 
 You are on a {trip_type} trip.{ZWS * 20}
 
 With you on the plane are another 200 people."""
+    
+
+    print(repr(text_intro))
 
     # plane crashing animation and
     anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
@@ -71,6 +75,12 @@ With you on the plane are another 200 people."""
 
 @pause1
 def intro_crash():
+    for x in active_widgets:
+        print("--------------------")
+        try:
+            print(x.text)
+        except Exception:
+            print(x.texs)
     active_widgets.pop()
     text_intro_crash = f"""Oh no!{ZWS * 20} The plane has crashed!{ZWS * 20}
 
@@ -99,14 +109,17 @@ def select_planewreck():
 
 def info_loot_corpses():
     print("you found moneh")
+    select_planewreck()
 
 
 def info_explore_planewreck():
     print("you found bodies")
+    select_planewreck()
 
 
 def info_go_to_forest():
     print("you went fshing in the forest")
+    select_planewreck()
 
 
 class Action(Enum):

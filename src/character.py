@@ -52,7 +52,7 @@ possible_backgrounds: List[Background] = [
         3,
         "man",
         "Be a man from Florida",
-        f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\nYeah{ZWS * 10} baby!",
+        f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\n\nYeah{ZWS * 10} baby!",
     ),
 ]
 
