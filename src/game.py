@@ -2,6 +2,7 @@ import sys
 from typing import Callable, List
 from math import sin, ceil
 from contextlib import suppress
+from functools import partial
 from .character import *
 
 
@@ -70,10 +71,13 @@ Objective: survive for as long as possible.
 
 def select_planewreck():
     all_widgets.clear()
+
     crash_opts = RetroSelection([
-        Actions.LOOT_CORPSES, Actions.EXPLORE_PLANE, "Go to the forest"
-    ], (0, 0))
-    all_widgets.append(crash_opts)
+        Action.LOOT_CORPSES, Action.EXPLORE_PLANEWRECK, Action.GO_TO_FOREST
+    ], (0, 60))
+
+    crash_info = RetroEntry("You are now at the planewreck", (0, 0), selection=crash_opts)
+    all_widgets.append(crash_info)
 
 
 def info_loot_corpses():
@@ -82,6 +86,10 @@ def info_loot_corpses():
 
 def info_explore_planewreck():
     print("you found bodies")
+
+
+def info_go_to_forest():
+    print("you went fshing in the forest")
 
 
 class _Retro:
@@ -98,7 +106,7 @@ class _Retro:
 
 
 class RetroEntry(_Retro):
-    def __init__(self, final, pos, command, accepts_input=False, wrap=window.size[0], speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
+    def __init__(self, final, pos, command=None, selection=None, accepts_input=False, wrap=window.size[0], speed=0.6, typewriter=True, reverse_data=(None, None), next_should_be_immediate=False, autokill=False):
         self.final = final + " "
         self.text = ""
         self.answer = ""
@@ -118,6 +126,7 @@ class RetroEntry(_Retro):
         self.last_finished_writing = ticks()
         self.deleted = 0
         self.command = command
+        self.selection = selection
         self.active = True
         self.accepts_input = accepts_input
         self.wrap = wrap
@@ -125,6 +134,15 @@ class RetroEntry(_Retro):
         self.kwargs = {"typewriter": typewriter, "speed": speed, "accepts_input": accepts_input}
         self.next_should_be_immediate = next_should_be_immediate
         self.autokill = autokill
+    
+    def finish(self, *args, **kwargs):
+        if self.command is not None:
+            self.command(*args, **kwargs)
+        elif self.selection is not None:
+            all_widgets.append(self.selection)
+        self.active = False
+        if self.autokill:
+            all_widgets.remove(self)
 
     def draw(self):
         if int(self.index) >= 1:
@@ -145,7 +163,8 @@ class RetroEntry(_Retro):
                     name = pygame.key.name(event.key)
                     self.text = self.text.removesuffix("_")
                     if name == "return":
-                        self.finish(self.answer)
+                        if self.answer:
+                            self.finish(self.answer)
                     elif name == "backspace":
                         if self.text != self.final:
                             self.text = self.text[:-1]
@@ -249,21 +268,21 @@ class RetroSelection(_Retro):
         self.exit_sel = exit_sel
         self.images = images or []
         self.image_rects = image_rects or []
-        imgs = [font.render(text, True, Color.WHITE) for text in texts]
+        self.command = command
+        imgs = [font.render(enum_to_str(text.name) if self.command is None else text, True, Color.WHITE) for text in texts]
         self.rects = [img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo)) for y, img in enumerate(imgs)]
         self.texs = [Texture.from_surface(renderer, img) for img in imgs]
         self.selected = 0
         self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
-        self.command = command
         self.index = 0
-        self.autokill = autokil
+        self.autokill = autokill
     
     def finish(self, text):
         if self.command is not None:
             self.command(text)
         else:
-            
+            text.value()
         self.active = False
         if self.autokill:
             all_widgets.remove(self)
@@ -300,7 +319,6 @@ class RetroSelection(_Retro):
                 beep_sound.play()
             elif event.key == pygame.K_RETURN:
                 text = self.texts[self.index]
-                print(text)
                 self.finish(text)
 
     def update(self):
@@ -349,8 +367,9 @@ all_widgets: List[_Retro | TitleCard | Animation] = [title_card]
 
 # ACTIONS --------
 class Action(Enum):
-    LOOT_CORPSES = info_loot_corpses
-    EXPLORE_PLANEWRECK = info_explore_planewreck
+    LOOT_CORPSES = partial(info_loot_corpses)
+    EXPLORE_PLANEWRECK = partial(info_explore_planewreck)
+    GO_TO_FOREST = partial(info_go_to_forest)
 
 
 def main(debug=False):
