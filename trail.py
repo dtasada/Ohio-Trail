@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from src.game import main
+from src.main import main
 
 
 main(debug=True)
