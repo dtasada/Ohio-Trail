@@ -39,7 +39,7 @@ def intro():
     text_intro = \
     f"""Your name is {player.name}. You have boarded a plane headed
 
-towards Cleveland, Ohio.{ZWS * 20}
+towards {random.choice(ohio_cities)}, Ohio.{ZWS * 20}
 
 You are on a {trip_type} trip.{ZWS * 20}
 

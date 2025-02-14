@@ -5,26 +5,30 @@ import pygame
 import time
 from typing import Tuple
 from enum import Enum
+from pathlib import Path
 
 
 pygame.init()
 scaling = 10
 window = Window(size=(1100, 650), title="Ohio Trail")
-window.set_icon(pygame.image.load(os.path.join("assets", "logo.png")))
+window.set_icon(pygame.image.load(Path("assets", "logo.png")))
 renderer = Renderer(window)
 clock = pygame.time.Clock()
 ticks = pygame.time.get_ticks
 fonts = [
-    pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), x)
+    pygame.font.Font(Path("assets", "fonts", "oregon-bound.ttf"), x)
     for x in range(0, 100)
 ]
-font = pygame.font.Font(os.path.join("assets", "fonts", "oregon-bound.ttf"), 18)
-beep_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "beep.wav"))
-typewriter_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "typewriter.wav"))
+font = pygame.font.Font(Path("assets", "fonts", "oregon-bound.ttf"), 18)
+beep_sound = pygame.mixer.Sound(Path("assets", "sfx", "beep.wav"))
+typewriter_sound = pygame.mixer.Sound(Path("assets", "sfx", "typewriter.wav"))
 typewriter_sound.set_volume(0.1)
-pickup_sound = pygame.mixer.Sound(os.path.join("assets", "sfx", "pickup.wav"))
+pickup_sound = pygame.mixer.Sound(Path("assets", "sfx", "pickup.wav"))
 ZWS = "​"  # niet empty maar zero width space
 day = 1
+
+with open(Path("assets", "text_data", "ohio.txt")) as f:
+    ohio_cities = f.read().splitlines()
 
 
 def pause1(func):
@@ -86,7 +90,7 @@ class Animation:
     ):
         self.scaling = scaling
         self.should_stay = should_stay
-        self.path = os.path.join("assets", f"{path}.png")
+        self.path = Path("assets", f"{path}.png")
         self.pos = pos
         self.framerate = framerate
         self.index = 0

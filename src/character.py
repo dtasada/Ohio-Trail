@@ -12,14 +12,14 @@ class Background:
         self.desc: str = desc
         self.catchphrase: str = catchphrase
         self.img = pygame.transform.scale_by(
-            pygame.image.load(os.path.join("assets", "characters", f"{self.name}.png")),
+            pygame.image.load(Path("assets", "characters", f"{self.name}.png")),
             scaling,
         )
         self.tex = Texture.from_surface(renderer, self.img)
         self.rect = self.img.get_rect(center=(window.size[0] - 220, window.size[1] / 2))
         self.desc = f"{index}. {self.desc}"
         self.sound = pygame.mixer.Sound(
-            os.path.join("assets", "sfx", f"{self.name}.wav")
+            Path("assets", "sfx", f"{self.name}.wav")
         )
 
 
@@ -29,7 +29,7 @@ class _Food:
         self.price = price
         self.img = pygame.transform.scale_by(
             pygame.image.load(
-                os.path.join("assets", "food", f"{name.lower().replace(' ', '-')}.png")
+                Path("assets", "food", f"{name.lower().replace(' ', '-')}.png")
             ),
             scaling,
         )
