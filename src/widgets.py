@@ -3,7 +3,7 @@ from .character import *
 from contextlib import suppress
 from math import ceil, sin
 from pygame._sdl2.video import Texture
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from operator import setitem
 
@@ -26,9 +26,9 @@ class _Retro:
 class RetroEntry(_Retro):
     def __init__(
         self,
-        final,
-        pos,
-        command=None,
+        final: str,
+        pos: Tuple[int, int],
+        command: Optional[Callable] = None,
         selection=None,
         accepts_input=False,
         wrap: int | str = game.window.size[0] - 50,
@@ -125,7 +125,7 @@ class RetroEntry(_Retro):
                 if not self.flickering:
                     self.index += self.speed
                     if int(self.index) >= 1:
-                        self.update_tex(self.final[:int(self.index)])
+                        self.update_tex(self.final[: int(self.index)])
                     # type sound
                     if (
                         int(self.index) > self.last_index
@@ -151,7 +151,9 @@ class RetroEntry(_Retro):
                         if self.delay > 0:
                             if self.last_quit is None:
                                 self.last_quit = pygame.time.get_ticks()
-                            cond = pygame.time.get_ticks() - self.last_quit >= self.delay
+                            cond = (
+                                pygame.time.get_ticks() - self.last_quit >= self.delay
+                            )
                         if cond:
                             self.finish()
             else:
@@ -201,8 +203,8 @@ class RetroEntry(_Retro):
 class RetroSelection(_Retro):
     def __init__(
         self,
-        texts,
-        pos,
+        texts: List["Action"],
+        pos: Tuple[int, int],
         command: Optional[Callable] = None,
         images=None,
         image_rects=None,
@@ -237,7 +239,7 @@ class RetroSelection(_Retro):
         self.index = 0
         self.autokill = autokill
 
-    def finish(self, text):
+    def finish(self, text: "Action"):
         if self.command is not None:
             self.command(text)
         else:
@@ -309,6 +311,7 @@ _|"""""_|"""""_|"""""_|"""""|{======_
 
 
 '''
+
 
 class TitleCard(_Retro):
     def __init__(self, text, pos, size, ask_name: RetroEntry, sine=(None, None)):

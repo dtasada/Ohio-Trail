@@ -1,6 +1,5 @@
 from pygame._sdl2.video import Texture
 from threading import Thread
-from typing import Tuple
 from pathlib import Path
 import pygame
 import time
@@ -69,7 +68,11 @@ def str_to_enum(string: str) -> str:
 
 
 def enum_to_str(string: str) -> str:
-    return string.replace("_", " ").title()
+    return string.replace("_", " ").title().replace("Npcs", "NPCs")
+
+
+def gauss(mean, std, min_=float("-inf"), max_=float("inf")) -> int:
+    return int(max(min(random.gauss(mean, std), max_), min_))
 
 
 class Color:

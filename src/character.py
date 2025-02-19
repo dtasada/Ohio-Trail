@@ -67,19 +67,23 @@ class Food(Enum):
     PINK_SAUCE = _Food("Pink-Sauce", 1)
 
 
-class Locations(Enum):
-    PLANEWRECK = auto()
-    CAMPSITE = auto()
+class Location(Enum):
+    CAMP = auto()
     CAMPFIRE = auto()
-    TENT = auto()
+    CAMPSITE = auto()
     FOREST = auto()
+    LAKE = auto()
+    MOUNTAIN = auto()
+    MY_TENT = auto()
+    PLANEWRECK = auto()
 
 
 class Completed(IntFlag):
+    EXPLORED_FOREST = auto()
     EXPLORED_PLANEWRECK = auto()
     EXPLORED_TENT = auto()
-    LOOTED_CORPSES = auto()
     FOUND_PEOPLE = auto()
+    LOOTED_CORPSES = auto()
     SET_UP_CAMP = auto()
 
 
@@ -89,13 +93,13 @@ class Character:
         self.hp = 5
         self.money = 25
         self.show_money = False
-        self.location = "planewreck"
+        self.location = Location.PLANEWRECK
         self.completed: List[Completed] = []
         self.food: Dict[Food, int] = {
-            Food.EGGPLANT: int(random.gauss(1.5, 1.5)),
-            Food.FRIKANDELBROODJE: int(random.gauss(0.5, 0.5)),
-            Food.PICKLE: int(random.gauss(1, 1)),
-            Food.STONE_BAKED_GARLIC_FLAT_BREAD: int(random.gauss(0.5, 0.5)),
+            Food.FRIKANDELBROODJE: gauss(0.5, 0.5),
+            Food.EGGPLANT: gauss(1.5, 1.5),
+            Food.PICKLE: gauss(1, 1),
+            Food.STONE_BAKED_GARLIC_FLAT_BREAD: gauss(0.5, 0.5),
         }
 
     def update(self):
@@ -106,6 +110,9 @@ class Character:
     def setup(self, name, background):
         self.name = name
         self.background = background
+
+    def complete(self, action: Completed):
+        self.completed.append(action)
 
 
 player = Character()
