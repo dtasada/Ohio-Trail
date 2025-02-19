@@ -36,6 +36,7 @@ class RetroEntry(_Retro):
         typewriter=True,
         reverse_data=(None, None),
         next_should_be_immediate=False,
+        delay=0,
         autokill=False,
     ):
         self.final = final + " "
@@ -69,6 +70,8 @@ class RetroEntry(_Retro):
         }
         self.next_should_be_immediate = next_should_be_immediate
         self.autokill = autokill
+        self.last_quit = None
+        self.delay = delay
 
     def finish(self, *args, **kwargs):
         if self.command is not None:
@@ -139,17 +142,21 @@ class RetroEntry(_Retro):
                         self.flickering = True
                         self.last_flicker = pygame.time.get_ticks()
                         self.last_finished_writing = pygame.time.get_ticks()
-                        condition = True
-                        if self.should_reverse:
-                            condition = self.finished_reversing
-                        if not self.accepts_input and condition:
-                            self.finish(
-                                **(
-                                    {"speed": 1000}
-                                    if self.next_should_be_immediate
-                                    else {}
-                                )
-                            )
+                        #
+                        cond = False
+                        if self.should_reverse and self.finished_reversing:
+                            cond = True
+                        if cond:
+                            self.finish(self.answer)
+                else:
+                    if not self.accepts_input:
+                        cond = True
+                        if self.delay > 0:
+                            if self.last_quit is None:
+                                self.last_quit = pygame.time.get_ticks()
+                            cond = pygame.time.get_ticks() - self.last_quit >= self.delay
+                        if cond:
+                            self.finish()
             else:
                 self.index -= self.speed
                 if ceil(self.index) < self.last_index:
@@ -158,13 +165,7 @@ class RetroEntry(_Retro):
                     self.deleted += 1
                     if self.deleted >= self.reverse_length:
                         if self.reverse_string is None:
-                            self.finish(
-                                **(
-                                    {"speed": 1000}
-                                    if self.next_should_be_immediate
-                                    else {}
-                                )
-                            )
+                            self.finish()
                         else:
                             self.reversing = False
                             self.finished_reversing = True
@@ -198,22 +199,6 @@ class RetroEntry(_Retro):
             img = pygame.Surface((1, 1), pygame.SRCALPHA)
         self.image = Texture.from_surface(game.renderer, img)
         self.rect = img.get_rect(topleft=(self.x, self.y))
-
-        condition = (
-            (self.rect.right >= self.wrap)
-            if isinstance(self.wrap, int)
-            else self.text.endswith(self.wrap + " ")
-        )
-        if condition:
-            remaining_text = self.final.removeprefix(self.text)
-            new_text = RetroEntry(
-                remaining_text,
-                (self.rect.x, self.rect.y + 30),
-                self.command,
-                **self.kwargs,
-            )
-            active_widgets.append(new_text)
-            self.active = False
 
 
 class RetroSelection(_Retro):

@@ -4,6 +4,7 @@ from typing import Tuple
 from pathlib import Path
 import pygame
 import time
+import random
 
 from .game import game
 
@@ -18,6 +19,10 @@ FONT = FONTS[18]
 
 with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
+
+
+def test(*args):
+    print(random.randint(0, 100), *args)
 
 
 def pause1(func):

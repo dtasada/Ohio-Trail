@@ -52,7 +52,7 @@ def intro():
     )
     text_intro = f"""Your name is {player.name}. You have boarded a plane headed
 
-towards Cleveland, Ohio.{ZWS * 20}
+towards {random.choice(ohio_cities)}, Ohio.{ZWS * 20}
 
 You are on a {trip_type} trip.{ZWS * 20}
 
@@ -80,7 +80,7 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    info_intro_crash = RetroEntry(text_intro_crash, (0, 0), select_planewreck)
+    info_intro_crash = RetroEntry(text_intro_crash, (0, 0), select_planewreck, delay=2000)
     active_widgets.append(info_intro_crash)
 
 
@@ -99,14 +99,17 @@ def select_planewreck():
 
 def info_loot_corpses():
     print("you found moneh")
+    select_planewreck()
 
 
 def info_explore_planewreck():
     print("you found bodies")
+    select_planewreck()
 
 
 def info_go_to_forest():
     print("you went fshing in the forest")
+    select_planewreck()
 
 
 class Action(Enum):
