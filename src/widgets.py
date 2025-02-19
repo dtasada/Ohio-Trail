@@ -31,7 +31,7 @@ class RetroEntry(_Retro):
         command=None,
         selection=None,
         accepts_input=False,
-        wrap: int | str = game.window.size[0],
+        wrap: int | str = game.window.size[0] - 50,
         speed=0.6,
         typewriter=True,
         reverse_data=(None, None),
