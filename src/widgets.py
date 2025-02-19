@@ -27,7 +27,8 @@ class RetroEntry(_Retro):
     def __init__(
         self,
         final: str,
-        pos: Tuple[int, int],
+        pos: Tuple[int, int] = (0, 0),
+        choice_pos: Tuple[int, int] = (0, 30),
         command: Optional[Callable] = None,
         selection=None,
         accepts_input=False,
@@ -58,7 +59,13 @@ class RetroEntry(_Retro):
         self.last_finished_writing = pygame.time.get_ticks()
         self.deleted = 0
         self.command = command
-        self.selection = selection
+        if selection is not None:
+            self.selection = RetroSelection(
+                selection, pos=choice_pos or len(final.splite("\n")) * 30
+            )
+        else:
+            self.selection = None
+
         self.active = True
         self.accepts_input = accepts_input
         self.wrap: int | str = wrap
@@ -78,6 +85,7 @@ class RetroEntry(_Retro):
             self.command(*args, **kwargs)
         elif self.selection is not None:
             active_widgets.append(self.selection)
+
         self.active = False
         if self.autokill:
             active_widgets.remove(self)
@@ -93,7 +101,7 @@ class RetroEntry(_Retro):
 
             if self.accepts_input:
                 if self.flickering:
-                    #
+
                     mods = pygame.key.get_mods()
                     name = pygame.key.name(event.key)
                     self.text = self.text.removesuffix("_")
@@ -104,7 +112,7 @@ class RetroEntry(_Retro):
                         if self.text != self.final:
                             self.text = self.text[:-1]
                             self.answer = self.answer[:-1]
-                    #
+
                     elif name == "space":
                         self.text += " "
                         self.answer += " "
@@ -139,7 +147,7 @@ class RetroEntry(_Retro):
                         self.flickering = True
                         self.last_flicker = pygame.time.get_ticks()
                         self.last_finished_writing = pygame.time.get_ticks()
-                        #
+
                         cond = False
                         if self.should_reverse and self.finished_reversing:
                             cond = True
@@ -203,7 +211,7 @@ class RetroEntry(_Retro):
 class RetroSelection(_Retro):
     def __init__(
         self,
-        texts: List["Action"],
+        actions: List["Action"],
         pos: Tuple[int, int],
         command: Optional[Callable] = None,
         images=None,
@@ -211,7 +219,7 @@ class RetroSelection(_Retro):
         exit_sel=None,
         autokill=False,
     ):
-        self.texts = texts
+        self.actions = actions
         self.x, self.y = pos
         self.xo = 40
         self.yo = 40
@@ -222,11 +230,11 @@ class RetroSelection(_Retro):
         self.command = command
         imgs = [
             FONT.render(
-                enum_to_str(text.name) if self.command is None else text,
+                enum_to_str(action.name) if self.command is None else action,
                 True,
                 Color.WHITE,
             )
-            for text in texts
+            for action in actions
         ]
         self.rects = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
@@ -262,7 +270,7 @@ class RetroSelection(_Retro):
     def process_event(self, event):
         if self.active:
             if event.key == pygame.K_COMMA:
-                self.finish(self.texts[0])
+                self.finish(self.actions[0])
 
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
@@ -281,7 +289,7 @@ class RetroSelection(_Retro):
                     self.index -= 1
                 Sound.BEEP.play()
             elif event.key == pygame.K_RETURN:
-                text = self.texts[self.index]
+                text = self.actions[self.index]
                 self.finish(text)
 
     def update(self):

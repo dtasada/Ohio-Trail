@@ -16,7 +16,6 @@ def main(debug=False):
             24,
             RetroEntry(
                 "Hello traveler, what is your name?",
-                (0, 0),
                 accepts_input=True,
                 command=ask_background,
             ),

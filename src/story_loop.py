@@ -7,22 +7,25 @@ from functools import partial
 
 def ask_background(name):
     player.name = name
-    ent_bg = RetroEntry(
-        f"And {name}, what may your background be?", (0, 60), ask_bg_selection
+    active_widgets.append(
+        RetroEntry(
+            f"And {name}, what may your background be?",
+            pos=(0, 60),
+            command=ask_bg_selection,
+        )
     )
-    active_widgets.append(ent_bg)
 
 
 def ask_bg_selection():
-    bg_list = [i.desc for i in possible_backgrounds]
-    sel_bg = RetroSelection(
-        bg_list,
-        (0, 80),
-        set_character_bg,
-        [i.tex for i in possible_backgrounds],
-        [i.rect for i in possible_backgrounds],
+    active_widgets.append(
+        RetroSelection(
+            actions=[i.desc for i in possible_backgrounds],
+            pos=(0, 80),
+            command=set_character_bg,
+            images=[i.tex for i in possible_backgrounds],
+            image_rects=[i.rect for i in possible_backgrounds],
+        )
     )
-    active_widgets.append(sel_bg)
 
 
 def set_character_bg(bg):
@@ -31,8 +34,8 @@ def set_character_bg(bg):
     speed = 0.7 if background.name == "man" else 0.4
     voiceline_entry = RetroEntry(
         background.catchphrase,
-        (150, 420),
-        intro,
+        pos=(150, 420),
+        command=intro,
         accepts_input=False,
         wrap=game.window.size[0] - 300,
         speed=speed,
@@ -62,7 +65,7 @@ With you on the plane are another 200 people."""
     active_widgets.append(anim_plane)
 
     info_intro = RetroEntry(
-        text_intro, (0, 0), intro_wreck, reverse_data=(12, "4 people.")
+        text_intro, command=intro_wreck, reverse_data=(12, "4 people.")
     )
     # info_intro must be last thing appended!
     active_widgets.append(info_intro)
@@ -79,7 +82,7 @@ You and 4 NPCs are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
-    active_widgets.append(RetroEntry(text, (0, 0), select_planewreck, delay=2000))
+    active_widgets.append(RetroEntry(text, command=select_planewreck, delay=2000))
 
 
 def select_planewreck():
@@ -87,21 +90,11 @@ def select_planewreck():
     active_widgets.clear()
 
     Action.update_last_action(select_planewreck)
-    active_widgets.append(
-        RetroEntry(
-            "You are at the planewreck.",
-            (0, 0),
-            selection=RetroSelection(
-                [
-                    Action.LOOT_CORPSES,
-                    Action.EXPLORE_PLANEWRECK,
-                    Action.WALK_TO_FOREST,
-                    Action.TALK_TO_NPCS,
-                ],
-                (0, 60),
-            ),
-        )
-    )
+    selection = [Action.EXPLORE_PLANEWRECK, Action.WALK_TO_FOREST, Action.TALK_TO_NPCS]
+    if Completed.LOOTED_CORPSES not in player.completed:
+        selection.insert(0, Action.LOOT_CORPSES)
+
+    active_widgets.append(RetroEntry("You are at the planewreck.", selection=selection))
 
 
 def info_loot_corpses():
@@ -111,8 +104,7 @@ def info_loot_corpses():
         active_widgets.append(
             RetroEntry(
                 "You already found everything!",
-                (0, 0),
-                selection=RetroSelection([Action.OK], (0, 30)),
+                selection=[Action.OK],
             )
         )
     else:
@@ -133,8 +125,7 @@ def info_loot_corpses():
         active_widgets.append(
             RetroEntry(
                 f"You find {money_found} {goofy[:-1] if money_found == 1 else goofy}",
-                (0, 0),
-                selection=RetroSelection([Action.OK], (0, 30)),
+                selection=[Action.OK],
             )
         )
 
@@ -146,9 +137,13 @@ def explore_planewreck():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You gaze into the distance...",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            f"""You look through the wreckage.{ZWS * 20}
+There's really nothing left to find but some corpses.{ZWS * 20}
+You should probably leave them alone.{ZWS * 20}
+
+There's a forest in the distance.""",
+            selection=[Action.OK],
+            choice_pos=(0, 80),
         )
     )
 
@@ -173,8 +168,7 @@ def select_forest():
     active_widgets.append(
         RetroEntry(
             "You are in the forest.",
-            (0, 0),
-            selection=RetroSelection(selection, (0, 30)),
+            selection=selection,
         )
     )
 
@@ -185,8 +179,7 @@ def talk_to_npcs():
     active_widgets.append(
         RetroEntry(
             "You just talk to yourself.",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
         )
     )
 
@@ -199,16 +192,14 @@ def explore_forest():
         active_widgets.append(
             RetroEntry(
                 "There's nothing left to explore.",
-                (0, 0),
-                selection=RetroSelection([Action.OK], (0, 30)),
+                selection=[Action.OK],
             )
         )
     else:
         active_widgets.append(
             RetroEntry(
-                f"There appears to be a mountain in the distance... {ZWS * 20} Oh, and also a lake.",
-                (0, 0),
-                selection=RetroSelection([Action.OK], (0, 30)),
+                f"There appears to be a mountain in the distance... {ZWS * 20}\n Oh, and also a lake. ",
+                selection=[Action.OK],
             )
         )
 
@@ -222,8 +213,7 @@ def select_lake():
     active_widgets.append(
         RetroEntry(
             "You enjoy the quiet.",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
         )
     )
 
@@ -235,8 +225,7 @@ def select_mountain():
     active_widgets.append(
         RetroEntry(
             "You hear some eerie sounds coming from inside.",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
         )
     )
 
@@ -248,8 +237,7 @@ def set_up_camp():
     active_widgets.append(
         RetroEntry(
             "You and the NPCs have all set up a camp!",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
         )
     )
 
@@ -263,15 +251,11 @@ def select_camp():
     active_widgets.append(
         RetroEntry(
             "You are at the camp.",
-            (0, 0),
-            selection=RetroSelection(
-                [
-                    Action.WALK_TO_MY_TENT,
-                    Action.WALK_TO_CAMPFIRE,
-                    Action.WALK_TO_FOREST,
-                ],
-                (0, 30),
-            ),
+            selection=[
+                Action.WALK_TO_MY_TENT,
+                Action.WALK_TO_CAMPFIRE,
+                Action.WALK_TO_FOREST,
+            ],
         )
     )
 
@@ -283,8 +267,7 @@ def select_my_tent():
     active_widgets.append(
         RetroEntry(
             "You are at your tent.",
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.SLEEP, Action.LEAVE_TENT],
         )
     )
 
@@ -297,10 +280,7 @@ def select_campfire():
     active_widgets.append(
         RetroEntry(
             "You are sitting at the campfire.",
-            (0, 0),
-            selection=RetroSelection(
-                [Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE], (0, 30)
-            ),
+            selection=[Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE],
         )
     )
 
@@ -310,8 +290,7 @@ def enjoy_warmth():
     active_widgets.append(
         RetroEntry(
             random.choice(["Ahhhh...", "Warm and toasty.", "Cozy.", "Mmmmm..."]),
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
         )
     )
 
@@ -321,8 +300,25 @@ def cook_food():
     active_widgets.append(
         RetroEntry(
             random.choice(["Jesse... we need to cook.", "Cooking time!", "Yum!"]),
-            (0, 0),
-            selection=RetroSelection([Action.OK], (0, 30)),
+            selection=[Action.OK],
+        )
+    )
+
+
+def character_sleep():
+    active_widgets.clear()
+    active_widgets.append(
+        RetroEntry(
+            random.choice(
+                [
+                    "You sleep soundly.",
+                    "Zzzzz...",
+                    "Goodnight.",
+                    "*yawwwwn*",
+                    "Sleepy time.",
+                ]
+            ),
+            selection=[Action.OK],
         )
     )
 
@@ -333,9 +329,10 @@ class Action(Enum):
     EXPLORE_FOREST = member(partial(explore_forest))
     EXPLORE_PLANEWRECK = member(partial(explore_planewreck))
     LEAVE_CAMPFIRE = member(partial(select_camp))
+    LEAVE_TENT = member(partial(select_camp))
     LOOT_CORPSES = member(partial(info_loot_corpses))
     SET_UP_CAMP = member(partial(set_up_camp))
-    SLEEP = member(partial(select_camp))
+    SLEEP = member(partial(character_sleep))
     TALK_TO_NPCS = member(partial(talk_to_npcs))
     WALK_TO_CAMP = member(partial(select_camp))
     WALK_TO_CAMPFIRE = member(partial(select_campfire))
