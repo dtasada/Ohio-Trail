@@ -211,15 +211,15 @@ class RetroEntry(_Retro):
 class RetroSelection(_Retro):
     def __init__(
         self,
-        actions: List["Action"],
-        pos: Tuple[int, int],
+        actions,
+        pos,
         command: Optional[Callable] = None,
         images=None,
         image_rects=None,
         exit_sel=None,
         autokill=False,
     ):
-        self.actions = actions
+        self.texts = actions
         self.x, self.y = pos
         self.xo = 40
         self.yo = 40
@@ -228,26 +228,48 @@ class RetroSelection(_Retro):
         self.images = images or []
         self.image_rects = image_rects or []
         self.command = command
+        # selection images, textures and rectangles
         imgs = [
             FONT.render(
-                enum_to_str(action.name) if self.command is None else action,
+                enum_to_str(text.name) if self.command is None else text,
                 True,
                 Color.WHITE,
             )
-            for action in actions
+            for text in actions
         ]
+        self.texs = [Texture.from_surface(game.renderer, img) for img in imgs]
+        colored_imgs = [
+            FONT.render(
+                enum_to_str(text.name if self.command is None else text).split(" ")[0],
+                True,
+                action_to_color(
+                    enum_to_str(text.name if self.command is None else text).split(" ")[
+                        0
+                    ]
+                ),
+            )
+            for text in actions
+        ]
+        self.colored_texs = [
+            Texture.from_surface(game.renderer, img) for img in colored_imgs
+        ]
+        # rects
         self.rects = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(imgs)
         ]
-        self.texs = [Texture.from_surface(game.renderer, img) for img in imgs]
+        self.colored_rects = [
+            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
+            for y, img in enumerate(colored_imgs)
+        ]
+        # other
         self.selected = 0
         self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
         self.index = 0
         self.autokill = autokill
 
-    def finish(self, text: "Action"):
+    def finish(self, text):
         if self.command is not None:
             self.command(text)
         else:
@@ -257,8 +279,11 @@ class RetroSelection(_Retro):
             active_widgets.remove(self)
 
     def draw(self):
-        for tex, rect in zip(self.texs, self.rects):
+        for tex, rect, ctex, crect in zip(
+            self.texs, self.rects, self.colored_texs, self.colored_rects
+        ):
             game.renderer.blit(tex, rect)
+            game.renderer.blit(ctex, crect)
         if self.images:
             with suppress(IndexError):
                 if self.images[self.index] is not None:
@@ -270,7 +295,7 @@ class RetroSelection(_Retro):
     def process_event(self, event):
         if self.active:
             if event.key == pygame.K_COMMA:
-                self.finish(self.actions[0])
+                self.finish(self.texts[0])
 
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
@@ -289,7 +314,7 @@ class RetroSelection(_Retro):
                     self.index -= 1
                 Sound.BEEP.play()
             elif event.key == pygame.K_RETURN:
-                text = self.actions[self.index]
+                text = self.texts[self.index]
                 self.finish(text)
 
     def update(self):

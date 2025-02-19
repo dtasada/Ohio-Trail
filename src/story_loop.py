@@ -198,7 +198,7 @@ def explore_forest():
     else:
         active_widgets.append(
             RetroEntry(
-                f"There appears to be a mountain in the distance... {ZWS * 20}\n Oh, and also a lake. ",
+                f"There appears to be a mountain in the distance... {ZWS * 20}\nOh, and also a lake. ",
                 selection=[Action.OK],
             )
         )
