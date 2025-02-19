@@ -20,6 +20,10 @@ with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
 
 
+def action_to_color(text):
+    return getattr(Color, text.split(" ")[0].upper(), Color.WHITE)
+
+
 def test(*args):
     print(random.randint(0, 100), *args)
 
@@ -78,6 +82,10 @@ def gauss(mean, std, min_=float("-inf"), max_=float("inf")) -> int:
 class Color:
     WHITE = (255, 255, 255, 255)
     BLACK = (0, 0, 0, 255)
+    WALK = (169, 211, 158)
+    GO = WALK
+    TALK = pygame.Color("deepskyblue")
+    EXPLORE = (254, 190, 140)
 
 
 class Sound:
