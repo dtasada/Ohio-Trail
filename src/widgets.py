@@ -218,6 +218,7 @@ class RetroSelection(_Retro):
         self.images = images or []
         self.image_rects = image_rects or []
         self.command = command
+        # selection images, textures and rectangles
         imgs = [
             FONT.render(
                 enum_to_str(text.name) if self.command is None else text,
@@ -226,11 +227,26 @@ class RetroSelection(_Retro):
             )
             for text in texts
         ]
+        self.texs = [Texture.from_surface(game.renderer, img) for img in imgs]
+        colored_imgs = [
+            FONT.render(
+                enum_to_str(text.name if self.command is None else text).split(" ")[0],
+                True,
+                action_to_color(enum_to_str(text.name if self.command is None else text).split(" ")[0]),
+            )
+            for text in texts
+        ]
+        self.colored_texs = [Texture.from_surface(game.renderer, img) for img in colored_imgs]
+        # rects
         self.rects = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(imgs)
         ]
-        self.texs = [Texture.from_surface(game.renderer, img) for img in imgs]
+        self.colored_rects = [
+            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
+            for y, img in enumerate(colored_imgs)
+        ]
+        # other
         self.selected = 0
         self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active = True
@@ -247,8 +263,9 @@ class RetroSelection(_Retro):
             active_widgets.remove(self)
 
     def draw(self):
-        for tex, rect in zip(self.texs, self.rects):
+        for tex, rect, ctex, crect in zip(self.texs, self.rects, self.colored_texs, self.colored_rects):
             game.renderer.blit(tex, rect)
+            game.renderer.blit(ctex, crect)
         if self.images:
             with suppress(IndexError):
                 if self.images[self.index] is not None:
@@ -381,8 +398,6 @@ class Animation:
                 game.renderer.blit(
                     self.texs[int(self.index)], self.rects[int(self.index)]
                 )
-        else:
-            print("else")
 
     def process_event(self, event):
         if event.type == pygame.KEYDOWN:
