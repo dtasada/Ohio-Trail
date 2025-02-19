@@ -89,10 +89,7 @@ class RetroEntry(_Retro):
     def process_event(self, event):
         if self.active:
             if event.key == pygame.K_COMMA:
-                try:
-                    self.finish("ligma")
-                except TypeError:
-                    self.finish()
+                self.index = len(self.final) - 1
 
             if self.accepts_input:
                 if self.flickering:
@@ -128,7 +125,7 @@ class RetroEntry(_Retro):
                 if not self.flickering:
                     self.index += self.speed
                     if int(self.index) >= 1:
-                        self.update_tex(self.final[: int(self.index)])
+                        self.update_tex(self.final[:int(self.index)])
                     # type sound
                     if (
                         int(self.index) > self.last_index
@@ -329,5 +326,68 @@ class TitleCard(_Retro):
     def update(self):
         self.rect.y = self.og_y + self.amp * sin(pygame.time.get_ticks() * self.freq)
         game.renderer.blit(self.tex, self.rect)
+
+
+class Animation:
+    def __init__(
+        self,
+        path: str,
+        pos: Tuple[int, int],
+        frame_count: int = 1,
+        framerate: float = 0,
+        scaling: int = 5,
+        should_stay: bool = False,
+    ):
+        self.scaling = scaling
+        self.should_stay = should_stay
+        self.path = Path("assets", f"{path}.png")
+        self.pos = pos
+        self.framerate = framerate
+        self.index = 0
+        self.frame_count = frame_count
+        if self.frame_count > 1:
+            self.img = pygame.transform.scale_by(
+                pygame.image.load(self.path), self.scaling
+            )
+            self.frame_width = self.img.get_width() / self.frame_count
+            self.frame_height = self.img.get_height()
+            self.texs = [
+                Texture.from_surface(
+                    game.renderer,
+                    self.img.subsurface(
+                        x * self.frame_width, 0, self.frame_width, self.frame_height
+                    ),
+                )
+                for x in range(self.frame_count)
+            ]
+            self.rects = [tex.get_rect(topleft=self.pos) for tex in self.texs]
+        else:
+            self.img = pygame.transform.scale_by(
+                pygame.image.load(self.path), self.scaling
+            )
+            self.tex = Texture.from_surface(game.renderer, self.img)
+            self.rect = self.tex.get_rect()
+        self.kill = False
+
+    def update(self):
+        if self.frame_count > 1:
+            self.index += (1 / 30) * self.framerate
+            if int(self.index) >= len(self.texs):
+                if self.should_stay is False:
+                    self.kill = True
+                else:
+                    game.renderer.blit(self.texs[-1], self.rects[-1])
+            else:
+                game.renderer.blit(
+                    self.texs[int(self.index)], self.rects[int(self.index)]
+                )
+        else:
+            print("else")
+
+    def process_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_COMMA:
+                self.index = len(self.texs) - 1
+
 
 active_widgets: List[_Retro | TitleCard | Animation] = []
