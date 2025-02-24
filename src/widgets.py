@@ -269,14 +269,18 @@ class RetroSelection(_Retro):
         self.index = 0
         self.autokill = autokill
 
-    def finish(self, text):
-        if self.command is not None:
-            self.command(text)
+    def finish(self, text, quicktime):
+        if chance(1 / 8) and False:
+            quicktime()()
+
         else:
-            text.value()
-        self.active = False
-        if self.autokill:
-            active_widgets.remove(self)
+            if self.command is not None:
+                self.command(text)
+            else:
+                text.value()
+            self.active = False
+            if self.autokill:
+                active_widgets.remove(self)
 
     def draw(self):
         for tex, rect, ctex, crect in zip(
@@ -292,10 +296,10 @@ class RetroSelection(_Retro):
                     )
         game.renderer.blit(self.gt, self.gt_rect)
 
-    def process_event(self, event):
+    def process_event(self, event, quicktime):
         if self.active:
             if event.key == pygame.K_COMMA:
-                self.finish(self.texts[0])
+                self.finish(self.texts[0], quicktime)
 
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
@@ -315,7 +319,7 @@ class RetroSelection(_Retro):
                 Sound.BEEP.play()
             elif event.key == pygame.K_RETURN:
                 text = self.texts[self.index]
-                self.finish(text)
+                self.finish(text, quicktime)
 
     def update(self):
         self.draw()

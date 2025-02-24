@@ -32,7 +32,10 @@ def main(debug=False):
             elif event.type == pygame.KEYDOWN:
                 inventory.process_event(event)
                 for widget in active_widgets[:]:
-                    widget.process_event(event)
+                    try:
+                        widget.process_event(event, random_quicktime_event)
+                    except TypeError:
+                        widget.process_event(event)
 
         fill_rect(game.renderer, (0, 0, 0, 255), (0, 0, *game.window.size))
 
@@ -50,7 +53,7 @@ def main(debug=False):
                     )
                     game.renderer.blit(img, rect)
                     i += 1
-
+        
         player.update()
         inventory.update()
 
