@@ -48,7 +48,7 @@ def main(debug=False):
                     )
                     game.renderer.blit(img, rect)
                     i += 1
-
+        
         player.update()
 
         game.renderer.present()

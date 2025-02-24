@@ -82,6 +82,8 @@ def gauss(mean, std, min_=float("-inf"), max_=float("inf")) -> int:
 class Color:
     WHITE = (255, 255, 255, 255)
     BLACK = (0, 0, 0, 255)
+    RED = (255, 0, 0, 255)
+    GREEN = (0, 255, 0, 255)
     WALK = (169, 211, 158)
     GO = WALK
     TALK = pygame.Color("deepskyblue")
