@@ -79,6 +79,7 @@ class Location(Enum):
 
 
 class Completed(IntFlag):
+    NONE = auto()
     EXPLORED_FOREST = auto()
     EXPLORED_PLANEWRECK = auto()
     EXPLORED_TENT = auto()
@@ -94,7 +95,7 @@ class Character:
         self.money = 25
         self.show_money = False
         self.location = Location.PLANEWRECK
-        self.completed: List[Completed] = []
+        self.completed: Completed = Completed.NONE
         self.food: Dict[Food, int] = {
             Food.FRIKANDELBROODJE: gauss(0.5, 0.5),
             Food.EGGPLANT: gauss(1.5, 1.5),
@@ -112,7 +113,7 @@ class Character:
         self.background = background
 
     def complete(self, action: Completed):
-        self.completed.append(action)
+        self.completed |= action
 
 
 player = Character()

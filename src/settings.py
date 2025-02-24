@@ -20,6 +20,10 @@ with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
 
 
+def chance(p):
+    return random.random() < p
+
+
 def action_to_color(text):
     return getattr(Color, text.split(" ")[0].upper(), Color.WHITE)
 

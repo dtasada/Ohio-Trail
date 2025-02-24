@@ -5,6 +5,18 @@ from enum import member
 from functools import partial
 
 
+def story(func):
+    def inner(*args, **kwargs):
+        inner.__name__ = func.__name__
+        
+        Action.update_last_action(inner)
+        func(*args, **kwargs)
+    
+
+    return inner
+
+
+@story
 def ask_background(name):
     player.name = name
     active_widgets.append(
@@ -16,6 +28,7 @@ def ask_background(name):
     )
 
 
+@story
 def ask_bg_selection():
     active_widgets.append(
         RetroSelection(
@@ -28,6 +41,7 @@ def ask_bg_selection():
     )
 
 
+@story
 def set_character_bg(bg):
     background = [i for i in possible_backgrounds if i.desc == bg][0]
     player.background = background.name
@@ -47,6 +61,7 @@ def set_character_bg(bg):
             i.sound.play()
 
 
+@story
 @pause1
 def intro():
     active_widgets.clear()
@@ -71,6 +86,7 @@ With you on the plane are another 200 people."""
     active_widgets.append(info_intro)
 
 
+@story
 @pause1
 def intro_wreck():
     active_widgets.pop()
@@ -85,13 +101,15 @@ Objective: survive for as long as possible.
     active_widgets.append(RetroEntry(text, command=select_planewreck, delay=2000))
 
 
+@story
 def select_planewreck():
+    # Action.update_last_action(select_planewreck)
+
     player.location = Location.PLANEWRECK
     active_widgets.clear()
 
-    Action.update_last_action(select_planewreck)
     selection = [Action.EXPLORE_PLANEWRECK, Action.WALK_TO_FOREST, Action.TALK_TO_NPCS]
-    if Completed.LOOTED_CORPSES not in player.completed:
+    if not (Completed.LOOTED_CORPSES & player.completed):
         selection.insert(0, Action.LOOT_CORPSES)
 
     active_widgets.append(RetroEntry("You are at the planewreck.", selection=selection))
@@ -100,7 +118,7 @@ def select_planewreck():
 def info_loot_corpses():
     active_widgets.clear()
 
-    if Completed.LOOTED_CORPSES in player.completed:
+    if Completed.LOOTED_CORPSES & player.completed:
         active_widgets.append(
             RetroEntry(
                 "You already found everything!",
@@ -148,17 +166,18 @@ There's a forest in the distance.""",
     )
 
 
+@story
 def select_forest():
     player.location = Location.FOREST
     active_widgets.clear()
 
     Action.update_last_action(select_forest)
     selection = [Action.WALK_TO_PLANEWRECK]
-    if Completed.EXPLORED_FOREST in player.completed:
+    if Completed.EXPLORED_FOREST & player.completed:
         selection.append(Action.WALK_TO_LAKE)
         selection.append(Action.WALK_TO_MOUNTAIN)
 
-        if Completed.SET_UP_CAMP in player.completed:
+        if Completed.SET_UP_CAMP & player.completed:
             selection.append(Action.WALK_TO_CAMP)
         else:
             selection.append(Action.SET_UP_CAMP)
@@ -188,7 +207,7 @@ def explore_forest():
     # TODO
     active_widgets.clear()
 
-    if Completed.EXPLORED_FOREST in player.completed:
+    if Completed.EXPLORED_FOREST & player.completed:
         active_widgets.append(
             RetroEntry(
                 "There's nothing left to explore.",
@@ -244,6 +263,7 @@ def set_up_camp():
     player.complete(Completed.SET_UP_CAMP)
 
 
+@story
 def select_camp():
     player.location = Location.CAMP
     # TODO
@@ -260,6 +280,7 @@ def select_camp():
     )
 
 
+@story
 def select_my_tent():
     player.location = Location.MY_TENT
     # TODO
@@ -272,6 +293,7 @@ def select_my_tent():
     )
 
 
+@story
 def select_campfire():
     # TODO
     player.location = Location.CAMPFIRE
@@ -323,6 +345,20 @@ def character_sleep():
     )
 
 
+def random_quicktime_event():
+    return None
+
+
+def quicktime_wasps():
+    active_widgets.clear()
+    active_widgets.append(
+        RetroEntry(
+            "There is a wasp army in front of you (be scared).",
+            selection=[Action.OK],
+        )
+    )
+
+
 class Action(Enum):
     COOK_FOOD = member(partial(cook_food))
     ENJOY_WARMTH = member(partial(enjoy_warmth))
@@ -348,3 +384,4 @@ class Action(Enum):
     @classmethod
     def update_last_action(cls, action):
         cls.last_action = action
+        print(cls.last_action.__name__)
