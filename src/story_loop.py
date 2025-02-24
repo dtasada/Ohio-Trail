@@ -124,7 +124,7 @@ def info_loot_corpses():
 
         active_widgets.append(
             RetroEntry(
-                f"You find {money_found} {goofy[:-1] if money_found == 1 else goofy}",
+                f"You find {money_found} {goofy[:-1] if money_found == 1 else goofy}.",
                 selection=[Action.OK],
             )
         )
@@ -178,7 +178,7 @@ def talk_to_npcs():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You just talk to yourself.",
+            "You just talk to yourself for now.",
             selection=[Action.OK],
         )
     )

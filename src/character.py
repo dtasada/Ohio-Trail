@@ -61,10 +61,10 @@ class Food(Enum):
     EGGPLANT = _Food("Eggplant", 1)
     FRIKANDELBROODJE = _Food("Frikandelbroodje", 1)
     PICKLE = _Food("Pickle", 1)
-    STONE_BAKED_GARLIC_FLAT_BREAD = _Food("Stone baked garlic flat bread", 4)
+    STONE_BAKED_GARLIC_FLATBREAD = _Food("Stone baked garlic flatbread", 4)
     SOUR_PATCH_KIDS = _Food("Sour Patch Kids", 2)
     MRBEAST_FEASTABLES = _Food("MrBeast Feastables", 5)
-    PINK_SAUCE = _Food("Pink-Sauce", 1)
+    PINK_SAUCE = _Food("Pink Sauce", 1)
 
 
 class Location(Enum):
@@ -99,7 +99,7 @@ class Character:
             Food.FRIKANDELBROODJE: gauss(0.5, 0.5),
             Food.EGGPLANT: gauss(1.5, 1.5),
             Food.PICKLE: gauss(1, 1),
-            Food.STONE_BAKED_GARLIC_FLAT_BREAD: gauss(0.5, 0.5),
+            Food.STONE_BAKED_GARLIC_FLATBREAD: gauss(0.5, 0.5),
         }
 
     def update(self):

@@ -60,10 +60,11 @@ def draw_line(renderer, color, p1, p2):
     renderer.draw_line(p1, p2)
 
 
-def write(text, pos, size=18):
+def write(text, pos, size=18, anchor="topleft"):
     img = FONTS[size].render(text, True, Color.WHITE)
     tex = Texture.from_surface(game.renderer, img)
-    rect = img.get_rect(topleft=pos)
+    rect = img.get_rect()
+    setattr(rect, anchor, pos)
     return tex, rect
 
 

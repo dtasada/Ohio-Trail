@@ -15,5 +15,7 @@ class Game:
         self.renderer = Renderer(self.window)
         self.clock = pygame.time.Clock()
 
+        self.in_cutscene = False
+
 
 game = Game()
