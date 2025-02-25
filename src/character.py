@@ -35,11 +35,11 @@ class _Food:
             pygame.image.load(
                 Path("assets", "food", f"{name.lower().replace(' ', '-')}.png")
             ),
-            SCALING,
+            5,
         )
         self.tex = Texture.from_surface(game.renderer, self.img)
         self.rect = self.img.get_rect(
-            center=(game.window.size[0] - 300, game.window.size[1] / 2)
+            center=(game.window.size[0] - 350, game.window.size[1] / 2 - 80)
         )
 
 
@@ -109,10 +109,7 @@ class Bar:
 class Character:
     def __init__(self):
         self.name = None
-        self.hp = 100
-        self.energy = 100
-        self.temp = 100
-        self.money = 25
+        self.money = 3
         self.show_money = False
         self.location = Location.PLANEWRECK
         self.completed: Completed = Completed.NONE
@@ -122,15 +119,19 @@ class Character:
             Food.PICKLE: gauss(1, 1),
             Food.STONE_BAKED_GARLIC_FLATBREAD: gauss(0.5, 0.5),
         }
-        self.healthbar = Bar(self.hp, 880, 300)
-        self.energy_bar = Bar(self.energy, 940, 300)
-        self.temp_bar = Bar(self.temp, 1000, 300)
+        self.max_hp = 100
+        self.max_energy = 100
+        self.max_temp = 100
 
-    def update(self):
-        if self.show_money:
-            tex, rect = write(f"${self.money}", (40, 370), 30)
-            game.renderer.blit(tex, rect)
+        self.hp = self.max_hp
+        self.energy = self.max_energy
+        self.temp = self.max_temp
 
+        self.healthbar = Bar(self.max_hp, 880, 300)
+        self.energy_bar = Bar(self.max_energy, 940, 300)
+        self.temp_bar = Bar(self.max_temp, 1000, 300)
+
+    def update_bars(self):
         self.healthbar.current = self.hp
         self.healthbar.update()
         tex, rect = write("HP", (885, 600))
@@ -145,6 +146,13 @@ class Character:
         self.temp_bar.update()
         tex, rect = write("TM", (1005, 600))
         game.renderer.blit(tex, rect)
+
+    def update(self):
+        if self.show_money:
+            tex, rect = write(f"${self.money}", (40, 370), 30)
+            game.renderer.blit(tex, rect)
+
+        self.update_bars()
 
     def setup(self, name, background):
         self.name = name
