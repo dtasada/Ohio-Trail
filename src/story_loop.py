@@ -6,7 +6,7 @@ from functools import partial
 from re import sub
 
 
-def story(func):
+def checkpoint(func):
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
         
@@ -24,7 +24,7 @@ def action(func):
     return inner
 
 
-@story
+@checkpoint
 def ask_background(name):
     player.name = name
     active_widgets.append(
@@ -36,7 +36,7 @@ def ask_background(name):
     )
 
 
-@story
+@checkpoint
 def ask_bg_selection():
     active_widgets.append(
         RetroSelection(
@@ -49,7 +49,7 @@ def ask_bg_selection():
     )
 
 
-@story
+@checkpoint
 def set_character_bg(bg):
     background = [i for i in possible_backgrounds if i.desc == bg][0]
     player.background = background.name
@@ -69,7 +69,7 @@ def set_character_bg(bg):
             i.sound.play()
 
 
-@story
+@checkpoint
 @pause1
 def intro():
     active_widgets.clear()
@@ -94,7 +94,7 @@ With you on the plane are another 200 people."""
     active_widgets.append(info_intro)
 
 
-@story
+@checkpoint
 @pause1
 def intro_wreck():
     active_widgets.pop()
@@ -110,7 +110,7 @@ Objective: survive for as long as possible.
 
 
 @action
-@story
+@checkpoint
 def select_planewreck():
     # Action.update_last_action(select_planewreck)
 
@@ -177,8 +177,7 @@ There's a forest in the distance.""",
     )
 
 
-@action
-@story
+@checkpoint
 def select_forest():
     player.location = Location.FOREST
     active_widgets.clear()
@@ -222,12 +221,20 @@ def explore_forest():
     active_widgets.clear()
 
     if Completed.EXPLORED_FOREST & player.completed:
-        active_widgets.append(
-            RetroEntry(
-                "There's nothing left to explore.",
-                selection=[Action.OK],
+        if Completed.MET_MERCHANT & player.completed:
+            active_widgets.append(
+                RetroEntry(
+                    "There's nothing left to explore.",
+                    selection=[Action.OK],
+                )
             )
-        )
+        else:
+            active_widgets.append(
+                RetroEntry(
+                    "You gaze into the distance once more, and this time ",
+                    selection=[Action.OK],
+                )
+            )
     else:
         active_widgets.append(
             RetroEntry(
@@ -239,7 +246,7 @@ def explore_forest():
         player.complete(Completed.EXPLORED_FOREST)
 
 
-@story
+@checkpoint
 def talk_to_merchant():
     active_widgets.clear()
 
@@ -335,7 +342,7 @@ def set_up_camp():
 
 
 @action
-@story
+@checkpoint
 def select_camp():
     player.location = Location.CAMP
     # TODO
@@ -353,7 +360,7 @@ def select_camp():
 
 
 @action
-@story
+@checkpoint
 def select_my_tent():
     player.location = Location.MY_TENT
     # TODO
@@ -367,7 +374,7 @@ def select_my_tent():
 
 
 @action
-@story
+@checkpoint
 def select_campfire():
     # TODO
     player.location = Location.CAMPFIRE
@@ -408,8 +415,7 @@ def character_sleep():
     player.energy = player.max_energy
     active_widgets.append(
         RetroEntry(
-            random.choice(
-                [
+            random.choice([
                     "You sleep soundly.",
                     "Zzzzz...",
                     "Goodnight.",
@@ -424,16 +430,6 @@ def character_sleep():
 
 def random_quicktime_event():
     return None
-
-
-def quicktime_wasps():
-    active_widgets.clear()
-    active_widgets.append(
-        RetroEntry(
-            "There is a wasp army in front of you (be scared).",
-            selection=[Action.OK],
-        )
-    )
 
 
 class Action(Enum):
@@ -454,6 +450,9 @@ class Action(Enum):
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
+ 
+
+
     OK = member(lambda: Action.last_action())
 
     last_action: Callable = ask_background
@@ -461,4 +460,3 @@ class Action(Enum):
     @classmethod
     def update_last_action(cls, action):
         cls.last_action = action
-        print(cls.last_action.__name__)

@@ -223,7 +223,6 @@ class RetroSelection(_Retro):
         self.x, self.y = pos
         self.xo = 40
         self.yo = 40
-        self.images = images
         self.exit_sel = exit_sel
         self.images = images or []
         self.image_rects = image_rects or []
@@ -269,8 +268,9 @@ class RetroSelection(_Retro):
         self.index = 0
         self.autokill = autokill
 
-    def finish(self, text, quicktime):
-        if chance(1 / 8) and False:
+    def finish(self, text, quicktime, quicktime_active):
+        if False and not quicktime_active and chance(1 / 2):
+            Sound.ALERT.play()
             quicktime()()
 
         else:
@@ -296,10 +296,10 @@ class RetroSelection(_Retro):
                     )
         game.renderer.blit(self.gt, self.gt_rect)
 
-    def process_event(self, event, quicktime):
+    def process_event(self, event, quicktime, quicktime_active):
         if self.active:
             if event.key == pygame.K_COMMA:
-                self.finish(self.texts[0], quicktime)
+                self.finish(self.texts[0], quicktime, quicktime_active)
 
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
@@ -319,7 +319,7 @@ class RetroSelection(_Retro):
                 Sound.BEEP.play()
             elif event.key == pygame.K_RETURN:
                 text = self.texts[self.index]
-                self.finish(text, quicktime)
+                self.finish(text, quicktime, quicktime_active)
 
     def update(self):
         self.draw()
@@ -421,8 +421,6 @@ class Animation:
                 game.renderer.blit(
                     self.texs[int(self.index)], self.rects[int(self.index)]
                 )
-        else:
-            print("else")
 
     def process_event(self, event):
         if event.type == pygame.KEYDOWN:

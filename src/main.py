@@ -15,7 +15,7 @@ def main(debug=False):
             (96, 76),
             24,
             RetroEntry(
-                "Hello traveler, what is your name?",
+                "Hello traveler, what is your name",
                 accepts_input=True,
                 command=ask_background,
             ),
@@ -32,9 +32,10 @@ def main(debug=False):
             elif event.type == pygame.KEYDOWN:
                 inventory.process_event(event)
                 for widget in active_widgets[:]:
-                    try:
-                        widget.process_event(event, random_quicktime_event)
-                    except TypeError:
+                    if isinstance(widget, RetroSelection):
+                        # selection
+                        widget.process_event(event, random_quicktime_event, game.quicktime_active)
+                    else:
                         widget.process_event(event)
 
         fill_rect(game.renderer, (0, 0, 0, 255), (0, 0, *game.window.size))
