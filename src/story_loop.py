@@ -3,20 +3,28 @@ from .game import game
 from .widgets import *
 from enum import member
 from functools import partial
+from re import sub
 
 
-def story(func):
+def checkpoint(func):
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
         
         Action.update_last_action(inner)
         func(*args, **kwargs)
     
+    return inner
+
+
+def action(func):
+    def inner():
+        player.energy -= 1
+        func()
 
     return inner
 
 
-@story
+@checkpoint
 def ask_background(name):
     player.name = name
     active_widgets.append(
@@ -28,7 +36,7 @@ def ask_background(name):
     )
 
 
-@story
+@checkpoint
 def ask_bg_selection():
     active_widgets.append(
         RetroSelection(
@@ -41,7 +49,7 @@ def ask_bg_selection():
     )
 
 
-@story
+@checkpoint
 def set_character_bg(bg):
     background = [i for i in possible_backgrounds if i.desc == bg][0]
     player.background = background.name
@@ -61,7 +69,7 @@ def set_character_bg(bg):
             i.sound.play()
 
 
-@story
+@checkpoint
 @pause1
 def intro():
     active_widgets.clear()
@@ -86,7 +94,7 @@ With you on the plane are another 200 people."""
     active_widgets.append(info_intro)
 
 
-@story
+@checkpoint
 @pause1
 def intro_wreck():
     active_widgets.pop()
@@ -101,7 +109,8 @@ Objective: survive for as long as possible.
     active_widgets.append(RetroEntry(text, command=select_planewreck, delay=2000))
 
 
-@story
+@action
+@checkpoint
 def select_planewreck():
     # Action.update_last_action(select_planewreck)
 
@@ -115,6 +124,7 @@ def select_planewreck():
     active_widgets.append(RetroEntry("You are at the planewreck.", selection=selection))
 
 
+@action
 def info_loot_corpses():
     active_widgets.clear()
 
@@ -150,6 +160,7 @@ def info_loot_corpses():
     player.complete(Completed.LOOTED_CORPSES)
 
 
+@action
 def explore_planewreck():
     # TODO
     active_widgets.clear()
@@ -166,7 +177,7 @@ There's a forest in the distance.""",
     )
 
 
-@story
+@checkpoint
 def select_forest():
     player.location = Location.FOREST
     active_widgets.clear()
@@ -181,6 +192,9 @@ def select_forest():
             selection.append(Action.WALK_TO_CAMP)
         else:
             selection.append(Action.SET_UP_CAMP)
+
+        if Completed.MET_MERCHANT & player.completed:
+            selection.append(Action.TALK_TO_MERCHANT)
     else:
         selection.append(Action.EXPLORE_FOREST)
 
@@ -192,6 +206,7 @@ def select_forest():
     )
 
 
+@action
 def talk_to_npcs():
     # TODO
     active_widgets.clear()
@@ -203,17 +218,26 @@ def talk_to_npcs():
     )
 
 
+@action
 def explore_forest():
     # TODO
     active_widgets.clear()
 
     if Completed.EXPLORED_FOREST & player.completed:
-        active_widgets.append(
-            RetroEntry(
-                "There's nothing left to explore.",
-                selection=[Action.OK],
+        if Completed.MET_MERCHANT & player.completed:
+            active_widgets.append(
+                RetroEntry(
+                    "There's nothing left to explore.",
+                    selection=[Action.OK],
+                )
             )
-        )
+        else:
+            active_widgets.append(
+                RetroEntry(
+                    "You gaze into the distance once more, and this time ",
+                    selection=[Action.OK],
+                )
+            )
     else:
         active_widgets.append(
             RetroEntry(
@@ -225,6 +249,61 @@ def explore_forest():
         player.complete(Completed.EXPLORED_FOREST)
 
 
+@checkpoint
+def talk_to_merchant():
+    active_widgets.clear()
+
+    active_widgets.append(
+        RetroEntry(
+            "Hello there! I have some items for sale.",
+            command=merchant_selection,
+        )
+    )
+
+
+def merchant_selection():
+    while len(active_widgets) > 1:
+        active_widgets.pop()
+
+    active_widgets.append(
+        RetroSelection(
+            actions=[f"{food.value.name} ({food.value.price}$)" for food in Food] + ["Leave"],
+            pos=(0, 60),
+            command=buy_food,
+            images=[i.value.tex for i in Food],
+            image_rects=[i.value.rect for i in Food],
+        )
+    )
+    
+
+def buy_food(f):
+    if f == "Leave":
+        active_widgets.append(
+            RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!"]) + 10 * ZWS,
+                        pos=(0, 440),
+                        command=select_forest,
+            )  
+        )
+    else:
+        food = Food[sub(" \(\d\$\)", "", f).replace(" ", "_").upper()] #random ass bullshit
+
+
+        if food.value.price > player.money:
+            active_widgets.append(
+                RetroEntry(
+                    "You don't have enough money!" + ZWS * 5,
+                    pos=(0, 440),
+                    command=merchant_selection,
+                )
+            )
+        else:
+            Sound.BUY.play()
+            inventory.items.append(food)
+            player.money -= food.value.price
+            merchant_selection()
+
+
+@action
 def select_lake():
     player.location = Location.LAKE
     # TODO
@@ -237,6 +316,7 @@ def select_lake():
     )
 
 
+@action
 def select_mountain():
     player.location = Location.MOUNTAIN
     # TODO
@@ -249,6 +329,7 @@ def select_mountain():
     )
 
 
+@action
 def set_up_camp():
     # TODO
     active_widgets.clear()
@@ -263,7 +344,8 @@ def set_up_camp():
     player.complete(Completed.SET_UP_CAMP)
 
 
-@story
+@action
+@checkpoint
 def select_camp():
     player.location = Location.CAMP
     # TODO
@@ -280,7 +362,8 @@ def select_camp():
     )
 
 
-@story
+@action
+@checkpoint
 def select_my_tent():
     player.location = Location.MY_TENT
     # TODO
@@ -293,7 +376,8 @@ def select_my_tent():
     )
 
 
-@story
+@action
+@checkpoint
 def select_campfire():
     # TODO
     player.location = Location.CAMPFIRE
@@ -307,6 +391,7 @@ def select_campfire():
     )
 
 
+@action
 def enjoy_warmth():
     active_widgets.clear()
     active_widgets.append(
@@ -317,6 +402,7 @@ def enjoy_warmth():
     )
 
 
+@action
 def cook_food():
     active_widgets.clear()
     active_widgets.append(
@@ -329,10 +415,10 @@ def cook_food():
 
 def character_sleep():
     active_widgets.clear()
+    player.energy = player.max_energy
     active_widgets.append(
         RetroEntry(
-            random.choice(
-                [
+            random.choice([
                     "You sleep soundly.",
                     "Zzzzz...",
                     "Goodnight.",
@@ -347,16 +433,6 @@ def character_sleep():
 
 def random_quicktime_event():
     return None
-
-
-def quicktime_wasps():
-    active_widgets.clear()
-    active_widgets.append(
-        RetroEntry(
-            "There is a wasp army in front of you (be scared).",
-            selection=[Action.OK],
-        )
-    )
 
 
 class Action(Enum):
@@ -377,6 +453,9 @@ class Action(Enum):
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
+    TALK_TO_MERCHANT = member(partial(talk_to_merchant))
+
+
     OK = member(lambda: Action.last_action())
 
     last_action: Callable = ask_background
@@ -384,4 +463,3 @@ class Action(Enum):
     @classmethod
     def update_last_action(cls, action):
         cls.last_action = action
-        print(cls.last_action.__name__)

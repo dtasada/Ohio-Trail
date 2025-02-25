@@ -161,8 +161,7 @@ class Inventory:
                         self.index + 1 if self.index < len(self.items) - 1 else 0
                     )
                 case pygame.K_RETURN:
-                    if pygame.key.get_pressed()[pygame.K_LSHIFT]:
-                        self.items[self.index].select()
+                    self.items[self.index].select()
 
 
 inventory: Inventory = Inventory()

@@ -14,6 +14,7 @@ class Game:
         self.window.set_icon(pygame.image.load(Path("assets", "logo.png")))
         self.renderer = Renderer(self.window)
         self.clock = pygame.time.Clock()
+        self.quicktime_active = False
 
 
 game = Game()

@@ -105,3 +105,5 @@ class Sound:
     PICKUP = load(Path("assets", "sfx", "pickup.wav"))
     BEEP = load(Path("assets", "sfx", "beep.wav"))
     TYPEWRITER = load(Path("assets", "sfx", "typewriter.wav"), 0.1)
+    BUY = load(Path("assets", "sfx", "buy.wav"))
+    ALERT = load(Path("assets", "sfx", "alert.mp3"))

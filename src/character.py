@@ -59,6 +59,7 @@ class Completed(IntFlag):
     FOUND_PEOPLE = auto()
     LOOTED_CORPSES = auto()
     SET_UP_CAMP = auto()
+    MET_MERCHANT = auto()
 
 
 class Bar:
@@ -67,7 +68,9 @@ class Bar:
         self.current = self.max_
         self.x = x
         self.y = y
-        self.img =  pygame.transform.scale_by(pygame.image.load(Path("assets", "bar.png")), SCALING)
+        self.img = pygame.transform.scale_by(
+            pygame.image.load(Path("assets", "bar.png")), SCALING
+        )
         self.tex = Texture.from_surface(game.renderer, self.img)
         self.rect = self.img.get_rect(topleft=(self.x, self.y))
 
@@ -75,29 +78,32 @@ class Bar:
         ratio = self.current / self.max_
         color = pygame.Color(Color.RED)
         color = color.lerp(Color.GREEN, ratio)
-        fill_rect(game.renderer, color, (self.x, self.y - 270 * ratio + 280, 40 , 270 * ratio))
+        fill_rect(
+            game.renderer, color, (self.x, self.y - 270 * ratio + 280, 40, 270 * ratio)
+        )
         game.renderer.blit(self.tex, self.rect)
 
 
 class Character:
     def __init__(self):
         self.name = None
-        self.hp = 100
-        self.energy = 100
-        self.temp = 100
-        self.money = 25
+        self.money = 3
         self.show_money = False
         self.location = Location.PLANEWRECK
         self.completed: Completed = Completed.NONE
-        self.healthbar = Bar(self.hp, 880, 300)
-        self.energy_bar = Bar(self.energy, 940, 300)
-        self.temp_bar = Bar(self.temp, 1000, 300)
+        self.max_hp = 100
+        self.max_energy = 100
+        self.max_temp = 100
 
-    def update(self):
-        if self.show_money:
-            tex, rect = write(f"${self.money}", (40, 370), 30)
-            game.renderer.blit(tex, rect)
+        self.hp = self.max_hp
+        self.energy = self.max_energy
+        self.temp = self.max_temp
 
+        self.healthbar = Bar(self.max_hp, 880, 300)
+        self.energy_bar = Bar(self.max_energy, 940, 300)
+        self.temp_bar = Bar(self.max_temp, 1000, 300)
+
+    def update_bars(self):
         self.healthbar.current = self.hp
         self.healthbar.update()
         tex, rect = write("HP", (885, 600))
@@ -112,6 +118,13 @@ class Character:
         self.temp_bar.update()
         tex, rect = write("TM", (1005, 600))
         game.renderer.blit(tex, rect)
+
+    def update(self):
+        if self.show_money:
+            tex, rect = write(f"${self.money}", (40, 370), 30)
+            game.renderer.blit(tex, rect)
+
+        self.update_bars()
 
     def setup(self, name, background):
         self.name = name
