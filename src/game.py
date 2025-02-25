@@ -15,5 +15,7 @@ class Game:
         self.renderer = Renderer(self.window)
         self.clock = pygame.time.Clock()
 
+        self.quicktime_active = False
+
 
 game = Game()

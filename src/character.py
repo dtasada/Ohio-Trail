@@ -86,6 +86,7 @@ class Completed(IntFlag):
     FOUND_PEOPLE = auto()
     LOOTED_CORPSES = auto()
     SET_UP_CAMP = auto()
+    MET_MERCHANT = auto()
 
 
 class Character:
