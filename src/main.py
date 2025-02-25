@@ -1,8 +1,9 @@
 import pygame
 import sys
 
-from .game import game
 from .character import *
+from .game import game
+from .inventory import *
 from .story_loop import *
 from .widgets import *
 
@@ -44,16 +45,6 @@ def main(debug=False):
             if getattr(widget, "kill", False):
                 active_widgets.remove(widget)
 
-        if player.show_money:
-            i = 0
-            for food in player.food:
-                if player.food[food] != 0:
-                    img, rect = write(
-                        f"{food}: {player.food[food]}", (38, 460 + i * 28)
-                    )
-                    game.renderer.blit(img, rect)
-                    i += 1
-        
         player.update()
         inventory.update()
 

@@ -7,7 +7,6 @@ from typing import List, Dict
 from pathlib import Path
 
 import pygame
-import random
 
 
 class Background:
@@ -27,22 +26,6 @@ class Background:
         self.sound = pygame.mixer.Sound(Path("assets", "sfx", f"{self.name}.wav"))
 
 
-class _Food:
-    def __init__(self, name, price) -> None:
-        self.name = name
-        self.price = price
-        self.img = pygame.transform.scale_by(
-            pygame.image.load(
-                Path("assets", "food", f"{name.lower().replace(' ', '-')}.png")
-            ),
-            SCALING,
-        )
-        self.tex = Texture.from_surface(game.renderer, self.img)
-        self.rect = self.img.get_rect(
-            center=(game.window.size[0] - 300, game.window.size[1] / 2)
-        )
-
-
 possible_backgrounds: List[Background] = [
     Background(
         1, "banker", "Be a banker from New York", f"Impressive,{ZWS * 10} very nice."
@@ -55,16 +38,6 @@ possible_backgrounds: List[Background] = [
         f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\n\nYeah{ZWS * 10} baby!",
     ),
 ]
-
-
-class Food(Enum):
-    EGGPLANT = _Food("Eggplant", 1)
-    FRIKANDELBROODJE = _Food("Frikandelbroodje", 1)
-    PICKLE = _Food("Pickle", 1)
-    STONE_BAKED_GARLIC_FLATBREAD = _Food("Stone baked garlic flatbread", 4)
-    SOUR_PATCH_KIDS = _Food("Sour Patch Kids", 2)
-    MRBEAST_FEASTABLES = _Food("MrBeast Feastables", 5)
-    PINK_SAUCE = _Food("Pink Sauce", 1)
 
 
 class Location(Enum):
@@ -116,12 +89,6 @@ class Character:
         self.show_money = False
         self.location = Location.PLANEWRECK
         self.completed: Completed = Completed.NONE
-        self.food: Dict[Food, int] = {
-            Food.FRIKANDELBROODJE: gauss(0.5, 0.5),
-            Food.EGGPLANT: gauss(1.5, 1.5),
-            Food.PICKLE: gauss(1, 1),
-            Food.STONE_BAKED_GARLIC_FLATBREAD: gauss(0.5, 0.5),
-        }
         self.healthbar = Bar(self.hp, 880, 300)
         self.energy_bar = Bar(self.energy, 940, 300)
         self.temp_bar = Bar(self.temp, 1000, 300)
