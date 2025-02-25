@@ -192,6 +192,9 @@ def select_forest():
             selection.append(Action.WALK_TO_CAMP)
         else:
             selection.append(Action.SET_UP_CAMP)
+
+        if Completed.MET_MERCHANT & player.completed:
+            selection.append(Action.TALK_TO_MERCHANT)
     else:
         selection.append(Action.EXPLORE_FOREST)
 
@@ -450,7 +453,7 @@ class Action(Enum):
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
- 
+    TALK_TO_MERCHANT = member(partial(talk_to_merchant))
 
 
     OK = member(lambda: Action.last_action())
