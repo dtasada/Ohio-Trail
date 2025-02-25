@@ -16,6 +16,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.quicktime_active = False
+        self.in_cutscene = False
 
 
 game = Game()

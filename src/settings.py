@@ -64,10 +64,11 @@ def draw_line(renderer, color, p1, p2):
     renderer.draw_line(p1, p2)
 
 
-def write(text, pos, size=18):
+def write(text, pos, size=18, anchor="topleft"):
     img = FONTS[size].render(text, True, Color.WHITE)
     tex = Texture.from_surface(game.renderer, img)
-    rect = img.get_rect(topleft=pos)
+    rect = img.get_rect()
+    setattr(rect, anchor, pos)
     return tex, rect
 
 
@@ -86,6 +87,8 @@ def gauss(mean, std, min_=float("-inf"), max_=float("inf")) -> int:
 class Color:
     WHITE = (255, 255, 255, 255)
     BLACK = (0, 0, 0, 255)
+    RED = (255, 0, 0, 255)
+    GREEN = (0, 255, 0, 255)
     WALK = (169, 211, 158)
     GO = WALK
     TALK = pygame.Color("deepskyblue")

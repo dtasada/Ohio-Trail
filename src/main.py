@@ -22,6 +22,7 @@ def main(debug=False):
             sine=(15, 0.002),
         )
     )
+
     while running:
         game.clock.tick(30)
         for event in pygame.event.get():
@@ -29,6 +30,7 @@ def main(debug=False):
                 running = False
 
             elif event.type == pygame.KEYDOWN:
+                inventory.process_event(event)
                 for widget in active_widgets[:]:
                     if isinstance(widget, RetroSelection):
                         # selection
@@ -52,8 +54,9 @@ def main(debug=False):
                     )
                     game.renderer.blit(img, rect)
                     i += 1
-
+        
         player.update()
+        inventory.update()
 
         game.renderer.present()
 

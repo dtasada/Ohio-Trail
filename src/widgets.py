@@ -429,3 +429,114 @@ class Animation:
 
 
 active_widgets: List[_Retro | TitleCard | Animation] = []
+
+
+class Inventory:
+    def __init__(self) -> None:
+        self.items: List[Food] = [
+            Food.PICKLE,
+            Food.FRIKANDELBROODJE,
+            Food.EGGPLANT,
+            Food.STONE_BAKED_GARLIC_FLATBREAD,
+            Food.SOUR_PATCH_KIDS,
+            Food.PINK_SAUCE,
+        ]
+        self.index = 0
+        self.should_draw = True
+
+    def update(self) -> None:
+        if not self.should_draw:
+            return
+
+        cell_size = 64
+        cell_count = 8
+        grid_border_size = 3
+
+        top_left = (
+            game.window.size[0] / 2 - cell_size * cell_count / 2,
+            game.window.size[1] - cell_size * 1.5,
+        )
+        top_right = (top_left[0] + cell_count * cell_size, top_left[1])
+        bottom_left = [top_left[0], top_left[1] + cell_size]
+
+        grid_size = [cell_size * cell_count, cell_size]
+
+        fill_rect(
+            game.renderer,
+            Color.WHITE,
+            pygame.Rect(
+                (top_left[0] - grid_border_size, top_left[1]),
+                (grid_border_size, grid_size[1]),
+            ),
+        )
+        fill_rect(
+            game.renderer,
+            Color.WHITE,
+            pygame.Rect(top_right, (grid_border_size, grid_size[1])),
+        )
+        fill_rect(
+            game.renderer,
+            Color.WHITE,
+            pygame.Rect(
+                (top_left[0], top_left[1] - grid_border_size),
+                (grid_size[0], grid_border_size),
+            ),
+        )
+        fill_rect(
+            game.renderer,
+            Color.WHITE,
+            pygame.Rect(bottom_left, (grid_size[0], grid_border_size)),
+        )
+
+        for i in range(cell_count + 1):
+            fill_rect(
+                game.renderer,
+                Color.WHITE,
+                pygame.Rect(
+                    (top_left[0] + i * cell_size, top_left[1]),
+                    (2, cell_size),
+                ),
+            )
+
+        for i, item in enumerate(self.items):
+            game.renderer.blit(
+                item.value.tex,
+                pygame.Rect(top_left[0] + i * cell_size, top_left[1], 64, 64),
+            )
+
+        game.renderer.blit(
+            *write(
+                "^",
+                (
+                    bottom_left[0] + self.index * cell_size + cell_size / 2,
+                    bottom_left[1] + 24,
+                ),
+                size=28,
+                anchor="center",
+            )
+        )
+
+        desc_tex, desc_rect = write(
+            enum_to_str(self.items[self.index].name),
+            (
+                top_left[0] + grid_size[0] / 2,
+                top_left[1] - 8,
+            ),
+            anchor="midbottom",
+        )
+        game.renderer.blit(desc_tex, desc_rect)
+
+    def process_event(self, event) -> None:
+        if not self.should_draw:
+            return
+
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_LEFT:
+                Sound.BEEP.play()
+                self.index = self.index - 1 if self.index > 0 else len(self.items) - 1
+            elif event.key == pygame.K_RIGHT:
+                Sound.BEEP.play()
+                self.index = self.index + 1 if self.index < len(self.items) - 1 else 0
+
+
+inventory: Inventory = Inventory()
