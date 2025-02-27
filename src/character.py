@@ -79,7 +79,12 @@ class Bar:
         color = pygame.Color(Color.RED)
         color = color.lerp(Color.GREEN, ratio)
         fill_rect(
-            game.renderer, color, (self.x, self.y - 270 * ratio + 280, 40, 270 * ratio)
+            game.renderer, 
+            color, 
+            (self.x, 
+             self.y - self.rect.height * ratio + self.rect.height, 
+             self.rect.width, 
+             self.rect.height * ratio)
         )
         game.renderer.blit(self.tex, self.rect)
 
@@ -92,31 +97,31 @@ class Character:
         self.location = Location.PLANEWRECK
         self.completed: Completed = Completed.NONE
         self.max_hp = 100
-        self.max_energy = 100
+        self.max_energy = 10
         self.max_temp = 100
 
         self.hp = self.max_hp
         self.energy = self.max_energy
         self.temp = self.max_temp
 
-        self.healthbar = Bar(self.max_hp, 880, 300)
-        self.energy_bar = Bar(self.max_energy, 940, 300)
-        self.temp_bar = Bar(self.max_temp, 1000, 300)
+        self.healthbar = Bar(self.max_hp, 910, 380)
+        self.energy_bar = Bar(self.max_energy, 950, 380)
+        self.temp_bar = Bar(self.max_temp, 990, 380)
 
     def update_bars(self):
         self.healthbar.current = self.hp
         self.healthbar.update()
-        tex, rect = write("HP", (885, 600))
+        tex, rect = write("HP", (905, 590), 13)
         game.renderer.blit(tex, rect)
 
         self.energy_bar.current = self.energy
         self.energy_bar.update()
-        tex, rect = write("EN", (945, 600))
+        tex, rect = write("EN", (944, 590), 13)
         game.renderer.blit(tex, rect)
 
         self.temp_bar.current = self.temp
         self.temp_bar.update()
-        tex, rect = write("TM", (1005, 600))
+        tex, rect = write("TM", (982, 590), 13)
         game.renderer.blit(tex, rect)
 
     def update(self):
