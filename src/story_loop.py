@@ -88,6 +88,8 @@ With you on the plane are another 200 people."""
     anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
     active_widgets.append(anim_plane)
 
+    sfx_queue.append(Sfx(9700, Sound.EXPLOSION))
+
     info_intro = RetroEntry(
         text_intro, command=intro_wreck, reverse_data=(12, "4 people.")
     )

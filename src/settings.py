@@ -107,6 +107,7 @@ class Sound:
     TYPEWRITER = load(Path("assets", "sfx", "typewriter.wav"), 0.1)
     BUY = load(Path("assets", "sfx", "buy.wav"))
     ALERT = load(Path("assets", "sfx", "alert.mp3"))
+    EXPLOSION = load(Path("assets", "sfx", "explosion.mp3"))
     
 
 class Music:
@@ -125,3 +126,23 @@ class Music:
     MAIN_MENU = Path("assets", "sfx", "Main-Menu.mp3")
     INTRO = Path("assets", "sfx", "Intro.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
+
+
+class Sfx:
+    def __init__(self, time, sound):
+        self.time = time
+        self.sound = sound
+        self.start_time = pygame.time.get_ticks()
+
+    def update(self):
+        if pygame.time.get_ticks() - self.start_time > self.time:
+            self.sound.play()
+            sfx_queue.remove(self)
+        
+    def process_event(self, event):
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_COMMA:
+                sfx_queue.remove(self)
+
+
+sfx_queue = []
