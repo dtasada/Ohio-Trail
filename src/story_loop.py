@@ -72,6 +72,7 @@ def set_character_bg(bg):
 @checkpoint
 @pause1
 def intro():
+    Music.set_music(Music.INTRO)
     active_widgets.clear()
     trip_type = {"banker": "business", "chef": "culinary"}.get(
         player.background, "pleasure"
@@ -112,6 +113,7 @@ Objective: survive for as long as possible.
 @action
 @checkpoint
 def select_planewreck():
+    Music.stop()
     # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK

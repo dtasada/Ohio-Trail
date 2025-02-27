@@ -10,6 +10,7 @@ from .widgets import *
 
 def main(debug=False):
     running = True
+    Music.set_music(Music.MAIN_MENU)
     active_widgets.append(
         TitleCard(
             f"{title_card_string}{' ' * 8}{random_ahh}",

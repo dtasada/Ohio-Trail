@@ -148,7 +148,7 @@ class Inventory:
         if not self.should_draw:
             return
 
-        if event.type == pygame.KEYDOWN:
+        """if event.type == pygame.KEYDOWN:
             match event.key:
                 case pygame.K_LEFT:
                     Sound.BEEP.play()
@@ -161,7 +161,7 @@ class Inventory:
                         self.index + 1 if self.index < len(self.items) - 1 else 0
                     )
                 case pygame.K_RETURN:
-                    self.items[self.index].select()
+                    self.items[self.index].select()"""
 
 
 inventory: Inventory = Inventory()

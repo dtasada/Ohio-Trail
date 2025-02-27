@@ -107,3 +107,21 @@ class Sound:
     TYPEWRITER = load(Path("assets", "sfx", "typewriter.wav"), 0.1)
     BUY = load(Path("assets", "sfx", "buy.wav"))
     ALERT = load(Path("assets", "sfx", "alert.mp3"))
+    
+
+class Music:
+    @staticmethod
+    def set_music(music, volume=1):
+        pygame.mixer.music.fadeout(1000)
+        pygame.mixer.music.unload()
+        pygame.mixer.music.load(music)
+        pygame.mixer.music.set_volume(volume)
+        pygame.mixer.music.play(-1)
+
+    @staticmethod
+    def stop():
+        pygame.mixer.music.fadeout(1000)
+        
+    MAIN_MENU = Path("assets", "sfx", "Main-Menu.mp3")
+    INTRO = Path("assets", "sfx", "Intro.mp3")
+    CREDITS = Path("assets", "sfx", "Credits.mp3")
