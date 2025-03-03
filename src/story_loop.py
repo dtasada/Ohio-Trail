@@ -188,7 +188,8 @@ def select_forest():
     active_widgets.clear()
 
     Action.update_last_action(select_forest)
-    selection = [Action.WALK_TO_PLANEWRECK]
+    selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
+    
     if Completed.EXPLORED_FOREST & player.completed:
         selection.append(Action.WALK_TO_LAKE)
         selection.append(Action.WALK_TO_MOUNTAIN)
@@ -200,8 +201,6 @@ def select_forest():
 
         if Completed.MET_MERCHANT & player.completed:
             selection.append(Action.TALK_TO_MERCHANT)
-    else:
-        selection.append(Action.EXPLORE_FOREST)
 
     active_widgets.append(
         RetroEntry(
@@ -239,8 +238,8 @@ def explore_forest():
         else:
             active_widgets.append(
                 RetroEntry(
-                    "You gaze into the distance once more, and this time ",
-                    selection=[Action.OK],
+                    "You gaze into the distance once more, \nand this time you see a wandering merchant",
+                    selection=[Action.TALK_TO_MERCHANT],
                 )
             )
     else:
@@ -258,12 +257,21 @@ def explore_forest():
 def talk_to_merchant():
     active_widgets.clear()
 
-    active_widgets.append(
-        RetroEntry(
-            "Hello there! I have some items for sale.",
-            command=merchant_selection,
+    if Completed.MET_MERCHANT & player.completed:
+        active_widgets.append(
+            RetroEntry(
+                "Hey again! I still have some items for sale.",
+                command=merchant_selection,
+            )
         )
-    )
+    else:
+        active_widgets.append(
+            RetroEntry(
+                "Hello there! I have some items for sale.",
+                command=merchant_selection,
+            )
+        )
+        player.complete(Completed.MET_MERCHANT)
 
 
 def merchant_selection():
