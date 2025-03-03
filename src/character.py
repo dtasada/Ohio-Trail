@@ -1,5 +1,6 @@
 from .settings import *
 from .game import game
+from .inventory import *
 
 from enum import Enum, IntFlag, auto
 from pygame._sdl2.video import Texture

@@ -1,9 +1,9 @@
 from .character import *
-
+from .settings import *
 from contextlib import suppress
 from math import ceil, sin
 from pygame._sdl2.video import Texture
-from typing import Callable, Optional, Tuple
+from typing import Callable, Optional, Tuple, List
 
 from operator import setitem
 

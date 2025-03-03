@@ -1,4 +1,5 @@
 from .character import *
+from .inventory import *
 from .game import game
 from .widgets import *
 from enum import member
@@ -254,7 +255,7 @@ def explore_forest():
 
 
 @checkpoint
-def talk_to_merchant():
+def talk_to_merchant(he):
     active_widgets.clear()
 
     active_widgets.append(
@@ -271,17 +272,17 @@ def merchant_selection():
 
     active_widgets.append(
         RetroSelection(
-            actions=[f"{food.value.name} ({food.value.price}$)" for food in Food] + ["Leave"],
+            actions=[f"{item.name} ({item.price}$)" for item in shop_list] + ["Leave"],
             pos=(0, 60),
-            command=buy_food,
-            images=[i.value.tex for i in Food],
-            image_rects=[i.value.rect for i in Food],
+            command=buy_item,
+            images=[i.tex for i in shop_list],
+            image_rects=[pygame.Rect(10, 10, 200, 200) for i in shop_list],
         )
     )
-    
 
-def buy_food(f):
-    if f == "Leave":
+
+def buy_item(item):
+    if item == "Leave":
         active_widgets.append(
             RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!"]) + 10 * ZWS,
                         pos=(0, 440),
@@ -289,10 +290,20 @@ def buy_food(f):
             )  
         )
     else:
-        food = Food[sub(" \(\d\$\)", "", f).replace(" ", "_").upper()] #random ass bullshit
+        item = getattr(Food, item.split()[0].upper()) #was vroeger random ass bullshit
+        
+        print(len(inventory.items))
+        if len(inventory.items) >= inventory.capacity:
+            active_widgets.append(
+                RetroEntry(
+                    "You don't have enough space" + ZWS * 5,
+                    pos=(0, 440),
+                    command=merchant_selection,
+                )
+            )
+            return
 
-
-        if food.value.price > player.money:
+        if item.price > player.money:
             active_widgets.append(
                 RetroEntry(
                     "You don't have enough money!" + ZWS * 5,
@@ -302,8 +313,8 @@ def buy_food(f):
             )
         else:
             Sound.BUY.play()
-            inventory.items.append(food)
-            player.money -= food.value.price
+            inventory.items.append(item)
+            player.money -= item.price
             merchant_selection()
 
 
@@ -467,3 +478,9 @@ class Action(Enum):
     @classmethod
     def update_last_action(cls, action):
         cls.last_action = action
+
+
+Food.setup(Action.OK)
+inventory = Inventory()
+
+shop_list.append(Food.EGGPLANT)

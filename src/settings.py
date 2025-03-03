@@ -16,6 +16,8 @@ FONTS = [
 ]
 FONT = FONTS[18]
 
+shop_list = []
+
 with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
 
