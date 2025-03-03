@@ -184,6 +184,9 @@ There's a forest in the distance.""",
 
 @checkpoint
 def select_forest():
+    if not pygame.mixer.music.get_busy():
+        Music.set_music(Music.FOREST)
+
     player.location = Location.FOREST
     active_widgets.clear()
 
@@ -238,7 +241,7 @@ def explore_forest():
         else:
             active_widgets.append(
                 RetroEntry(
-                    "You gaze into the distance once more, \nand this time you see a wandering merchant",
+                    f"You gaze into the distance once more... {ZWS * 20} \nThis time you see a wandering merchant",
                     selection=[Action.TALK_TO_MERCHANT],
                 )
             )
@@ -369,6 +372,7 @@ def set_up_camp():
 @action
 @checkpoint
 def select_camp():
+    Music.stop()
     player.location = Location.CAMP
     # TODO
     active_widgets.clear()

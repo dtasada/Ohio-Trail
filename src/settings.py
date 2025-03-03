@@ -127,6 +127,7 @@ class Music:
         
     MAIN_MENU = Path("assets", "sfx", "Main-Menu.mp3")
     INTRO = Path("assets", "sfx", "Intro.mp3")
+    FOREST = Path("assets", "sfx", "Forest.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
 
 
