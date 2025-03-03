@@ -89,7 +89,7 @@ With you on the plane are another 200 people."""
     anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
     active_widgets.append(anim_plane)
 
-    sfx_queue.append(Sfx(9700, Sound.EXPLOSION))
+    sfx_queue.append(Sfx(Sound.EXPLOSION, 9700))
 
     info_intro = RetroEntry(
         text_intro, command=intro_wreck, reverse_data=(12, "4 people.")
@@ -116,7 +116,7 @@ Objective: survive for as long as possible.
 @action
 @checkpoint
 def select_planewreck():
-    Music.stop()
+    Music.stop(1000)
     # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK
@@ -184,33 +184,52 @@ There's a forest in the distance.""",
 
 @checkpoint
 def select_forest():
-    if not pygame.mixer.music.get_busy():
-        Music.set_music(Music.FOREST)
-
-    player.location = Location.FOREST
     active_widgets.clear()
 
-    Action.update_last_action(select_forest)
-    selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
-    
-    if Completed.EXPLORED_FOREST & player.completed:
-        selection.append(Action.WALK_TO_LAKE)
-        selection.append(Action.WALK_TO_MOUNTAIN)
+    if Completed.ENTERED_FOREST & player.completed:
+        if not pygame.mixer.music.get_busy():
+            Music.set_music(Music.HAPPY_FOREST, 0.8)
+            player.spooked = False
 
-        if Completed.SET_UP_CAMP & player.completed:
-            selection.append(Action.WALK_TO_CAMP)
-        else:
-            selection.append(Action.SET_UP_CAMP)
+        player.location = Location.FOREST
 
-        if Completed.MET_MERCHANT & player.completed:
-            selection.append(Action.TALK_TO_MERCHANT)
+        Action.update_last_action(select_forest)
+        selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
+        
+        if Completed.EXPLORED_FOREST & player.completed:
+            selection.append(Action.WALK_TO_LAKE)
+            selection.append(Action.WALK_TO_MOUNTAIN)
 
-    active_widgets.append(
-        RetroEntry(
-            "You are in the forest.",
-            selection=selection,
+            if Completed.SET_UP_CAMP & player.completed:
+                selection.append(Action.WALK_TO_CAMP)
+            else:
+                selection.append(Action.SET_UP_CAMP)
+
+            if Completed.MET_MERCHANT & player.completed:
+                selection.append(Action.TALK_TO_MERCHANT)
+
+        active_widgets.append(
+            RetroEntry(
+                "You are in the forest.",
+                selection=selection,
+            )
         )
-    )
+
+    else:
+        Music.set_music(Music.FOREST)
+        player.complete(Completed.ENTERED_FOREST)
+        sfx_queue.append(Sfx(Sound.BUILD_UP, 5000))
+        Music.stop(15000)
+        active_widgets.append(
+            RetroEntry(
+                f"""You enter the forest...{ZWS * 40}
+You feel an ominious presence.{ZWS * 40}
+Slowly,{ZWS * 20} you see a grim looking creature approaching you.{ZWS * 140}
+
+Just kidding :){ZWS * 10}""",
+                command=select_forest
+            )
+        )
 
 
 @action
@@ -372,7 +391,7 @@ def set_up_camp():
 @action
 @checkpoint
 def select_camp():
-    Music.stop()
+    Music.stop(1000)
     player.location = Location.CAMP
     # TODO
     active_widgets.clear()

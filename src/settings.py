@@ -110,6 +110,7 @@ class Sound:
     BUY = load(Path("assets", "sfx", "buy.wav"))
     ALERT = load(Path("assets", "sfx", "alert.mp3"))
     EXPLOSION = load(Path("assets", "sfx", "explosion.mp3"), 0.3)
+    BUILD_UP = load(Path("assets", "sfx", "scary.mp3"))
     
 
 class Music:
@@ -122,17 +123,18 @@ class Music:
         pygame.mixer.music.play(-1)
 
     @staticmethod
-    def stop():
-        pygame.mixer.music.fadeout(1000)
+    def stop(time):
+        pygame.mixer.music.fadeout(time)
         
     MAIN_MENU = Path("assets", "sfx", "Main-Menu.mp3")
     INTRO = Path("assets", "sfx", "Intro.mp3")
     FOREST = Path("assets", "sfx", "Forest.mp3")
+    HAPPY_FOREST = Path("assets", "sfx", "Happy-Forest.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
 
 
 class Sfx:
-    def __init__(self, time, sound):
+    def __init__(self, sound, time=0):
         self.time = time
         self.sound = sound
         self.start_time = pygame.time.get_ticks()

@@ -54,6 +54,7 @@ class Location(Enum):
 
 class Completed(IntFlag):
     NONE = auto()
+    ENTERED_FOREST = auto()
     EXPLORED_FOREST = auto()
     EXPLORED_PLANEWRECK = auto()
     EXPLORED_TENT = auto()
