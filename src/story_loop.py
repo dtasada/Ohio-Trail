@@ -255,7 +255,7 @@ def explore_forest():
 
 
 @checkpoint
-def talk_to_merchant(he):
+def talk_to_merchant():
     active_widgets.clear()
 
     active_widgets.append(
@@ -276,7 +276,7 @@ def merchant_selection():
             pos=(0, 60),
             command=buy_item,
             images=[i.tex for i in shop_list],
-            image_rects=[pygame.Rect(10, 10, 200, 200) for i in shop_list],
+            image_rects=[pygame.Rect(550, 190, 150, 150) for i in shop_list],
         )
     )
 
@@ -290,13 +290,12 @@ def buy_item(item):
             )  
         )
     else:
-        item = getattr(Food, item.split()[0].upper()) #was vroeger random ass bullshit
+        item = getattr(Food, item.split()[0].upper()) # (‿|‿) <-- het zijn billen 
         
-        print(len(inventory.items))
         if len(inventory.items) >= inventory.capacity:
             active_widgets.append(
                 RetroEntry(
-                    "You don't have enough space" + ZWS * 5,
+                    "You don't have enough space!" + ZWS * 5,
                     pos=(0, 440),
                     command=merchant_selection,
                 )
@@ -484,3 +483,4 @@ Food.setup(Action.OK)
 inventory = Inventory()
 
 shop_list.append(Food.EGGPLANT)
+shop_list.append(Food.FRIKANDELBROODJE)
