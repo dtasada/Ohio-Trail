@@ -217,7 +217,7 @@ def select_forest():
         )
 
     else:
-        Music.set_music(Music.FOREST)
+        Music.set_music(Music.FOREST, 0.8)
         player.complete(Completed.ENTERED_FOREST)
         sfx_queue.append(Sfx(Sound.BUILD_UP, 5000))
         Music.stop(15000)
@@ -393,7 +393,7 @@ def set_up_camp():
 @checkpoint
 def select_camp():
     if Music.current != Music.CAMP:
-        Music.set_music(Music.CAMP)
+        Music.set_music(Music.CAMP, 0.8)
     player.location = Location.CAMP
     # TODO
     active_widgets.clear()
