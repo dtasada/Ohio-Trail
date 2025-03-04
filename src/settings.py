@@ -135,6 +135,7 @@ class Music:
     FOREST = Path("assets", "sfx", "Forest.mp3")
     HAPPY_FOREST = Path("assets", "sfx", "Happy-Forest.mp3")
     PLANEWRECK = Path("assets", "sfx", "planewreck.mp3")
+    CAMP =  Path("assets", "sfx", "camp.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
 
 class Sfx:

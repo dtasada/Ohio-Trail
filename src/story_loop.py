@@ -116,11 +116,8 @@ Objective: survive for as long as possible.
 @action
 @checkpoint
 def select_planewreck():
-    if Completed.ENTERED_FOREST & player.completed:
-        if Music.current != Music.PLANEWRECK:
-            Music.set_music(Music.PLANEWRECK)
-    else:
-        Music.stop(1000)
+    if Music.current != Music.PLANEWRECK:
+        Music.set_music(Music.PLANEWRECK)
     # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK
@@ -395,7 +392,8 @@ def set_up_camp():
 @action
 @checkpoint
 def select_camp():
-    Music.stop(1000)
+    if Music.current != Music.CAMP:
+        Music.set_music(Music.CAMP)
     player.location = Location.CAMP
     # TODO
     active_widgets.clear()
