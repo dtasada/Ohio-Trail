@@ -114,8 +114,12 @@ class Sound:
     
 
 class Music:
-    @staticmethod
-    def set_music(music, volume=1):
+
+    current = None
+
+    @classmethod
+    def set_music(cls, music, volume=1):
+        cls.current = music
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
@@ -130,8 +134,8 @@ class Music:
     INTRO = Path("assets", "sfx", "Intro.mp3")
     FOREST = Path("assets", "sfx", "Forest.mp3")
     HAPPY_FOREST = Path("assets", "sfx", "Happy-Forest.mp3")
+    PLANEWRECK = Path("assets", "sfx", "planewreck.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
-
 
 class Sfx:
     def __init__(self, sound, time=0):

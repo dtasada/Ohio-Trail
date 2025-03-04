@@ -116,7 +116,11 @@ Objective: survive for as long as possible.
 @action
 @checkpoint
 def select_planewreck():
-    Music.stop(1000)
+    if Completed.ENTERED_FOREST & player.completed:
+        if Music.current != Music.PLANEWRECK:
+            Music.set_music(Music.PLANEWRECK)
+    else:
+        Music.stop(1000)
     # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK
@@ -187,7 +191,7 @@ def select_forest():
     active_widgets.clear()
 
     if Completed.ENTERED_FOREST & player.completed:
-        if not pygame.mixer.music.get_busy():
+        if Music.current != Music.HAPPY_FOREST:
             Music.set_music(Music.HAPPY_FOREST, 0.8)
             player.spooked = False
 
