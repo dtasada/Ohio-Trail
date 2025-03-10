@@ -62,6 +62,11 @@ def fill_rect(renderer, color, rect):
     renderer.fill_rect(rect)
 
 
+def draw_rect(renderer, color, rect):
+    renderer.draw_color = color
+    renderer.draw_rect(rect)
+
+
 def draw_line(renderer, color, p1, p2):
     renderer.draw_color = color
     renderer.draw_line(p1, p2)
@@ -92,6 +97,7 @@ class Color:
     BLACK = (0, 0, 0, 255)
     RED = (255, 0, 0, 255)
     GREEN = (0, 255, 0, 255)
+    BROWN = (222, 184, 135)
     WALK = (169, 211, 158)
     GO = WALK
     TALK = pygame.Color("deepskyblue")
@@ -138,6 +144,7 @@ class Music:
     PLANEWRECK = Path("assets", "sfx", "planewreck.mp3")
     CAMP =  Path("assets", "sfx", "camp.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
+
 
 class Sfx:
     def __init__(self, sound, time=0):

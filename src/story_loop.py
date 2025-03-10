@@ -18,9 +18,9 @@ def checkpoint(func):
 
 
 def action(func):
-    def inner():
+    def inner(*args, **kwargs):
         player.energy -= 1
-        func()
+        func(*args, **kwargs)
 
     return inner
 
@@ -190,12 +190,11 @@ def select_forest():
     if Completed.ENTERED_FOREST & player.completed:
         if Music.current != Music.HAPPY_FOREST:
             Music.set_music(Music.HAPPY_FOREST, 0.8)
-            player.spooked = False
 
         player.location = Location.FOREST
 
         Action.update_last_action(select_forest)
-        selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
+        selection = [Action.EXPLORE_FOREST, Action.CHOP_WOOD, Action.WALK_TO_PLANEWRECK]
         
         if Completed.EXPLORED_FOREST & player.completed:
             selection.append(Action.WALK_TO_LAKE)
@@ -231,6 +230,26 @@ Just kidding :){ZWS * 10}""",
                 command=select_forest
             )
         )
+
+
+@action
+def chop_wood(*args):
+    active_widgets.clear()
+    active_widgets.append(
+        WoodChopping(
+           finish_chopping_wood,
+        )
+    )
+
+
+def finish_chopping_wood(amount):
+    active_widgets.clear()
+    active_widgets.append(
+        RetroEntry(
+            f"You chopped up {amount} logs of wood.",
+            selection=[Action.OK],
+        )
+    )
 
 
 @action
@@ -315,9 +334,9 @@ def merchant_selection():
 def buy_item(item):
     if item == "Leave":
         active_widgets.append(
-            RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!"]) + 10 * ZWS,
-                        pos=(0, 440),
-                        command=select_forest,
+            RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!", "See ya later aligater!"]) + 10 * ZWS,
+                pos=(0, 440),
+                command=select_forest,
             )  
         )
     else:
@@ -496,6 +515,7 @@ class Action(Enum):
     WALK_TO_CAMP = member(partial(select_camp))
     WALK_TO_CAMPFIRE = member(partial(select_campfire))
     WALK_TO_FOREST = member(partial(select_forest))
+    CHOP_WOOD = member(partial(chop_wood))
     WALK_TO_LAKE = member(partial(select_lake))
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
     WALK_TO_MY_TENT = member(partial(select_my_tent))

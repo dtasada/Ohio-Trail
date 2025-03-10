@@ -19,7 +19,7 @@ def main(debug=False):
             RetroEntry(
                 "Hello traveler, what is your name?",
                 accepts_input=True,
-                command=ask_background,
+                command=ask_name,
             ),
             sine=(15, 0.002),
         )
@@ -44,7 +44,11 @@ def main(debug=False):
 
                 for sfx in sfx_queue:
                     sfx.process_event(event)
-
+            
+            # elif event.type == pygame.MOUSEBUTTONDOWN:
+            #     for widget in active_widgets[:]:
+            #         if isinstance(widget, Minigame):
+            #             widget.process_event(event)
 
         fill_rect(game.renderer, (0, 0, 0, 255), (0, 0, *game.window.size))
 
