@@ -19,7 +19,7 @@ def main(debug=False):
             RetroEntry(
                 "Hello traveler, what is your name?",
                 accepts_input=True,
-                command=ask_background,
+                command=talk_to_merchant,
             ),
             sine=(15, 0.002),
         )

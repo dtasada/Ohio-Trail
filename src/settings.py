@@ -7,6 +7,7 @@ import random
 
 from .game import game
 
+
 # Globals
 ZWS = "​"  # niet empty maar zero width space
 SCALING = 10
