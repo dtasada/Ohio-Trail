@@ -9,6 +9,7 @@ from pygame.typing import Point
 
 from .game import game
 
+
 # Globals
 ZWS = "​"  # niet empty maar zero width space
 SCALING = 10
@@ -92,6 +93,11 @@ def draw_line(
     renderer.draw_line(p1, p2)
 
 
+def draw_rect(renderer, color, rect):
+    renderer.draw_color = color
+    renderer.draw_rect(rect)
+
+
 def write(text: str, pos: Point, size: int = 18, anchor: str = "topleft"):
     """Rendering function to draw text"""
     img = FONTS[size].render(text, True, Color.WHITE)
@@ -124,6 +130,7 @@ class Color:
     BLACK = pygame.Color(0, 0, 0, 255)
     RED = pygame.Color(255, 0, 0, 255)
     GREEN = pygame.Color(0, 255, 0, 255)
+    BROWN = pygame.Color(222, 184, 135)
 
     # Color values
     WALK = pygame.Color(169, 211, 158)

@@ -1,7 +1,7 @@
 from .character import *
 from .settings import *
 from contextlib import suppress
-from math import ceil, sin
+from math import floor, ceil, sin
 from pygame._sdl2.video import Texture
 from pygame.typing import Point
 from typing import Callable, Optional, Tuple, List
@@ -419,4 +419,65 @@ class Animation:
                 self.index = len(self.texs) - 1
 
 
-active_widgets: List[_Retro | TitleCard | Animation] = []
+class Minigame:
+    def check_finished(self):
+        pass
+
+
+class WoodChopping(Minigame):
+    def __init__(self, action):
+        # gameplay variables
+        self.w, self.h = 300, 34
+        self.x, self.y = game.window.size[0] / 2 - self.w / 2, game.window.size[1] / 2 - self.h / 2
+        self.action = action
+        self.chop_x = self.x
+        self.chop_y = self.y + self.h / 2
+        self.chop_w, self.chop_h = 10, 60
+        self.def_speed = self.speed = 0.003
+        self.num_chopped = 0
+        self.set_correct()
+
+        # timer and particles for UI/UX
+        self.last_start = pygame.time.get_ticks()
+        # TODO: particles
+        self.particles = []
+    
+    def finish(self):
+        self.action(self.num_chopped)
+        active_widgets.remove(self)
+
+    def chop(self):
+        if self.correct_x <= self.chop_x <= self.correct_x + self.correct_w:
+            self.num_chopped += 1
+        self.set_correct()
+
+    def set_correct(self):
+        self.correct_w = random.randint(12, 30)
+        self.correct_x = random.randint(int(self.x), int(self.x + self.w - self.correct_w))
+
+    def process_event(self, event):
+        if event.key == pygame.K_SPACE:
+            # timing for chopping the wood
+            # self.action.value()
+            self.chop()
+    
+    def draw(self):
+        # render the UI
+        remaining_seconds = floor(10 - (pygame.time.get_ticks() - self.last_start) / 1000)
+        if remaining_seconds <= -1:
+            self.finish()
+        else:
+            game.renderer.blit(*write(str(remaining_seconds), (self.x + self.w / 2, self.y - 100), size=30, anchor="center"))
+
+        # render the game
+        draw_rect(game.renderer, Color.WHITE, (self.x, self.y, self.w, self.h))
+        self.chop_x = self.x + self.w / 2 + sin(pygame.time.get_ticks() * self.speed) * self.w / 2
+        fill_rect(game.renderer, Color.WHITE, (self.chop_x - self.chop_w / 2, self.chop_y - self.chop_h / 2, self.chop_w, self.chop_h))
+        fill_rect(game.renderer, Color.BROWN, (self.correct_x, self.y, self.correct_w, self.h))
+
+    def update(self):
+        self.draw()
+        self.check_finished()
+
+
+active_widgets: List[_Retro | TitleCard | Animation | Minigame] = []
