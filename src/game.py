@@ -7,6 +7,8 @@ pygame.init()
 
 
 class Game:
+    """Simple game wrapper class"""
+
     def __init__(self) -> None:
         pygame.init()
 

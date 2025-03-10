@@ -4,16 +4,15 @@ from .game import game
 from .widgets import *
 from enum import member
 from functools import partial
-from re import sub
 
 
 def checkpoint(func):
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
-        
+
         Action.update_last_action(inner)
         func(*args, **kwargs)
-    
+
     return inner
 
 
@@ -52,11 +51,10 @@ def ask_bg_selection():
 
 @checkpoint
 def set_character_bg(bg):
-    background = [i for i in possible_backgrounds if i.desc == bg][0]
-    player.background = background.name
-    speed = 0.7 if background.name == "man" else 0.4
+    player.background = [i for i in possible_backgrounds if i.desc == bg][0]
+    speed = 0.7 if player.background.name == "man" else 0.4
     voiceline_entry = RetroEntry(
-        background.catchphrase,
+        player.background.catchphrase,
         pos=(150, 420),
         command=intro,
         accepts_input=False,
@@ -118,14 +116,15 @@ Objective: survive for as long as possible.
 def select_planewreck():
     if Music.current != Music.PLANEWRECK:
         Music.set_music(Music.PLANEWRECK)
-    # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK
     active_widgets.clear()
 
-    selection = [Action.EXPLORE_PLANEWRECK, Action.WALK_TO_FOREST, Action.TALK_TO_NPCS]
-    if not (Completed.LOOTED_CORPSES & player.completed):
-        selection.insert(0, Action.LOOT_CORPSES)
+    selection = [Action.EXPLORE_PLANEWRECK, Action.TALK_TO_NPCS]
+    if Completed.EXPLORED_PLANEWRECK & player.completed:
+        selection.insert(1, Action.WALK_TO_FOREST)
+        if not (Completed.LOOTED_CORPSES & player.completed):
+            selection.insert(0, Action.LOOT_CORPSES)
 
     active_widgets.append(RetroEntry("You are at the planewreck.", selection=selection))
 
@@ -168,22 +167,27 @@ def info_loot_corpses():
 
 @action
 def explore_planewreck():
-    # TODO
+    message = f"""You look through the wreckage.{ZWS * 20}
+There's really nothing to see but some corpses.{ZWS * 20}
+You should probably leave them alone.{ZWS * 20}"""
+
+    if not (Completed.LOOTED_CORPSES & player.completed):
+        message += "\n\nThere's a forest in the distance."
+
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            f"""You look through the wreckage.{ZWS * 20}
-There's really nothing left to find but some corpses.{ZWS * 20}
-You should probably leave them alone.{ZWS * 20}
-
-There's a forest in the distance.""",
+            message,
             selection=[Action.OK],
             choice_pos=(0, 80),
         )
     )
 
+    player.complete(Completed.EXPLORED_PLANEWRECK)
+
 
 @checkpoint
+@pause1
 def select_forest():
     active_widgets.clear()
 
@@ -194,9 +198,8 @@ def select_forest():
 
         player.location = Location.FOREST
 
-        Action.update_last_action(select_forest)
         selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
-        
+
         if Completed.EXPLORED_FOREST & player.completed:
             selection.append(Action.WALK_TO_LAKE)
             selection.append(Action.WALK_TO_MOUNTAIN)
@@ -228,7 +231,7 @@ You feel an ominious presence.{ZWS * 40}
 Slowly,{ZWS * 20} you see a grim looking creature approaching you.{ZWS * 140}
 
 Just kidding :){ZWS * 10}""",
-                command=select_forest
+                command=select_forest,
             )
         )
 
@@ -303,7 +306,7 @@ def merchant_selection():
 
     active_widgets.append(
         RetroSelection(
-            actions=[f"{item.name} ({item.price}$)" for item in shop_list] + ["Leave"],
+            actions=[f"{item.name} (${item.price})" for item in shop_list] + ["Leave"],
             pos=(0, 60),
             command=buy_item,
             images=[i.tex for i in shop_list],
@@ -315,14 +318,23 @@ def merchant_selection():
 def buy_item(item):
     if item == "Leave":
         active_widgets.append(
-            RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!"]) + 10 * ZWS,
-                        pos=(0, 440),
-                        command=select_forest,
-            )  
+            RetroEntry(
+                random.choice(
+                    [
+                        "Goodbye!",
+                        "Auf Wiedersehen!",
+                        "Sayonara!",
+                        "Auf Wienerschnitzel!",
+                    ]
+                )
+                + 10 * ZWS,
+                pos=(0, 440),
+                command=select_forest,
+            )
         )
     else:
-        item = getattr(Food, item.split()[0].upper()) # (‿|‿) <-- het zijn billen 
-        
+        item = getattr(Food, item.split()[0].upper())  # (‿|‿) <-- het zijn billen
+
         if len(inventory.items) >= inventory.capacity:
             active_widgets.append(
                 RetroEntry(
@@ -378,7 +390,6 @@ def select_mountain():
 def set_up_camp():
     # TODO
     active_widgets.clear()
-    Action.update_last_action(select_camp)
     active_widgets.append(
         RetroEntry(
             "You and the NPCs have all set up a camp!",
@@ -387,6 +398,8 @@ def set_up_camp():
     )
 
     player.complete(Completed.SET_UP_CAMP)
+
+    select_camp()
 
 
 @action
@@ -428,7 +441,6 @@ def select_my_tent():
 def select_campfire():
     # TODO
     player.location = Location.CAMPFIRE
-    Action.update_last_action(select_campfire)
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
@@ -465,7 +477,8 @@ def character_sleep():
     player.energy = player.max_energy
     active_widgets.append(
         RetroEntry(
-            random.choice([
+            random.choice(
+                [
                     "You sleep soundly.",
                     "Zzzzz...",
                     "Goodnight.",
@@ -501,7 +514,6 @@ class Action(Enum):
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
     TALK_TO_MERCHANT = member(partial(talk_to_merchant))
-
 
     OK = member(lambda: Action.last_action())
 

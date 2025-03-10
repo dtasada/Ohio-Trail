@@ -3,6 +3,7 @@ from .settings import *
 from contextlib import suppress
 from math import ceil, sin
 from pygame._sdl2.video import Texture
+from pygame.typing import Point
 from typing import Callable, Optional, Tuple, List
 
 from operator import setitem
@@ -13,6 +14,7 @@ class _Retro:
     command: Optional[Callable]
 
     def finish(self, *args, **kwargs):
+        """Called when the widget is finished. By default, it will call the associated command."""
         if self.command:
             self.command(*args, **kwargs)
         self.active = False
@@ -20,65 +22,174 @@ class _Retro:
             active_widgets.remove(self)
 
     def update(self): ...
-    def process_event(self, event): ...
+    def process_event(self, event: pygame.Event): ...
+
+
+class RetroSelection(_Retro):
+    def __init__(
+        self,
+        actions,
+        pos: Point,
+        command: Optional[Callable] = None,
+        images: List[Texture] = [],
+        image_rects: List[pygame.Rect] = [],
+        autokill: bool=False,
+    ):
+        """Initialize the selection widget. 'actions' is a List of 'Action', a RetroSelection, or a List of strings."""
+        self.texts = actions
+        self.x, self.y = pos
+        self.xo: int = 40
+        self.yo: int = 40
+        self.images: List[Texture]=images
+        self.image_rects: List[pygame.Rect]=image_rects
+        self.command: Optional[Callable] = command
+
+        # selection images, textures and rectangles
+        imgs: List[pygame.Surface] = [
+            FONT.render(
+                enum_to_str(text.name) if self.command is None else text,
+                True,
+                Color.WHITE,
+            )
+            for text in actions
+        ]
+        self.texs: List[Texture] = [Texture.from_surface(game.renderer, img) for img in imgs]
+        colored_imgs: List[pygame.Surface] = [
+            FONT.render(
+                enum_to_str(text.name if self.command is None else text).split(" ")[0],
+                True,
+                action_to_color( enum_to_str(text.name if self.command is None else text).split(" ")[0]),
+            ) for text in actions
+        ]
+        self.colored_texs: List[Texture] = [
+            Texture.from_surface(game.renderer, img) for img in colored_imgs
+        ]
+        # rects
+        self.rects: List[pygame.Rect] = [
+            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
+            for y, img in enumerate(imgs)
+        ]
+        self.colored_rects: List[pygame.Rect]  = [
+            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
+            for y, img in enumerate(colored_imgs)
+        ]
+        # other
+        self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
+        self.active: bool = True
+        self.index: int = 0
+        self.autokill: bool = autokill
+
+    def finish(self, text: "Action", quicktime: Callable, quicktime_active: bool):
+        """Called when the selection is finished. By default, it will call the associated command."""
+        if False and not quicktime_active and chance(1 / 2):
+            Sound.ALERT.play()
+            quicktime()()
+        else:
+            if self.command is not None:
+                self.command(text)
+            else:
+                text.value()
+            self.active = False
+            if self.autokill:
+                active_widgets.remove(self)
+
+    def draw(self):
+        """Draw the selection widget"""
+        for tex, rect, ctex, crect in zip(
+            self.texs, self.rects, self.colored_texs, self.colored_rects
+        ):
+            game.renderer.blit(tex, rect)
+            game.renderer.blit(ctex, crect)
+        if self.images:
+            with suppress(IndexError):
+                if self.images[self.index] is not None:
+                    game.renderer.blit(
+                        self.images[self.index], self.image_rects[self.index]
+                    )
+        game.renderer.blit(self.gt, self.gt_rect)
+
+    def process_event(self, event: pygame.Event, quicktime: Callable, quicktime_active: bool):
+        if self.active:
+            if event.key == pygame.K_COMMA:
+                self.finish(self.texts[0], quicktime, quicktime_active)
+
+            if event.key in (pygame.K_s, pygame.K_DOWN):
+                if self.gt_rect.y == self.rects[-1].y:
+                    self.gt_rect.y = self.rects[0].y
+                    self.index = 0
+                else:
+                    self.gt_rect.y += self.yo
+                    self.index += 1
+                Sound.BEEP.play()
+            elif event.key in (pygame.K_w, pygame.K_UP):
+                if self.gt_rect.y == self.rects[0].y:
+                    self.gt_rect.y = self.rects[-1].y
+                    self.index = -1
+                else:
+                    self.gt_rect.y -= self.yo
+                    self.index -= 1
+                Sound.BEEP.play()
+            elif event.key == pygame.K_RETURN:
+                text = self.texts[self.index]
+                self.finish(text, quicktime, quicktime_active)
+
+    def update(self):
+        self.draw()
 
 
 class RetroEntry(_Retro):
+    """Represents a text entry widget. It prints out text and accepts input from the user."""
     def __init__(
         self,
         final: str,
-        pos: Tuple[int, int] = (0, 0),
-        choice_pos: Tuple[int, int] = (0, 30),
+        pos: Point = (0, 0),
+        choice_pos: Point = (0, 30),
         command: Optional[Callable] = None,
-        selection=None,
-        accepts_input=False,
+        selection: Optional[RetroSelection | List["Action"]] = None,
+        accepts_input: bool =False,
         wrap: int | str = game.window.size[0] - 50,
-        speed=0.6,
-        typewriter=True,
-        reverse_data=(None, None),
-        next_should_be_immediate=False,
-        delay=0,
-        autokill=False,
+        speed: float=0.6,
+        typewriter: bool=True,
+        reverse_data: Tuple[Optional[int], Optional[str]] = (None, None),
+        next_should_be_immediate: bool=False,
+        delay: int=0,
+        autokill: bool=False,
     ):
-        self.final = final + " "
-        self.text = ""
-        self.answer = ""
-        self.index = 0
-        self.last_index = self.index
+        self.final: str = final + " "
+        self.text: str = ""
+        self.answer: str = ""
+        self.index: float = 0
+        self.last_index: float = self.index
         self.x, self.y = [i + 12 for i in pos]
-        self.speed = speed
-        self.flickering = False
-        self.has_underscore = False
+        self.speed: float = speed
+        self.flickering: bool = False
+        self.has_underscore: bool = False
 
-        self.reversing = False
+        self.reversing: bool = False
         self.reverse_length, self.reverse_string = reverse_data
         self.should_reverse = self.reverse_length is not None
-        self.finished_reversing = False
+        self.finished_reversing: bool = False
 
-        self.last_flicker = pygame.time.get_ticks()
-        self.last_finished_writing = pygame.time.get_ticks()
-        self.deleted = 0
-        self.command = command
-        if selection is not None:
-            self.selection = RetroSelection(
-                selection, pos=choice_pos or len(final.splite("\n")) * 30
-            )
-        else:
-            self.selection = None
+        self.last_flicker: int = pygame.time.get_ticks()
+        self.last_finished_writing: int = pygame.time.get_ticks()
+        self.deleted: int = 0
+        self.command: Optional[Callable] = command
 
-        self.active = True
-        self.accepts_input = accepts_input
+        self.selection: RetroSelection =  RetroSelection(selection, pos=choice_pos) if selection else None
+
+        self.active: bool = True
+        self.accepts_input: bool = accepts_input
         self.wrap: int | str = wrap
-        self.typewriter = typewriter
+        self.typewriter: bool = typewriter
         self.kwargs = {
             "typewriter": typewriter,
             "speed": speed,
             "accepts_input": accepts_input,
         }
-        self.next_should_be_immediate = next_should_be_immediate
-        self.autokill = autokill
-        self.last_quit = None
-        self.delay = delay
+        self.next_should_be_immediate: bool = next_should_be_immediate
+        self.autokill: bool = autokill
+        self.last_quit: Optional[int] = None
+        self.delay: int = delay
 
     def finish(self, *args, **kwargs):
         if self.command is not None:
@@ -94,7 +205,7 @@ class RetroEntry(_Retro):
         if int(self.index) >= 1:
             game.renderer.blit(self.image, self.rect)
 
-    def process_event(self, event):
+    def process_event(self, event: pygame.Event):
         if self.active:
             if event.key == pygame.K_COMMA:
                 self.index = len(self.final) - 1
@@ -208,128 +319,8 @@ class RetroEntry(_Retro):
         self.rect = img.get_rect(topleft=(self.x, self.y))
 
 
-class RetroSelection(_Retro):
-    def __init__(
-        self,
-        actions,
-        pos,
-        command: Optional[Callable] = None,
-        images=None,
-        image_rects=None,
-        exit_sel=None,
-        autokill=False,
-    ):
-        self.texts = actions
-        self.x, self.y = pos
-        self.xo = 40
-        self.yo = 40
-        self.exit_sel = exit_sel
-        self.images = images or []
-        self.image_rects = image_rects or []
-        self.command = command
-        # selection images, textures and rectangles
-        imgs = [
-            FONT.render(
-                enum_to_str(text.name) if self.command is None else text,
-                True,
-                Color.WHITE,
-            )
-            for text in actions
-        ]
-        self.texs = [Texture.from_surface(game.renderer, img) for img in imgs]
-        colored_imgs = [
-            FONT.render(
-                enum_to_str(text.name if self.command is None else text).split(" ")[0],
-                True,
-                action_to_color(
-                    enum_to_str(text.name if self.command is None else text).split(" ")[
-                        0
-                    ]
-                ),
-            )
-            for text in actions
-        ]
-        self.colored_texs = [
-            Texture.from_surface(game.renderer, img) for img in colored_imgs
-        ]
-        # rects
-        self.rects = [
-            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
-            for y, img in enumerate(imgs)
-        ]
-        self.colored_rects = [
-            img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
-            for y, img in enumerate(colored_imgs)
-        ]
-        # other
-        self.selected = 0
-        self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
-        self.active = True
-        self.index = 0
-        self.autokill = autokill
-
-    def finish(self, text, quicktime, quicktime_active):
-        if False and not quicktime_active and chance(1 / 2):
-            Sound.ALERT.play()
-            quicktime()()
-
-        else:
-            if self.command is not None:
-                self.command(text)
-            else:
-                text.value()
-            self.active = False
-            if self.autokill:
-                active_widgets.remove(self)
-
-    def draw(self):
-        for tex, rect, ctex, crect in zip(
-            self.texs, self.rects, self.colored_texs, self.colored_rects
-        ):
-            game.renderer.blit(tex, rect)
-            game.renderer.blit(ctex, crect)
-        if self.images:
-            with suppress(IndexError):
-                if self.images[self.index] is not None:
-                    game.renderer.blit(
-                        self.images[self.index], self.image_rects[self.index]
-                    )
-        game.renderer.blit(self.gt, self.gt_rect)
-
-    def process_event(self, event, quicktime, quicktime_active):
-        if self.active:
-            if event.key == pygame.K_COMMA:
-                self.finish(self.texts[0], quicktime, quicktime_active)
-
-            if event.key in (pygame.K_s, pygame.K_DOWN):
-                if self.gt_rect.y == self.rects[-1].y:
-                    self.gt_rect.y = self.rects[0].y
-                    self.index = 0
-                else:
-                    self.gt_rect.y += self.yo
-                    self.index += 1
-                Sound.BEEP.play()
-            elif event.key in (pygame.K_w, pygame.K_UP):
-                if self.gt_rect.y == self.rects[0].y:
-                    self.gt_rect.y = self.rects[-1].y
-                    self.index = -1
-                else:
-                    self.gt_rect.y -= self.yo
-                    self.index -= 1
-                Sound.BEEP.play()
-            elif event.key == pygame.K_RETURN:
-                text = self.texts[self.index]
-                self.finish(text, quicktime, quicktime_active)
-
-    def update(self):
-        self.draw()
-
-
-random_ahh = (
-    " ".join(random.sample(["press", "space", "to", "continue"], 4))
-    .capitalize()
-    .replace("space", "SPACE")
-    .replace("Space", "SPACE")
+random_ahh: str = (
+    " ".join(random.sample(["press", "space", "to", "continue"], 4)).capitalize().replace("space", "SPACE").replace("Space", "SPACE")
 )
 
 title_card_string = r'''
@@ -358,7 +349,7 @@ class TitleCard(_Retro):
         self.amp, self.freq = sine
         self.og_y = self.rect.y
 
-    def process_event(self, event):
+    def process_event(self, event: pygame.Event):
         if event.key == pygame.K_SPACE:
             if self.command:
                 self.command()
@@ -372,7 +363,7 @@ class Animation:
     def __init__(
         self,
         path: str,
-        pos: Tuple[int, int],
+        pos: Point,
         frame_count: int = 1,
         framerate: float = 0,
         scaling: int = 5,
@@ -422,7 +413,7 @@ class Animation:
                     self.texs[int(self.index)], self.rects[int(self.index)]
                 )
 
-    def process_event(self, event):
+    def process_event(self, event: pygame.Event):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_COMMA:
                 self.index = len(self.texs) - 1

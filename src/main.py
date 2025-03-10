@@ -45,14 +45,13 @@ def main(debug=False):
                 for sfx in sfx_queue:
                     sfx.process_event(event)
 
-
         fill_rect(game.renderer, (0, 0, 0, 255), (0, 0, *game.window.size))
 
         for widget in active_widgets[:]:
             widget.update()
             if getattr(widget, "kill", False):
                 active_widgets.remove(widget)
-        
+
         for sfx in sfx_queue:
             sfx.update()
 

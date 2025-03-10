@@ -6,6 +6,8 @@ from typing import List, Optional
 
 
 class InventoryItem:
+    """An item that can be stored in the inventory. Effectively a dataclass."""
+
     def __init__(self, img_dir, name, actions_ok, price: Optional[int] = None) -> None:
         self.name: str = name
         self.price: Optional[int] = price
@@ -19,10 +21,17 @@ class InventoryItem:
         self.rect: pygame.Rect = self.img.get_rect()
         self.ok = actions_ok
 
-    def select(self) -> None: ...
+    def select(self) -> None:
+        """Abstract method to be defined in every child class. Called when the item is selected."""
+        ...
 
 
 class Food(InventoryItem):
+    """
+    Food item. Inherits from InventoryItem. Contains static variables for all
+    food items and can be effectively used as an Enum.
+    """
+
     def __init__(self, img_dir, name, actions_ok, price: int) -> None:
         super().__init__(img_dir, name, actions_ok, price)
 
@@ -39,6 +48,10 @@ class Food(InventoryItem):
         cls.PINK_SAUCE = cls("food", "Pink Sauce", ok, 1)
 
     def select(self) -> None:
+        """
+        Method called when the item is selected. This one displays a random
+        eating message and then returns to previous procedure.
+        """
         active_widgets.clear()
         active_widgets.append(
             RetroEntry(
@@ -49,6 +62,8 @@ class Food(InventoryItem):
 
 
 class Inventory:
+    """Inventory wrapper class"""
+
     def __init__(self) -> None:
         self.items: List[InventoryItem] = [
             Food.PICKLE,
@@ -64,6 +79,7 @@ class Inventory:
         self.capacity = 8
 
     def update(self) -> None:
+        """Main method for the inventory updating and rendering. Called every frame."""
         if not self.should_draw:
             return
 
@@ -144,7 +160,8 @@ class Inventory:
         )
         game.renderer.blit(desc_tex, desc_rect)
 
-    def process_event(self, event) -> None:
+    def process_event(self, event: pygame.Event) -> None:
+        """Main method for the inventory event processing. Called every frame."""
         if not self.should_draw:
             return
 
@@ -162,5 +179,3 @@ class Inventory:
                     )
                 case pygame.K_RETURN:
                     self.items[self.index].select()"""
-
-
