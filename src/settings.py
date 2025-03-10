@@ -17,6 +17,8 @@ FONTS = [
 ]
 FONT = FONTS[18]
 
+shop_list = []
+
 with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
 
@@ -109,11 +111,16 @@ class Sound:
     BUY = load(Path("assets", "sfx", "buy.wav"))
     ALERT = load(Path("assets", "sfx", "alert.mp3"))
     EXPLOSION = load(Path("assets", "sfx", "explosion.mp3"), 0.3)
+    BUILD_UP = load(Path("assets", "sfx", "scary.mp3"))
     
 
 class Music:
-    @staticmethod
-    def set_music(music, volume=1):
+
+    current = None
+
+    @classmethod
+    def set_music(cls, music, volume=1):
+        cls.current = music
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
@@ -121,16 +128,19 @@ class Music:
         pygame.mixer.music.play(-1)
 
     @staticmethod
-    def stop():
-        pygame.mixer.music.fadeout(1000)
+    def stop(time):
+        pygame.mixer.music.fadeout(time)
         
     MAIN_MENU = Path("assets", "sfx", "Main-Menu.mp3")
     INTRO = Path("assets", "sfx", "Intro.mp3")
+    FOREST = Path("assets", "sfx", "Forest.mp3")
+    HAPPY_FOREST = Path("assets", "sfx", "Happy-Forest.mp3")
+    PLANEWRECK = Path("assets", "sfx", "planewreck.mp3")
+    CAMP =  Path("assets", "sfx", "camp.mp3")
     CREDITS = Path("assets", "sfx", "Credits.mp3")
 
-
 class Sfx:
-    def __init__(self, time, sound):
+    def __init__(self, sound, time=0):
         self.time = time
         self.sound = sound
         self.start_time = pygame.time.get_ticks()

@@ -1,4 +1,5 @@
 from .character import *
+from .inventory import *
 from .game import game
 from .widgets import *
 from enum import member
@@ -88,7 +89,7 @@ With you on the plane are another 200 people."""
     anim_plane = Animation("intro-hook", (0, 100), 5, 0.35, should_stay=True)
     active_widgets.append(anim_plane)
 
-    sfx_queue.append(Sfx(9700, Sound.EXPLOSION))
+    sfx_queue.append(Sfx(Sound.EXPLOSION, 9700))
 
     info_intro = RetroEntry(
         text_intro, command=intro_wreck, reverse_data=(12, "4 people.")
@@ -115,7 +116,8 @@ Objective: survive for as long as possible.
 @action
 @checkpoint
 def select_planewreck():
-    Music.stop()
+    if Music.current != Music.PLANEWRECK:
+        Music.set_music(Music.PLANEWRECK)
     # Action.update_last_action(select_planewreck)
 
     player.location = Location.PLANEWRECK
@@ -183,31 +185,52 @@ There's a forest in the distance.""",
 
 @checkpoint
 def select_forest():
-    player.location = Location.FOREST
     active_widgets.clear()
 
-    Action.update_last_action(select_forest)
-    selection = [Action.WALK_TO_PLANEWRECK]
-    if Completed.EXPLORED_FOREST & player.completed:
-        selection.append(Action.WALK_TO_LAKE)
-        selection.append(Action.WALK_TO_MOUNTAIN)
+    if Completed.ENTERED_FOREST & player.completed:
+        if Music.current != Music.HAPPY_FOREST:
+            Music.set_music(Music.HAPPY_FOREST, 0.8)
+            player.spooked = False
 
-        if Completed.SET_UP_CAMP & player.completed:
-            selection.append(Action.WALK_TO_CAMP)
-        else:
-            selection.append(Action.SET_UP_CAMP)
+        player.location = Location.FOREST
 
-        if Completed.MET_MERCHANT & player.completed:
-            selection.append(Action.TALK_TO_MERCHANT)
-    else:
-        selection.append(Action.EXPLORE_FOREST)
+        Action.update_last_action(select_forest)
+        selection = [Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
+        
+        if Completed.EXPLORED_FOREST & player.completed:
+            selection.append(Action.WALK_TO_LAKE)
+            selection.append(Action.WALK_TO_MOUNTAIN)
 
-    active_widgets.append(
-        RetroEntry(
-            "You are in the forest.",
-            selection=selection,
+            if Completed.SET_UP_CAMP & player.completed:
+                selection.append(Action.WALK_TO_CAMP)
+            else:
+                selection.append(Action.SET_UP_CAMP)
+
+            if Completed.MET_MERCHANT & player.completed:
+                selection.append(Action.TALK_TO_MERCHANT)
+
+        active_widgets.append(
+            RetroEntry(
+                "You are in the forest.",
+                selection=selection,
+            )
         )
-    )
+
+    else:
+        Music.set_music(Music.FOREST, 0.8)
+        player.complete(Completed.ENTERED_FOREST)
+        sfx_queue.append(Sfx(Sound.BUILD_UP, 5000))
+        Music.stop(15000)
+        active_widgets.append(
+            RetroEntry(
+                f"""You enter the forest...{ZWS * 40}
+You feel an ominious presence.{ZWS * 40}
+Slowly,{ZWS * 20} you see a grim looking creature approaching you.{ZWS * 140}
+
+Just kidding :){ZWS * 10}""",
+                command=select_forest
+            )
+        )
 
 
 @action
@@ -238,8 +261,8 @@ def explore_forest():
         else:
             active_widgets.append(
                 RetroEntry(
-                    "You gaze into the distance once more, and this time ",
-                    selection=[Action.OK],
+                    f"You gaze into the distance once more... {ZWS * 20} \nThis time you see a wandering merchant",
+                    selection=[Action.TALK_TO_MERCHANT],
                 )
             )
     else:
@@ -257,12 +280,21 @@ def explore_forest():
 def talk_to_merchant():
     active_widgets.clear()
 
-    active_widgets.append(
-        RetroEntry(
-            "Hello there! I have some items for sale.",
-            command=merchant_selection,
+    if Completed.MET_MERCHANT & player.completed:
+        active_widgets.append(
+            RetroEntry(
+                "Hey again! I still have some items for sale.",
+                command=merchant_selection,
+            )
         )
-    )
+    else:
+        active_widgets.append(
+            RetroEntry(
+                "Hello there! I have some items for sale.",
+                command=merchant_selection,
+            )
+        )
+        player.complete(Completed.MET_MERCHANT)
 
 
 def merchant_selection():
@@ -271,17 +303,17 @@ def merchant_selection():
 
     active_widgets.append(
         RetroSelection(
-            actions=[f"{food.value.name} ({food.value.price}$)" for food in Food] + ["Leave"],
+            actions=[f"{item.name} ({item.price}$)" for item in shop_list] + ["Leave"],
             pos=(0, 60),
-            command=buy_food,
-            images=[i.value.tex for i in Food],
-            image_rects=[i.value.rect for i in Food],
+            command=buy_item,
+            images=[i.tex for i in shop_list],
+            image_rects=[pygame.Rect(550, 190, 150, 150) for i in shop_list],
         )
     )
-    
 
-def buy_food(f):
-    if f == "Leave":
+
+def buy_item(item):
+    if item == "Leave":
         active_widgets.append(
             RetroEntry(random.choice(["Goodbye!", "Auf Wiedersehen!", "Sayonara!", "Auf Wienerschnitzel!"]) + 10 * ZWS,
                         pos=(0, 440),
@@ -289,10 +321,19 @@ def buy_food(f):
             )  
         )
     else:
-        food = Food[sub(" \(\d\$\)", "", f).replace(" ", "_").upper()] #random ass bullshit
+        item = getattr(Food, item.split()[0].upper()) # (‿|‿) <-- het zijn billen 
+        
+        if len(inventory.items) >= inventory.capacity:
+            active_widgets.append(
+                RetroEntry(
+                    "You don't have enough space!" + ZWS * 5,
+                    pos=(0, 440),
+                    command=merchant_selection,
+                )
+            )
+            return
 
-
-        if food.value.price > player.money:
+        if item.price > player.money:
             active_widgets.append(
                 RetroEntry(
                     "You don't have enough money!" + ZWS * 5,
@@ -302,8 +343,8 @@ def buy_food(f):
             )
         else:
             Sound.BUY.play()
-            inventory.items.append(food)
-            player.money -= food.value.price
+            inventory.items.append(item)
+            player.money -= item.price
             merchant_selection()
 
 
@@ -351,6 +392,8 @@ def set_up_camp():
 @action
 @checkpoint
 def select_camp():
+    if Music.current != Music.CAMP:
+        Music.set_music(Music.CAMP, 0.8)
     player.location = Location.CAMP
     # TODO
     active_widgets.clear()
@@ -467,3 +510,10 @@ class Action(Enum):
     @classmethod
     def update_last_action(cls, action):
         cls.last_action = action
+
+
+Food.setup(Action.OK)
+inventory = Inventory()
+
+shop_list.append(Food.EGGPLANT)
+shop_list.append(Food.FRIKANDELBROODJE)

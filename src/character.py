@@ -1,5 +1,6 @@
 from .settings import *
 from .game import game
+from .inventory import *
 
 from enum import Enum, IntFlag, auto
 from pygame._sdl2.video import Texture
@@ -53,6 +54,7 @@ class Location(Enum):
 
 class Completed(IntFlag):
     NONE = auto()
+    ENTERED_FOREST = auto()
     EXPLORED_FOREST = auto()
     EXPLORED_PLANEWRECK = auto()
     EXPLORED_TENT = auto()

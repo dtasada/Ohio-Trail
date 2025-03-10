@@ -1,4 +1,3 @@
-from .story_loop import *
 from .game import *
 from .settings import *
 from .widgets import *
@@ -7,9 +6,9 @@ from typing import List, Optional
 
 
 class InventoryItem:
-    def __init__(self, img_dir, name, value: Optional[int] = None) -> None:
+    def __init__(self, img_dir, name, actions_ok, price: Optional[int] = None) -> None:
         self.name: str = name
-        self.value: Optional[int] = value
+        self.price: Optional[int] = price
         self.img: pygame.Surface = pygame.transform.scale_by(
             pygame.image.load(
                 Path("assets", img_dir, f"{name.lower().replace(' ', '-')}.png")
@@ -18,34 +17,35 @@ class InventoryItem:
         )
         self.tex: Texture = Texture.from_surface(game.renderer, self.img)
         self.rect: pygame.Rect = self.img.get_rect()
+        self.ok = actions_ok
 
     def select(self) -> None: ...
 
 
 class Food(InventoryItem):
+    def __init__(self, img_dir, name, actions_ok, price: int) -> None:
+        super().__init__(img_dir, name, actions_ok, price)
+
     @classmethod
-    def setup(cls):
-        cls.EGGPLANT = cls("food", "Eggplant", 1)
-        cls.FRIKANDELBROODJE = cls("food", "Frikandelbroodje", 1)
-        cls.PICKLE = cls("food", "Pickle", 1)
+    def setup(cls, ok):
+        cls.EGGPLANT = cls("food", "Eggplant", ok, 1)
+        cls.FRIKANDELBROODJE = cls("food", "Frikandelbroodje", ok, 1)
+        cls.PICKLE = cls("food", "Pickle", ok, 1)
         cls.STONE_BAKED_GARLIC_FLATBREAD = cls(
-            "food", "Stone baked garlic flatbread", 4
+            "food", "Stone baked garlic flatbread", ok, 4
         )
-        cls.SOUR_PATCH_KIDS = cls("food", "Sour Patch Kids", 2)
-        cls.MRBEAST_FEASTABLES = cls("food", "MrBeast Feastables", 5)
-        cls.PINK_SAUCE = cls("food", "Pink Sauce", 1)
+        cls.SOUR_PATCH_KIDS = cls("food", "Sour Patch Kids", ok, 2)
+        cls.MRBEAST_FEASTABLES = cls("food", "MrBeast Feastables", ok, 5)
+        cls.PINK_SAUCE = cls("food", "Pink Sauce", ok, 1)
 
     def select(self) -> None:
         active_widgets.clear()
         active_widgets.append(
             RetroEntry(
                 random.choice(["Nom nom nom...", "mmmmmgh...", "*chomp chomp*"]),
-                selection=[Action.OK],
+                selection=[self.ok],
             )
         )
-
-
-Food.setup()
 
 
 class Inventory:
@@ -61,23 +61,23 @@ class Inventory:
         ]
         self.index = 0
         self.should_draw = True
+        self.capacity = 8
 
     def update(self) -> None:
         if not self.should_draw:
             return
 
         cell_size = 64
-        cell_count = 8
         grid_border_size = 3
 
         top_left = (
-            game.window.size[0] / 2 - cell_size * cell_count / 2,
+            game.window.size[0] / 2 - cell_size * self.capacity / 2,
             game.window.size[1] - cell_size * 1.5,
         )
-        top_right = (top_left[0] + cell_count * cell_size, top_left[1])
+        top_right = (top_left[0] + self.capacity * cell_size, top_left[1])
         bottom_left = [top_left[0], top_left[1] + cell_size]
 
-        grid_size = [cell_size * cell_count, cell_size]
+        grid_size = [cell_size * self.capacity, cell_size]
 
         fill_rect(
             game.renderer,
@@ -106,7 +106,7 @@ class Inventory:
             pygame.Rect(bottom_left, (grid_size[0], grid_border_size)),
         )
 
-        for i in range(cell_count + 1):
+        for i in range(self.capacity + 1):
             fill_rect(
                 game.renderer,
                 Color.WHITE,
@@ -164,4 +164,3 @@ class Inventory:
                     self.items[self.index].select()"""
 
 
-inventory: Inventory = Inventory()
