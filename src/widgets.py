@@ -33,15 +33,15 @@ class RetroSelection(_Retro):
         command: Optional[Callable] = None,
         images: List[Texture] = [],
         image_rects: List[pygame.Rect] = [],
-        autokill: bool=False,
+        autokill: bool = False,
     ):
         """Initialize the selection widget. 'actions' is a List of 'Action', a RetroSelection, or a List of strings."""
         self.texts = actions
         self.x, self.y = pos
         self.xo: int = 40
         self.yo: int = 40
-        self.images: List[Texture]=images
-        self.image_rects: List[pygame.Rect]=image_rects
+        self.images: List[Texture] = images
+        self.image_rects: List[pygame.Rect] = image_rects
         self.command: Optional[Callable] = command
 
         # selection images, textures and rectangles
@@ -53,13 +53,20 @@ class RetroSelection(_Retro):
             )
             for text in actions
         ]
-        self.texs: List[Texture] = [Texture.from_surface(game.renderer, img) for img in imgs]
+        self.texs: List[Texture] = [
+            Texture.from_surface(game.renderer, img) for img in imgs
+        ]
         colored_imgs: List[pygame.Surface] = [
             FONT.render(
                 enum_to_str(text.name if self.command is None else text).split(" ")[0],
                 True,
-                action_to_color( enum_to_str(text.name if self.command is None else text).split(" ")[0]),
-            ) for text in actions
+                action_to_color(
+                    enum_to_str(text.name if self.command is None else text).split(" ")[
+                        0
+                    ]
+                ),
+            )
+            for text in actions
         ]
         self.colored_texs: List[Texture] = [
             Texture.from_surface(game.renderer, img) for img in colored_imgs
@@ -69,7 +76,7 @@ class RetroSelection(_Retro):
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(imgs)
         ]
-        self.colored_rects: List[pygame.Rect]  = [
+        self.colored_rects: List[pygame.Rect] = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(colored_imgs)
         ]
@@ -108,7 +115,9 @@ class RetroSelection(_Retro):
                     )
         game.renderer.blit(self.gt, self.gt_rect)
 
-    def process_event(self, event: pygame.Event, quicktime: Callable, quicktime_active: bool):
+    def process_event(
+        self, event: pygame.Event, quicktime: Callable, quicktime_active: bool
+    ):
         if self.active:
             if event.key == pygame.K_COMMA:
                 self.finish(self.texts[0], quicktime, quicktime_active)
@@ -130,7 +139,7 @@ class RetroSelection(_Retro):
                     self.index -= 1
                 Sound.BEEP.play()
             elif event.key == pygame.K_RETURN:
-                text = self.texts[self.index]
+                text = list(self.texts)[self.index]
                 self.finish(text, quicktime, quicktime_active)
 
     def update(self):
@@ -139,6 +148,7 @@ class RetroSelection(_Retro):
 
 class RetroEntry(_Retro):
     """Represents a text entry widget. It prints out text and accepts input from the user."""
+
     def __init__(
         self,
         final: str,
@@ -146,14 +156,14 @@ class RetroEntry(_Retro):
         choice_pos: Point = (0, 30),
         command: Optional[Callable] = None,
         selection: Optional[RetroSelection | List["Action"]] = None,
-        accepts_input: bool =False,
+        accepts_input: bool = False,
         wrap: int | str = game.window.size[0] - 50,
-        speed: float=0.6,
-        typewriter: bool=True,
+        speed: float = 0.6,
+        typewriter: bool = True,
         reverse_data: Tuple[Optional[int], Optional[str]] = (None, None),
-        next_should_be_immediate: bool=False,
-        delay: int=0,
-        autokill: bool=False,
+        next_should_be_immediate: bool = False,
+        delay: int = 0,
+        autokill: bool = False,
     ):
         self.final: str = final + " "
         self.text: str = ""
@@ -175,7 +185,9 @@ class RetroEntry(_Retro):
         self.deleted: int = 0
         self.command: Optional[Callable] = command
 
-        self.selection: RetroSelection =  RetroSelection(selection, pos=choice_pos) if selection else None
+        self.selection: RetroSelection = (
+            RetroSelection(selection, pos=choice_pos) if selection else None
+        )
 
         self.active: bool = True
         self.accepts_input: bool = accepts_input
@@ -320,7 +332,10 @@ class RetroEntry(_Retro):
 
 
 random_ahh: str = (
-    " ".join(random.sample(["press", "space", "to", "continue"], 4)).capitalize().replace("space", "SPACE").replace("Space", "SPACE")
+    " ".join(random.sample(["press", "space", "to", "continue"], 4))
+    .capitalize()
+    .replace("space", "SPACE")
+    .replace("Space", "SPACE")
 )
 
 title_card_string = r'''
@@ -428,7 +443,10 @@ class WoodChopping(Minigame):
     def __init__(self, action):
         # gameplay variables
         self.w, self.h = 300, 34
-        self.x, self.y = game.window.size[0] / 2 - self.w / 2, game.window.size[1] / 2 - self.h / 2
+        self.x, self.y = (
+            game.window.size[0] / 2 - self.w / 2,
+            game.window.size[1] / 2 - self.h / 2,
+        )
         self.action = action
         self.chop_x = self.x
         self.chop_y = self.y + self.h / 2
@@ -441,7 +459,7 @@ class WoodChopping(Minigame):
         self.last_start = pygame.time.get_ticks()
         # TODO: particles
         self.particles = []
-    
+
     def finish(self):
         self.action(self.num_chopped)
         active_widgets.remove(self)
@@ -453,27 +471,51 @@ class WoodChopping(Minigame):
 
     def set_correct(self):
         self.correct_w = random.randint(12, 30)
-        self.correct_x = random.randint(int(self.x), int(self.x + self.w - self.correct_w))
+        self.correct_x = random.randint(
+            int(self.x), int(self.x + self.w - self.correct_w)
+        )
 
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
             # timing for chopping the wood
             # self.action.value()
             self.chop()
-    
+
     def draw(self):
         # render the UI
-        remaining_seconds = floor(10 - (pygame.time.get_ticks() - self.last_start) / 1000)
+        remaining_seconds = floor(
+            10 - (pygame.time.get_ticks() - self.last_start) / 1000
+        )
         if remaining_seconds <= -1:
             self.finish()
         else:
-            game.renderer.blit(*write(str(remaining_seconds), (self.x + self.w / 2, self.y - 100), size=30, anchor="center"))
+            game.renderer.blit(
+                *write(
+                    str(remaining_seconds),
+                    (self.x + self.w / 2, self.y - 100),
+                    size=30,
+                    anchor="center",
+                )
+            )
 
         # render the game
         draw_rect(game.renderer, Color.WHITE, (self.x, self.y, self.w, self.h))
-        self.chop_x = self.x + self.w / 2 + sin(pygame.time.get_ticks() * self.speed) * self.w / 2
-        fill_rect(game.renderer, Color.WHITE, (self.chop_x - self.chop_w / 2, self.chop_y - self.chop_h / 2, self.chop_w, self.chop_h))
-        fill_rect(game.renderer, Color.BROWN, (self.correct_x, self.y, self.correct_w, self.h))
+        self.chop_x = (
+            self.x + self.w / 2 + sin(pygame.time.get_ticks() * self.speed) * self.w / 2
+        )
+        fill_rect(
+            game.renderer,
+            Color.WHITE,
+            (
+                self.chop_x - self.chop_w / 2,
+                self.chop_y - self.chop_h / 2,
+                self.chop_w,
+                self.chop_h,
+            ),
+        )
+        fill_rect(
+            game.renderer, Color.BROWN, (self.correct_x, self.y, self.correct_w, self.h)
+        )
 
     def update(self):
         self.draw()

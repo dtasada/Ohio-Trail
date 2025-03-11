@@ -65,18 +65,16 @@ class Inventory:
     """Inventory wrapper class"""
 
     def __init__(self) -> None:
-        self.items: List[InventoryItem] = [
-            Food.PICKLE,
-            Food.FRIKANDELBROODJE,
-            Food.EGGPLANT,
-            Food.STONE_BAKED_GARLIC_FLATBREAD,
-            Food.SOUR_PATCH_KIDS,
-            Food.PINK_SAUCE,
-            InventoryItem("items", "doubloons", 50),
-        ]
-        self.index = 0
+        self.items: List[InventoryItem] = []
+        self.index: int = 0
+        self.should_draw: bool = False
+        self.capacity: int = 8
+
+    def enable(self):
         self.should_draw = True
-        self.capacity = 8
+
+    def disable(self):
+        self.should_draw = False
 
     def update(self) -> None:
         """Main method for the inventory updating and rendering. Called every frame."""
@@ -150,22 +148,24 @@ class Inventory:
             )
         )
 
-        desc_tex, desc_rect = write(
-            enum_to_str(self.items[self.index].name),
-            (
-                top_left[0] + grid_size[0] / 2,
-                top_left[1] - 8,
-            ),
-            anchor="midbottom",
-        )
-        game.renderer.blit(desc_tex, desc_rect)
+        if len(self.items) > 0:
+            desc_tex, desc_rect = write(
+                enum_to_str(self.items[self.index].name),
+                (
+                    top_left[0] + grid_size[0] / 2,
+                    top_left[1] - 8,
+                ),
+                anchor="midbottom",
+            )
+            game.renderer.blit(desc_tex, desc_rect)
 
     def process_event(self, event: pygame.Event) -> None:
         """Main method for the inventory event processing. Called every frame."""
         if not self.should_draw:
             return
 
-        """if event.type == pygame.KEYDOWN:
+        """
+        if event.type == pygame.KEYDOWN:
             match event.key:
                 case pygame.K_LEFT:
                     Sound.BEEP.play()
@@ -178,4 +178,5 @@ class Inventory:
                         self.index + 1 if self.index < len(self.items) - 1 else 0
                     )
                 case pygame.K_RETURN:
-                    self.items[self.index].select()"""
+                    self.items[self.index].select()
+        """

@@ -29,18 +29,24 @@ class Background:
         self.sound = pygame.mixer.Sound(Path("assets", "sfx", f"{self.name}.wav"))
 
 
-possible_backgrounds: List[Background] = [
-    Background(
-        1, "banker", "Be a banker from New York", f"Impressive,{ZWS * 10} very nice."
-    ),
-    Background(2, "chef", "Be a chef from France", "Anyone can cook!"),
-    Background(
-        3,
-        "man",
-        "Be a man from Florida",
-        f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\n\nYeah{ZWS * 10} baby!",
-    ),
-]
+possible_backgrounds = {
+    i.desc: i
+    for i in [
+        Background(
+            1,
+            "banker",
+            "Be a banker from New York",
+            f"Impressive,{ZWS * 10} very nice.",
+        ),
+        Background(2, "chef", "Be a chef from France", "Anyone can cook!"),
+        Background(
+            3,
+            "man",
+            "Be a man from Florida",
+            f"{ZWS * 5}W{'o' * 29}!{ZWS * 7}\n\nYeah{ZWS * 10} baby!",
+        ),
+    ]
+}
 
 
 class Location(Enum):
@@ -83,11 +89,21 @@ class Bar:
         )
         self.tex = Texture.from_surface(game.renderer, self.img)
         self.rect = self.img.get_rect(topleft=(self.x, self.y))
+        self.should_draw = False
+
+    def enable(self):
+        self.should_draw = True
+
+    def disable(self):
+        self.should_draw = False
 
     def update(self):
+        if not self.should_draw:
+            return
+
         ratio = self.current / self.max_
-        color = pygame.Color(Color.RED)
-        # color = color.lerp(Color.GREEN, ratio) # commented bc ratio was > 1?
+        # color = color.lerp(Color.GREEN, ratio)  # commented bc ratio was > 1?
+        color = Color.RED
         color = color.lerp(Color.GREEN, 1.0)
 
         fill_rect(
@@ -127,20 +143,23 @@ class Character:
 
     def update_bars(self):
         """Ran every timestep to update the health, energy, and temperature bars"""
-        self.healthbar.current = self.hp
-        self.healthbar.update()
-        tex, rect = write("HP", (905, 590), 13)
-        game.renderer.blit(tex, rect)
+        if self.healthbar.should_draw:
+            self.healthbar.current = self.hp
+            self.healthbar.update()
+            tex, rect = write("HP", (905, 590), 13)
+            game.renderer.blit(tex, rect)
 
-        self.energy_bar.current = self.energy
-        self.energy_bar.update()
-        tex, rect = write("EN", (944, 590), 13)
-        game.renderer.blit(tex, rect)
+        if self.energy_bar.should_draw:
+            self.energy_bar.current = self.energy
+            self.energy_bar.update()
+            tex, rect = write("EN", (944, 590), 13)
+            game.renderer.blit(tex, rect)
 
-        self.temp_bar.current = self.temp
-        self.temp_bar.update()
-        tex, rect = write("TM", (982, 590), 13)
-        game.renderer.blit(tex, rect)
+        if self.temp_bar.should_draw:
+            self.temp_bar.current = self.temp
+            self.temp_bar.update()
+            tex, rect = write("TM", (982, 590), 13)
+            game.renderer.blit(tex, rect)
 
     def update(self):
         """Main update function for the player object"""

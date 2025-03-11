@@ -7,6 +7,7 @@ from functools import partial
 
 
 def checkpoint(func):
+    """Decorator that sets the decorated procedure as 'Action.last_action'."""
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
 
@@ -17,6 +18,7 @@ def checkpoint(func):
 
 
 def action(func):
+    """Decorator that consumes energy when the decorated procedure is ran."""
     def inner(*args, **kwargs):
         player.energy -= 1
         func(*args, **kwargs)
@@ -40,18 +42,18 @@ def ask_background(name):
 def ask_bg_selection():
     active_widgets.append(
         RetroSelection(
-            actions=[i.desc for i in possible_backgrounds],
+            actions=possible_backgrounds.keys(),
             pos=(0, 80),
             command=set_character_bg,
-            images=[i.tex for i in possible_backgrounds],
-            image_rects=[i.rect for i in possible_backgrounds],
+            images=[v.tex for v in possible_backgrounds.values()],
+            image_rects=[v.rect for v in possible_backgrounds.values()],
         )
     )
 
 
 @checkpoint
-def set_character_bg(bg):
-    player.background = [i for i in possible_backgrounds if i.desc == bg][0]
+def set_character_bg(background_desc: str):
+    player.background = possible_backgrounds[background_desc]
     speed = 0.7 if player.background.name == "man" else 0.4
     voiceline_entry = RetroEntry(
         player.background.catchphrase,
@@ -63,9 +65,7 @@ def set_character_bg(bg):
         typewriter=False,
     )
     active_widgets.append(voiceline_entry)
-    for i in possible_backgrounds:
-        if i.desc == bg:
-            i.sound.play()
+    possible_backgrounds[background_desc].sound.play()
 
 
 @checkpoint
@@ -331,6 +331,7 @@ def merchant_selection():
             image_rects=[pygame.Rect(550, 190, 150, 150) for i in shop_list],
         )
     )
+    inventory.enable()
 
 
 def buy_item(item):
@@ -347,9 +348,10 @@ def buy_item(item):
                 )
                 + 10 * ZWS,
                 pos=(0, 440),
-                command=select_forest,
+                command=Action.OK.value,
             )
         )
+        inventory.disable()
     else:
         item = getattr(Food, item.split()[0].upper())  # (‿|‿) <-- het zijn billen
 
@@ -514,6 +516,7 @@ def random_quicktime_event():
 
 
 class Action(Enum):
+    """Enum of all possible actions in the game."""
     COOK_FOOD = member(partial(cook_food))
     ENJOY_WARMTH = member(partial(enjoy_warmth))
     EXPLORE_FOREST = member(partial(explore_forest))
@@ -540,6 +543,7 @@ class Action(Enum):
 
     @classmethod
     def update_last_action(cls, action):
+        """Sets 'last_action' to action."""
         cls.last_action = action
 
 
