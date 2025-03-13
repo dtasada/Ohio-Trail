@@ -45,7 +45,7 @@ def ask_bg_selection():
             actions=possible_backgrounds.keys(),
             pos=(0, 80),
             command=set_character_bg,
-            images=[v.tex for v in possible_backgrounds.values()],
+            images=[v.img for v in possible_backgrounds.values()],
             image_rects=[v.rect for v in possible_backgrounds.values()],
         )
     )

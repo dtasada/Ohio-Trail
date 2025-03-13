@@ -41,7 +41,7 @@ class RetroSelection(_Retro):
         self.x, self.y = pos
         self.xo: int = 40
         self.yo: int = 40
-        self.images: List[pygame.Surface] = images
+        self.portrait_images: List[pygame.Surface] = images
         self.image_rects: List[pygame.Rect] = image_rects
         self.command: Optional[Callable] = command
 
@@ -101,11 +101,11 @@ class RetroSelection(_Retro):
         ):
             game.display.blit(tex, rect)
             game.display.blit(ctex, crect)
-        if self.images:
+        if self.portrait_images:
             with suppress(IndexError):
-                if self.images[self.index] is not None:
+                if self.portrait_images[self.index] is not None:
                     game.display.blit(
-                        self.images[self.index], self.image_rects[self.index]
+                        self.portrait_images[self.index], self.image_rects[self.index]
                     )
         game.display.blit(self.gt, self.gt_rect)
 
@@ -392,11 +392,8 @@ class Animation:
             self.frame_width = self.img.get_width() / self.frame_count
             self.frame_height = self.img.get_height()
             self.images = [
-                pygame.Surface.from_surface(
-                    game.display,
-                    self.img.subsurface(
-                        x * self.frame_width, 0, self.frame_width, self.frame_height
-                    ),
+                self.img.subsurface(
+                    x * self.frame_width, 0, self.frame_width, self.frame_height
                 )
                 for x in range(self.frame_count)
             ]
@@ -413,7 +410,7 @@ class Animation:
         if self.frame_count > 1:
             self.index += (1 / 30) * self.framerate
             if int(self.index) >= len(self.images):
-                if self.should_stay is False:
+                if not self.should_stay:
                     self.kill = True
                 else:
                     game.display.blit(self.images[-1], self.rects[-1])
