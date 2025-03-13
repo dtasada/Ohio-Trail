@@ -3,7 +3,6 @@ from .game import game
 from .inventory import *
 
 from enum import Enum, IntFlag, auto
-from pygame._sdl2.video import Texture
 from typing import List
 from pathlib import Path
 
@@ -21,9 +20,8 @@ class Background:
             pygame.image.load(Path("assets", "characters", f"{self.name}.png")),
             SCALING,
         )
-        self.tex = Texture.from_surface(game.renderer, self.img)
         self.rect = self.img.get_rect(
-            center=(game.window.size[0] - 220, game.window.size[1] / 2)
+            center=(game.width - 220, game.height / 2)
         )
         self.desc = f"{index}. {self.desc}"
         self.sound = pygame.mixer.Sound(Path("assets", "sfx", f"{self.name}.wav"))
@@ -87,7 +85,6 @@ class Bar:
         self.img: pygame.Surface = pygame.transform.scale_by(
             pygame.image.load(Path("assets", "bar.png")), SCALING
         )
-        self.tex = Texture.from_surface(game.renderer, self.img)
         self.rect = self.img.get_rect(topleft=(self.x, self.y))
         self.should_draw = False
 
@@ -106,8 +103,8 @@ class Bar:
         color = Color.RED
         color = color.lerp(Color.GREEN, 1.0)
 
-        fill_rect(
-            game.renderer,
+        pygame.draw.rect(
+            game.display,
             color,
             (
                 self.x,
@@ -116,7 +113,7 @@ class Bar:
                 self.rect.height * ratio,
             ),
         )
-        game.renderer.blit(self.tex, self.rect)
+        game.display.blit(self.tex, self.rect)
 
 
 class Character:
@@ -147,25 +144,25 @@ class Character:
             self.healthbar.current = self.hp
             self.healthbar.update()
             tex, rect = write("HP", (905, 590), 13)
-            game.renderer.blit(tex, rect)
+            game.display.blit(tex, rect)
 
         if self.energy_bar.should_draw:
             self.energy_bar.current = self.energy
             self.energy_bar.update()
             tex, rect = write("EN", (944, 590), 13)
-            game.renderer.blit(tex, rect)
+            game.display.blit(tex, rect)
 
         if self.temp_bar.should_draw:
             self.temp_bar.current = self.temp
             self.temp_bar.update()
             tex, rect = write("TM", (982, 590), 13)
-            game.renderer.blit(tex, rect)
+            game.display.blit(tex, rect)
 
     def update(self):
         """Main update function for the player object"""
         if self.show_money:
             tex, rect = write(f"${self.money}", (40, 370), 30)
-            game.renderer.blit(tex, rect)
+            game.display.blit(tex, rect)
 
         self.update_bars()
 

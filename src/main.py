@@ -49,7 +49,7 @@ def main(debug=False):
             #         if isinstance(widget, Minigame):
             #             widget.process_event(event)
 
-        fill_rect(game.renderer, (0, 0, 0, 255), (0, 0, *game.window.size))
+        pygame.draw.rect(game.display, (0, 0, 0, 255), (0, 0, *game.display.size))
 
         for widget in active_widgets[:]:
             widget.update()
@@ -62,7 +62,9 @@ def main(debug=False):
         player.update()
         inventory.update()
 
-        game.renderer.present()
+        game.update_shake()
+        game.window.blit(game.display, game.shake)
+        pygame.display.flip()
 
     pygame.quit()
     sys.exit()

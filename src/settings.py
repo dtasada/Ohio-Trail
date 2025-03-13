@@ -1,9 +1,10 @@
-from pygame._sdl2.video import Renderer, Texture
+from pygame.transform import rotate
 from threading import Thread
 from pathlib import Path
 import pygame
 import time
 import random
+from pygame.time import get_ticks as ticks
 
 from pygame.typing import Point
 
@@ -23,6 +24,28 @@ shop_list = []
 
 with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
+
+
+def imgload(*path_, after_func=None, colorkey=None, frames=None, whitespace=0, frame_pause=0, end_frame=None, scale=1, rotation=0, tex=False):
+    """ Handy function that loads and returns a texture / a list of textures (spritesheet) """
+    if frames is None:
+        ret = pygame.image.load(Path(*path_))
+    else:
+        ret = []
+        img = pygame.image.load(Path(*path_))
+        frames = (frames, img.get_width() / frames)
+        for i in range(frames[0]):
+            ret.append(img.subsurface(i * frames[1], 0, frames[1] - whitespace, img.get_height()))
+        for i in range(frame_pause):
+            ret.append(ret[0])
+        if end_frame is not None:
+            ret.append(ret[end_frame])
+    if isinstance(ret, list):
+        for i, r in enumerate(ret):
+            ret[i] = rotate(pygame.transform.scale_by(getattr(r, after_func)() if after_func is not None else r, scale), rotation)
+    elif isinstance(ret, pygame.Surface):
+        ret = rotate(pygame.transform.scale_by(getattr(ret, after_func)() if after_func is not None else ret, scale), rotation)
+    return ret
 
 
 def chance(p: float) -> bool:
@@ -76,35 +99,12 @@ def pause4(func):
     return inner
 
 
-def fill_rect(renderer: Renderer, color: pygame.Color, rect: pygame.Rect):
-    """Primitive rendering function to fill a rectangle with a color"""
-    renderer.draw_color = color
-    renderer.fill_rect(rect)
-
-
-def draw_line(
-    renderer: Renderer,
-    color: pygame.Color,
-    p1: Point,
-    p2: Point,
-):
-    """Primitive rendering function to draw a line between p1 and p2"""
-    renderer.draw_color = color
-    renderer.draw_line(p1, p2)
-
-
-def draw_rect(renderer, color, rect):
-    renderer.draw_color = color
-    renderer.draw_rect(rect)
-
-
-def write(text: str, pos: Point, size: int = 18, anchor: str = "topleft"):
+def write(text: str, pos: Point, size: int = 18, anchor: str = "topleft", color = None):
     """Rendering function to draw text"""
-    img = FONTS[size].render(text, True, Color.WHITE)
-    tex = Texture.from_surface(game.renderer, img)
+    img = FONTS[size].render(text, True, Color.WHITE if color is None else color)
     rect = img.get_rect()
     setattr(rect, anchor, pos)
-    return tex, rect
+    return img, rect
 
 
 def str_to_enum(string: str) -> str:
@@ -168,7 +168,7 @@ class Music:
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
-        pygame.mixer.music.set_volume(volume)
+        pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
 
     @staticmethod
@@ -190,11 +190,11 @@ class Sfx:
     def __init__(self, sound, time=0):
         self.time = time
         self.sound = sound
-        self.start_time = pygame.time.get_ticks()
+        self.start_time = ticks()
 
     def update(self):
         """Update sound effect"""
-        if pygame.time.get_ticks() - self.start_time > self.time:
+        if ticks() - self.start_time > self.time:
             self.sound.play()
             sfx_queue.remove(self)
 
@@ -206,3 +206,10 @@ class Sfx:
 
 
 sfx_queue = []
+
+
+class Visuals:
+    """ Visual elements that don't fit into any other image category such as a fishing bobber """
+    BOBBER = imgload(Path("assets", "items", "bobber.png"), scale=2)
+    RADAR = imgload(Path("assets", "items", "radar.png"), scale=2, frames=9)
+    

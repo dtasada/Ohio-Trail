@@ -60,7 +60,7 @@ def set_character_bg(background_desc: str):
         pos=(150, 420),
         command=intro,
         accepts_input=False,
-        wrap=game.window.size[0] - 300,
+        wrap=game.width - 300,
         speed=speed,
         typewriter=False,
     )
@@ -187,6 +187,7 @@ You should probably leave them alone.{ZWS * 20}"""
 
 
 @checkpoint
+@action
 @pause1
 def select_forest():
     active_widgets.clear()
@@ -235,7 +236,7 @@ Just kidding :){ZWS * 10}""",
 
 
 @action
-def chop_wood(*args):
+def chop_wood():
     active_widgets.clear()
     active_widgets.append(
         WoodChopping(
@@ -380,17 +381,46 @@ def buy_item(item):
             merchant_selection()
 
 
+@checkpoint
 @action
-def select_lake():
+def select_lake(*args):
     player.location = Location.LAKE
     # TODO
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You enjoy the quiet.",
-            selection=[Action.OK],
+            "You enjoy the quiet. It is a nice lake.",
+            selection=[Action.FISH, Action.WALK_TO_FOREST],
         )
     )
+
+
+@action
+def fish():
+    active_widgets.clear()
+    active_widgets.append(
+        Fishing(
+           finish_fishing,
+        )
+    )
+
+
+def finish_fishing(amount):
+    active_widgets.clear()
+    if amount != -1:
+        active_widgets.append(
+            RetroEntry(
+                f"You fished up {amount} fishies yumm.",
+                selection=[Action.OK],
+            )
+        )
+    else:
+        active_widgets.append(
+            RetroEntry(
+                f"You reeled while your rod was under tension. You have a\nskill issue.",
+                selection=[Action.OK],
+            )
+        )
 
 
 @action
@@ -532,6 +562,7 @@ class Action(Enum):
     WALK_TO_FOREST = member(partial(select_forest))
     CHOP_WOOD = member(partial(chop_wood))
     WALK_TO_LAKE = member(partial(select_lake))
+    FISH = member(partial(fish))
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))

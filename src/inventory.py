@@ -17,7 +17,6 @@ class InventoryItem:
             ),
             SCALING,
         )
-        self.tex: Texture = Texture.from_surface(game.renderer, self.img)
         self.rect: pygame.Rect = self.img.get_rect()
         self.ok = actions_ok
 
@@ -85,44 +84,44 @@ class Inventory:
         grid_border_size = 3
 
         top_left = (
-            game.window.size[0] / 2 - cell_size * self.capacity / 2,
-            game.window.size[1] - cell_size * 1.5,
+            game.width / 2 - cell_size * self.capacity / 2,
+            game.height - cell_size * 1.5,
         )
         top_right = (top_left[0] + self.capacity * cell_size, top_left[1])
         bottom_left = [top_left[0], top_left[1] + cell_size]
 
         grid_size = [cell_size * self.capacity, cell_size]
 
-        fill_rect(
-            game.renderer,
+        pygame.draw.rect(
+            game.display,
             Color.WHITE,
             pygame.Rect(
                 (top_left[0] - grid_border_size, top_left[1]),
                 (grid_border_size, grid_size[1]),
             ),
         )
-        fill_rect(
-            game.renderer,
+        pygame.draw.rect(
+            game.display,
             Color.WHITE,
             pygame.Rect(top_right, (grid_border_size, grid_size[1])),
         )
-        fill_rect(
-            game.renderer,
+        pygame.draw.rect(
+            game.display,
             Color.WHITE,
             pygame.Rect(
                 (top_left[0], top_left[1] - grid_border_size),
                 (grid_size[0], grid_border_size),
             ),
         )
-        fill_rect(
-            game.renderer,
+        pygame.draw.rect(
+            game.display,
             Color.WHITE,
             pygame.Rect(bottom_left, (grid_size[0], grid_border_size)),
         )
 
         for i in range(self.capacity + 1):
-            fill_rect(
-                game.renderer,
+            pygame.draw.rect(
+                game.display,
                 Color.WHITE,
                 pygame.Rect(
                     (top_left[0] + i * cell_size, top_left[1]),
@@ -131,12 +130,12 @@ class Inventory:
             )
 
         for i, item in enumerate(self.items):
-            game.renderer.blit(
+            game.display.blit(
                 item.tex,
                 pygame.Rect(top_left[0] + i * cell_size, top_left[1], 64, 64),
             )
 
-        game.renderer.blit(
+        game.display.blit(
             *write(
                 "^",
                 (
@@ -157,7 +156,7 @@ class Inventory:
                 ),
                 anchor="midbottom",
             )
-            game.renderer.blit(desc_tex, desc_rect)
+            game.display.blit(desc_tex, desc_rect)
 
     def process_event(self, event: pygame.Event) -> None:
         """Main method for the inventory event processing. Called every frame."""
@@ -180,3 +179,4 @@ class Inventory:
                 case pygame.K_RETURN:
                     self.items[self.index].select()
         """
+        
