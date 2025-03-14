@@ -257,7 +257,11 @@ def finish_chopping_wood(amount):
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            f"You chopped up {amount} log of wood." if amount > 0 else "You were too weak, couldn't chop wood.",
+            (
+                f"You chopped up {amount} log of wood."
+                if amount > 0
+                else "You were too weak, couldn't chop wood."
+            ),
             selection=[Action.OK],
         )
     )
@@ -269,36 +273,40 @@ def finish_chopping_wood(amount):
 def converse():
     # TODO
     active_widgets.clear()
-    active_widgets.append(
-        RetroEntry(
-            "Who would you like to talk to?",
-            command=npc_selection,
-        )
-    )
+    active_widgets.append(RetroEntry("", command=npc_selection))
 
 
 def npc_selection():
     active_widgets.append(
         RetroSelection(
-            actions=[name for name in dialogue.keys()], pos=(0, 60), command=talk_to
+            actions=[
+                f"Talk to {name}" if name != "Exit" else name
+                for name in dialogue.keys()
+            ],
+            pos=(0, 20),
+            command=talk_to,
         )
     )
 
 
 def talk_to(name):
     active_widgets.clear()
-    if name.lower() == "exit":
-        active_widgets.append(RetroEntry("You left", selection=[Action.OK]))
+    if name == "Exit":
+        Action.last_action()
     else:
-        dia.cur = name
+        dia.cur = name.replace("Talk to ", "")
         active_widgets.append(
-            RetroEntry(dialogue[name][dia.id]["text"], command=respond_options)
+            RetroEntry(
+                dialogue[name.replace("Talk to ", "")][dia.id]["text"],
+                command=respond_options,
+            )
         )
 
 
 def respond_options():
     dia.id = dia.checkpoint
 
+    # TODO: fix rendering of text: dynamic y-position instead of hard 140
     active_widgets.append(
         RetroSelection(
             actions=dialogue[dia.cur][dia.id]["responses"],
@@ -313,17 +321,15 @@ def respond(res):
     responses = dialogue[dia.cur][dia.id]["responses"]
     dia.id += responses.index(res) + 1
     dia.checkpoint = dialogue[dia.cur][dia.id]["checkpoint"]
-    if dia.checkpoint == "exit":
+    if dia.checkpoint == "Exit":
         active_widgets.append(
             RetroEntry(
-                f"{dialogue[dia.cur][dia.id]["text"] + ZWS * 10}" , command=CONVERSE
+                f"{dialogue[dia.cur][dia.id]["text"] + ZWS * 10}", command=converse
             )
         )
     else:
         active_widgets.append(
-            RetroEntry(
-                dialogue[dia.cur][dia.id]["text"], command=respond_options
-            )
+            RetroEntry(dialogue[dia.cur][dia.id]["text"], command=respond_options)
         )
 
 
@@ -434,7 +440,7 @@ def buy_item(item):
                 )
             )
             return
-    
+
         Sound.BUY.play()
         inventory.items.append(item)
         player.money -= item.price
@@ -505,13 +511,20 @@ def go_cave():
     active_widgets.append(
         RetroEntry(
             "... And the next step you take, you stumble upon this:",
-            selection=[Action.OK]
+            selection=[Action.OK],
         ),
     )
     # animation
-    anim_note = Animation(Path("notes", random.choice(("listens", "run", "storm"))), (400, 160), 1, 0, scaling=0.1, should_stay=True)
+    anim_note = Animation(
+        Path("notes", random.choice(("listens", "run", "storm"))),
+        (400, 160),
+        1,
+        0,
+        scaling=0.1,
+        should_stay=True,
+    )
     active_widgets.append(anim_note)
-    
+
 
 @action
 def set_up_camp():
@@ -571,7 +584,12 @@ def select_campfire():
     active_widgets.clear()
 
     if Completed.ADDED_WOOD & player.completed:
-        selection = [Action.CONVERSE, Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE]
+        selection = [
+            Action.CONVERSE,
+            Action.ENJOY_WARMTH,
+            Action.COOK_FOOD,
+            Action.LEAVE_CAMPFIRE,
+        ]
         dia.id = 5
         dia.checkpoint = 5
     else:
