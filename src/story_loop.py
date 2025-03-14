@@ -273,24 +273,29 @@ def talk_to_npcs():
 def npc_selection():
     active_widgets.append(
         RetroSelection(
-            actions=["mr bean", "henk balderdeeg"], pos=(0, 60), command=talk_to
+            actions=[name for name in dialogue.keys()], pos=(0, 60), command=talk_to
         )
     )
 
 
 def talk_to(name):
-    global cur_dialogue, dialogue_id
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
 
     active_widgets.clear()
-    cur_dialogue = name
-    dialogue_id = 0
-    active_widgets.append(
-        RetroEntry(dialogue[name][dialogue_id]["text"], command=respond_options)
-    )
+    if name.lower() == "exit":
+        active_widgets.append(RetroEntry("You left", selection=[Action.OK]))
+    else:
+        cur_dialogue = name
+        dialogue_id = 0
+        dialogue_checkpoint = 0
+        active_widgets.append(
+            RetroEntry(dialogue[name][dialogue_id]["text"], command=respond_options)
+        )
 
 
 def respond_options():
-    global cur_dialogue, dialogue_id
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
+    dialogue_id = dialogue_checkpoint
 
     active_widgets.append(
         RetroSelection(
@@ -302,14 +307,24 @@ def respond_options():
 
 
 def respond(res):
-    global cur_dialogue, dialogue_id
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
 
     active_widgets.clear()
     responses = dialogue[cur_dialogue][dialogue_id]["responses"]
     dialogue_id += responses.index(res) + 1
-    active_widgets.append(
-        RetroEntry(dialogue[cur_dialogue][dialogue_id]["text"], selection=[Action.OK])
-    )
+    dialogue_checkpoint = dialogue[cur_dialogue][dialogue_id]["checkpoint"]
+    if dialogue_checkpoint == "exit":
+        active_widgets.append(
+            RetroEntry(
+                f"{dialogue[cur_dialogue][dialogue_id]["text"] + ZWS * 10}" , command=talk_to_npcs
+            )
+        )
+    else:
+        active_widgets.append(
+            RetroEntry(
+                dialogue[cur_dialogue][dialogue_id]["text"], command=respond_options
+            )
+        )
 
 
 @action
