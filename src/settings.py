@@ -98,12 +98,12 @@ def pause1(func):
     before continuing to its associated command
     """
 
-    def threaded():
+    def threaded(*args, **kwargs):
         time.sleep(1)
-        func()
+        func(*args, **kwargs)
 
-    def inner():
-        Thread(target=threaded, daemon=True).start()
+    def inner(*args, **kwargs):
+        Thread(target=threaded, args=args, kwargs=kwargs, daemon=True).start()
 
     return inner
 
@@ -194,7 +194,7 @@ class Music:
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
-        pygame.mixer.music.set_volume(volume)
+        pygame.mixer.music.set_volume(0)
         pygame.mixer.music.play(-1)
 
     @staticmethod

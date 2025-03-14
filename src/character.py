@@ -72,6 +72,7 @@ class Completed(IntFlag):
     LOOTED_CORPSES = auto()
     SET_UP_CAMP = auto()
     MET_MERCHANT = auto()
+    ADDED_WOOD = auto()
 
 
 class Bar:

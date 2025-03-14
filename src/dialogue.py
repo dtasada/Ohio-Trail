@@ -25,6 +25,10 @@ dialogue = {
             "text": "See you around, kid.",
             "checkpoint": "exit",
         },
+        5: {
+            "text": "I like this fire",
+            "checkpoint": "exit"
+        }
     },
     "henk balderdeeg": {
         0: {
@@ -33,12 +37,22 @@ dialogue = {
         },
         1: {
             "text": "aww shuckles",
-            "chepoint": "exit",
+            "checkpoint": "exit",
         },
         2: {
             "text": "bombaclat",
-            "checpoint": "exit",
+            "checkpoint": "exit",
         },
     },
     "exit": None,
 }
+
+
+class Dialogue:
+    def __init__(self):
+        self.cur = None
+        self.id = 0
+        self.checkpoint = 0
+
+
+dia = Dialogue()

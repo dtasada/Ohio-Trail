@@ -123,7 +123,7 @@ def select_planewreck():
     player.location = Location.PLANEWRECK
     active_widgets.clear()
 
-    selection = [Action.EXPLORE_PLANEWRECK, Action.TALK_TO_NPCS]
+    selection = [Action.EXPLORE_PLANEWRECK, Action.CONVERSE]
     if Completed.EXPLORED_PLANEWRECK & player.completed:
         selection.insert(1, Action.WALK_TO_FOREST)
         if not (Completed.LOOTED_CORPSES & player.completed):
@@ -192,7 +192,7 @@ You should probably leave them alone.{ZWS * 20}"""
 @checkpoint
 @action
 @pause1
-def select_forest():
+def select_forest(*a):
     active_widgets.clear()
 
     if Completed.ENTERED_FOREST & player.completed:
@@ -261,7 +261,7 @@ def finish_chopping_wood(amount):
 
 
 @action
-def talk_to_npcs():
+def converse():
     # TODO
     active_widgets.clear()
     active_widgets.append(
@@ -281,27 +281,22 @@ def npc_selection():
 
 
 def talk_to(name):
-    global cur_dialogue, dialogue_id, dialogue_checkpoint
-
     active_widgets.clear()
     if name.lower() == "exit":
         active_widgets.append(RetroEntry("You left", selection=[Action.OK]))
     else:
-        cur_dialogue = name
-        dialogue_id = 0
-        dialogue_checkpoint = 0
+        dia.cur = name
         active_widgets.append(
-            RetroEntry(dialogue[name][dialogue_id]["text"], command=respond_options)
+            RetroEntry(dialogue[name][dia.id]["text"], command=respond_options)
         )
 
 
 def respond_options():
-    global cur_dialogue, dialogue_id, dialogue_checkpoint
-    dialogue_id = dialogue_checkpoint
+    dia.id = dia.checkpoint
 
     active_widgets.append(
         RetroSelection(
-            actions=dialogue[cur_dialogue][dialogue_id]["responses"],
+            actions=dialogue[dia.cur][dia.id]["responses"],
             pos=(0, 60),
             command=respond,
         )
@@ -309,22 +304,20 @@ def respond_options():
 
 
 def respond(res):
-    global cur_dialogue, dialogue_id, dialogue_checkpoint
-
     active_widgets.clear()
-    responses = dialogue[cur_dialogue][dialogue_id]["responses"]
-    dialogue_id += responses.index(res) + 1
-    dialogue_checkpoint = dialogue[cur_dialogue][dialogue_id]["checkpoint"]
-    if dialogue_checkpoint == "exit":
+    responses = dialogue[dia.cur][dia.id]["responses"]
+    dia.id += responses.index(res) + 1
+    dia.checkpoint = dialogue[dia.cur][dia.id]["checkpoint"]
+    if dia.checkpoint == "exit":
         active_widgets.append(
             RetroEntry(
-                f"{dialogue[cur_dialogue][dialogue_id]["text"] + ZWS * 10}" , command=talk_to_npcs
+                f"{dialogue[dia.cur][dia.id]["text"] + ZWS * 10}" , command=converse
             )
         )
     else:
         active_widgets.append(
             RetroEntry(
-                dialogue[cur_dialogue][dialogue_id]["text"], command=respond_options
+                dialogue[dia.cur][dia.id]["text"], command=respond_options
             )
         )
 
@@ -555,10 +548,32 @@ def select_campfire():
     # TODO
     player.location = Location.CAMPFIRE
     active_widgets.clear()
+
+    if Completed.ADDED_WOOD & player.completed:
+        selection = [Action.CONVERSE, Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE]
+        dia.id = 5
+    else:
+        selection = [Action.ADD_WOOD, Action.LEAVE_CAMPFIRE]
     active_widgets.append(
         RetroEntry(
             "You are sitting at the campfire.",
-            selection=[Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE],
+            selection=selection,
+        )
+    )
+
+
+@action
+def add_wood():
+    active_widgets.clear()
+    if wood in inventory.items:
+        text = "Wood added!"
+        player.complete(Completed.ADDED_WOOD)
+    else:
+        text = "You have yet not acquired wood."
+    active_widgets.append(
+        RetroEntry(
+            text,
+            selection=[Action.OK],
         )
     )
 
@@ -632,6 +647,8 @@ class Action(Enum):
     """Enum of all possible actions in the game."""
 
     COOK_FOOD = member(partial(cook_food))
+    ADD_WOOD = member(partial(add_wood))
+    CONVERSE = member(partial(converse))
     ENJOY_WARMTH = member(partial(enjoy_warmth))
     EXPLORE_FOREST = member(partial(explore_forest))
     EXPLORE_PLANEWRECK = member(partial(explore_planewreck))
@@ -640,7 +657,6 @@ class Action(Enum):
     LOOT_CORPSES = member(partial(info_loot_corpses))
     SET_UP_CAMP = member(partial(set_up_camp))
     SLEEP = member(partial(character_sleep))
-    TALK_TO_NPCS = member(partial(talk_to_npcs))
     WALK_TO_CAMP = member(partial(select_camp))
     WALK_TO_CAMPFIRE = member(partial(select_campfire))
     WALK_TO_FOREST = member(partial(select_forest))
@@ -651,7 +667,7 @@ class Action(Enum):
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
     TALK_TO_MERCHANT = member(partial(talk_to_merchant))
-    EXPLORE_MOUNTAIN = member(partial(explore_mountain))
+    # EXPLORE_MOUNTAIN = member(partial(explore_mountain))
 
     OK = member(lambda: Action.last_action())
 
