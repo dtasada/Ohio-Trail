@@ -8,6 +8,7 @@ from functools import partial
 
 def checkpoint(func):
     """Decorator that sets the decorated procedure as 'Action.last_action'."""
+
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
 
@@ -19,6 +20,7 @@ def checkpoint(func):
 
 def action(func):
     """Decorator that consumes energy when the decorated procedure is ran."""
+
     def inner(*args, **kwargs):
         player.energy -= 1
         func(*args, **kwargs)
@@ -240,7 +242,7 @@ def chop_wood():
     active_widgets.clear()
     active_widgets.append(
         WoodChopping(
-           finish_chopping_wood,
+            finish_chopping_wood,
         )
     )
 
@@ -328,7 +330,7 @@ def merchant_selection():
             actions=[f"{item.name} (${item.price})" for item in shop_list] + ["Leave"],
             pos=(0, 60),
             command=buy_item,
-            images=[i.tex for i in shop_list],
+            images=[i.img for i in shop_list],
             image_rects=[pygame.Rect(550, 190, 150, 150) for i in shop_list],
         )
     )
@@ -400,7 +402,7 @@ def fish():
     active_widgets.clear()
     active_widgets.append(
         Fishing(
-           finish_fishing,
+            finish_fishing,
         )
     )
 
@@ -547,6 +549,7 @@ def random_quicktime_event():
 
 class Action(Enum):
     """Enum of all possible actions in the game."""
+
     COOK_FOOD = member(partial(cook_food))
     ENJOY_WARMTH = member(partial(enjoy_warmth))
     EXPLORE_FOREST = member(partial(explore_forest))
