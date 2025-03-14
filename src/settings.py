@@ -185,7 +185,7 @@ class Music:
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
-        pygame.mixer.music.set_volume(0)
+        pygame.mixer.music.set_volume(volume)
         pygame.mixer.music.play(-1)
 
     @staticmethod
