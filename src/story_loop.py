@@ -300,7 +300,6 @@ def explore_forest():
         player.complete(Completed.EXPLORED_FOREST)
 
 
-@checkpoint
 def talk_to_merchant():
     active_widgets.clear()
 

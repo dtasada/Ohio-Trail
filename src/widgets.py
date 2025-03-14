@@ -37,7 +37,7 @@ class RetroSelection(_Retro):
         autokill: bool = False,
     ):
         """Initialize the selection widget. 'actions' is a List of 'Action', a RetroSelection, or a List of strings."""
-        self.texts = actions
+        self.texts = list(actions)
         self.x, self.y = pos
         self.xo: int = 40
         self.yo: int = 40

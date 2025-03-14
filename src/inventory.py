@@ -131,7 +131,7 @@ class Inventory:
 
         for i, item in enumerate(self.items):
             game.display.blit(
-                item.tex,
+                item.img,
                 pygame.Rect(top_left[0] + i * cell_size, top_left[1], 64, 64),
             )
 
