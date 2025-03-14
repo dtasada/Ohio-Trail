@@ -486,16 +486,39 @@ def finish_fishing(amount):
 
 @checkpoint
 @action
-def select_mountain():
+def select_mountain(*args):
     player.location = Location.MOUNTAIN
     # TODO
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
             "You are at the mountain.",
-            selection=[Action.OK],
+            selection=[Action.WALK_TO_CAVE],
         )
     )
+
+
+@action
+def go_cave():
+    active_widgets.clear()
+    player.energy = player.max_energy
+    # text
+    active_widgets.append(
+        RetroEntry(
+            "... And the next step you take, you stumble upon this:",
+            selection=[Action.OK],
+        ),
+    )
+    # animation
+    anim_note = Animation(
+        Path("notes", random.choice(("listens", "run", "storm"))),
+        (400, 160),
+        1,
+        0,
+        scaling=0.1,
+        should_stay=True,
+    )
+    active_widgets.append(anim_note)
 
 
 @action
@@ -676,10 +699,10 @@ class Action(Enum):
     WALK_TO_LAKE = member(partial(select_lake))
     FISH = member(partial(fish))
     WALK_TO_MOUNTAIN = member(partial(select_mountain))
+    WALK_TO_CAVE = member(partial(go_cave))
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
     TALK_TO_MERCHANT = member(partial(talk_to_merchant))
-    # EXPLORE_MOUNTAIN = member(partial(explore_mountain))
 
     OK = member(lambda: Action.last_action())
 

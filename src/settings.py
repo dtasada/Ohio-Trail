@@ -83,15 +83,6 @@ def action_to_color(action: str) -> pygame.Color:
     return getattr(Color, action.split(" ")[0].upper(), Color.WHITE)
 
 
-def test(*args):
-    """
-    Random ahh debugging function Leo insists on keeping
-    Leo: "Waarom catch ik strays ☹️☹️☹️"
-    💀💀💀
-    """
-    print(random.randint(0, 100), *args)
-
-
 def pause1(func):
     """
     Decorator used in procedures that require a 1 second pause after completion
