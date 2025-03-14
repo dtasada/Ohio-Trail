@@ -8,6 +8,8 @@ from pygame.time import get_ticks as ticks
 
 from pygame.typing import Point
 
+from .game import game
+
 
 # Globals
 ZWS = "​"  # niet empty maar zero width space
