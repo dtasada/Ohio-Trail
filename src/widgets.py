@@ -54,6 +54,7 @@ class RetroSelection(_Retro):
             )
             for text in actions
         ]
+        # text color coded (walk, talk to, etc.)
         self.colored_images: List[pygame.Surface] = [
             FONT.render(
                 enum_to_str(text.name if self.command is None else text).split(" ")[0],
@@ -66,6 +67,7 @@ class RetroSelection(_Retro):
             )
             for text in actions
         ]
+        # rectangle hitboxes
         self.rects: List[pygame.Rect] = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(self.images)
@@ -74,7 +76,7 @@ class RetroSelection(_Retro):
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(self.colored_images)
         ]
-        # other
+        # other state variables
         self.gt, self.gt_rect = write(">", (self.rects[0].x - 30, self.rects[0].y))
         self.active: bool = True
         self.index: int = 0
@@ -82,26 +84,24 @@ class RetroSelection(_Retro):
 
     def finish(self, text: "Action", quicktime: Callable, quicktime_active: bool):
         """Called when the selection is finished. By default, it will call the associated command."""
-        if False and not quicktime_active and chance(1 / 2):
-            Sound.ALERT.play()
-            quicktime()()
+        if self.command is not None:
+            self.command(text)
         else:
-            if self.command is not None:
-                self.command(text)
-            else:
-                text.value()
-            self.active = False
-            if self.autokill:
-                active_widgets.remove(self)
+            text.value()
+        self.active = False
+        if self.autokill:
+            active_widgets.remove(self)
 
     def draw(self):
         """Draw the selection widget"""
         for tex, rect, ctex, crect in zip(
             self.images, self.rects, self.colored_images, self.colored_rects
         ):
+            # render all text
             game.display.blit(tex, rect)
             game.display.blit(ctex, crect)
         if self.portrait_images:
+            # check if there is a big portrait image and render it
             with suppress(IndexError):
                 if self.portrait_images[self.index] is not None:
                     game.display.blit(
@@ -114,8 +114,10 @@ class RetroSelection(_Retro):
     ):
         if self.active:
             if event.key == pygame.K_COMMA:
+                # skip cutscene
                 self.finish(self.texts[0], quicktime, quicktime_active)
 
+            # keys W and S move the arrow on the selection
             if event.key in (pygame.K_s, pygame.K_DOWN):
                 if self.gt_rect.y == self.rects[-1].y:
                     self.gt_rect.y = self.rects[0].y
@@ -198,6 +200,7 @@ class RetroEntry(_Retro):
         self.delay: int = delay
 
     def finish(self, *args, **kwargs):
+        """Called when the entry is finished scrolling or got an input. By default, it will call the associated command."""
         if self.command is not None:
             self.command(*args, **kwargs)
         elif self.selection is not None:
@@ -218,7 +221,7 @@ class RetroEntry(_Retro):
 
             if self.accepts_input:
                 if self.flickering:
-
+                    # flickering is the cursor at the end of the text
                     mods = pygame.key.get_mods()
                     name = pygame.key.name(event.key)
                     self.text = self.text.removesuffix("_")
@@ -229,12 +232,12 @@ class RetroEntry(_Retro):
                         if self.text != self.final:
                             self.text = self.text[:-1]
                             self.answer = self.answer[:-1]
-
                     elif name == "space":
                         self.text += " "
                         self.answer += " "
                     elif len(name) > 1:
-                        pass
+                        # do nothing
+                        ...
                     else:
                         if len(self.answer) < 20:
                             if mods in (1, 2):
@@ -245,13 +248,15 @@ class RetroEntry(_Retro):
 
     def update(self):
         if self.active:
-            # update the text
+            # update the text if not reversing (for effect)
             if not self.reversing:
+                # check if not flickering
                 if not self.flickering:
+                    # scroll the text (nothing special happening, so go)
                     self.index += self.speed
                     if int(self.index) >= 1:
                         self.update_tex(self.final[: int(self.index)])
-                    # type sound
+                    # typing sound
                     if (
                         int(self.index) > self.last_index
                         and (self.text[-1] not in (" ", ZWS))
@@ -271,6 +276,7 @@ class RetroEntry(_Retro):
                         if cond:
                             self.finish(self.answer)
                 else:
+                    # check if delay has to happen, if so, if finished, then finish()
                     if not self.accepts_input:
                         cond = True
                         if self.delay > 0:
