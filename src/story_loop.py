@@ -3,6 +3,7 @@ from .inventory import *
 from .game import game
 from .widgets import *
 from enum import member
+from .dialogue import *
 from functools import partial
 
 
@@ -106,7 +107,7 @@ def intro_wreck():
 
 You are one of only 5 survivors.{ZWS * 20}
 
-You and 4 NPCs are now stranded on an island.{ZWS *20}
+You and 4 other people are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
@@ -263,9 +264,51 @@ def talk_to_npcs():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You just talk to yourself for now.",
-            selection=[Action.OK],
+            "Who would you like to talk to?",
+            command=npc_selection,
         )
+    )
+
+
+def npc_selection():
+    active_widgets.append(
+        RetroSelection(
+            actions=["mr bean", "henk balderdeeg"], pos=(0, 60), command=talk_to
+        )
+    )
+
+
+def talk_to(name):
+    global cur_dialogue, dialogue_id
+
+    active_widgets.clear()
+    cur_dialogue = name
+    dialogue_id = 0
+    active_widgets.append(
+        RetroEntry(dialogue[name][dialogue_id]["text"], command=respond_options)
+    )
+
+
+def respond_options():
+    global cur_dialogue, dialogue_id
+
+    active_widgets.append(
+        RetroSelection(
+            actions=dialogue[cur_dialogue][dialogue_id]["responses"],
+            pos=(0, 60),
+            command=respond,
+        )
+    )
+
+
+def respond(res):
+    global cur_dialogue, dialogue_id
+
+    active_widgets.clear()
+    responses = dialogue[cur_dialogue][dialogue_id]["responses"]
+    dialogue_id += responses.index(res) + 1
+    active_widgets.append(
+        RetroEntry(dialogue[cur_dialogue][dialogue_id]["text"], selection=[Action.OK])
     )
 
 
@@ -443,7 +486,7 @@ def set_up_camp():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You and the NPCs have all set up a camp!",
+            "You and the others have all set up a camp!",
             selection=[Action.OK],
         )
     )
