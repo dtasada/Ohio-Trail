@@ -249,10 +249,12 @@ def finish_chopping_wood(amount):
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            f"You chopped up {amount} logs of wood.",
+            f"You chopped up {amount} log of wood." if amount > 0 else "You were too weak, couldn't chop wood.",
             selection=[Action.OK],
         )
     )
+    if amount > 0:
+        inventory.items.append(wood)
 
 
 @action
@@ -373,11 +375,12 @@ def buy_item(item):
                     command=merchant_selection,
                 )
             )
-        else:
-            Sound.BUY.play()
-            inventory.items.append(item)
-            player.money -= item.price
-            merchant_selection()
+            return
+    
+        Sound.BUY.play()
+        inventory.items.append(item)
+        player.money -= item.price
+        merchant_selection()
 
 
 @checkpoint
@@ -422,6 +425,7 @@ def finish_fishing(amount):
         )
 
 
+@checkpoint
 @action
 def select_mountain():
     player.location = Location.MOUNTAIN
@@ -429,7 +433,7 @@ def select_mountain():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You hear some eerie sounds coming from inside.",
+            "You are at the mountain.",
             selection=[Action.OK],
         )
     )
@@ -544,6 +548,26 @@ def random_quicktime_event():
     return None
 
 
+def find_note():
+    ctive_widgets.clear()
+    player.energy = player.max_energy
+    active_widgets.append(
+        RetroEntry(
+            random.choice(
+                [
+                    "You sleep soundly.",
+                    "Zzzzz...",
+                    "Goodnight.",
+                    "*yawwwwn*",
+                    "Sleepy time.",
+                    "ghrghrhrhrhgrhk mimimimimimi",
+                ]
+            ),
+            selection=[Action.OK],
+        )
+    )
+
+
 class Action(Enum):
     """Enum of all possible actions in the game."""
     COOK_FOOD = member(partial(cook_food))
@@ -566,6 +590,7 @@ class Action(Enum):
     WALK_TO_MY_TENT = member(partial(select_my_tent))
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
     TALK_TO_MERCHANT = member(partial(talk_to_merchant))
+    EXPLORE_MOUNTAIN = member(partial(explore_mountain))
 
     OK = member(lambda: Action.last_action())
 

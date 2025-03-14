@@ -25,6 +25,16 @@ class InventoryItem:
         ...
 
 
+class Wood(InventoryItem):
+    def __init__(self):
+        self.img = pygame.Surface((30, 30))
+        self.img.fill(pygame.Color("brown"))
+        self.name = "wood"
+
+
+wood = Wood()
+
+
 class Food(InventoryItem):
     """
     Food item. Inherits from InventoryItem. Contains static variables for all
@@ -148,8 +158,12 @@ class Inventory:
         )
 
         if len(self.items) > 0:
+            try:
+                desc = enum_to_str(self.items[self.index].name)
+            except Exception:
+                desc = self.items[self.index].name
             desc_tex, desc_rect = write(
-                enum_to_str(self.items[self.index].name),
+                desc,
                 (
                     top_left[0] + grid_size[0] / 2,
                     top_left[1] - 8,

@@ -453,7 +453,7 @@ class WoodChopping(Minigame):
 
     def finish(self):
         active_widgets.remove(self)
-        self.action(self.num_chopped)
+        self.action(1 if self.num_chopped >= 4 else 0)
 
     def chop(self):
         if self.correct_x <= self.chop_x <= self.correct_x + self.correct_w:
