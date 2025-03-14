@@ -1,3 +1,6 @@
+"""Structured dialogue that doesn't have logic but a lot of text"""
+
+
 dialogue = {
     "The Sailor": [
         {

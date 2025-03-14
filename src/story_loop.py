@@ -7,6 +7,11 @@ from .dialogue import *
 from functools import partial
 
 
+"""
+The storyline functions that drive the game forward.
+"""
+
+
 def checkpoint(func):
     """Decorator that sets the decorated procedure as 'Action.last_action'."""
 
@@ -676,7 +681,7 @@ def find_note():
 
 
 class Action(Enum):
-    """Enum of all possible actions in the game."""
+    """Enum of all possible actions in the game. """
 
     COOK_FOOD = member(partial(cook_food))
     ADD_WOOD = member(partial(add_wood))
@@ -701,6 +706,7 @@ class Action(Enum):
     WALK_TO_PLANEWRECK = member(partial(select_planewreck))
     TALK_TO_MERCHANT = member(partial(talk_to_merchant))
 
+    # the OK always returns to the last action
     OK = member(lambda: Action.last_action())
 
     last_action: Callable = ask_background
