@@ -20,9 +20,7 @@ class Background:
             pygame.image.load(Path("assets", "characters", f"{self.name}.png")),
             SCALING,
         )
-        self.rect = self.img.get_rect(
-            center=(game.width - 220, game.height / 2)
-        )
+        self.rect = self.img.get_rect(center=(game.width - 220, game.height / 2))
         self.desc = f"{index}. {self.desc}"
         self.sound = pygame.mixer.Sound(Path("assets", "sfx", f"{self.name}.wav"))
 
@@ -126,6 +124,7 @@ class Character:
         self.money: int = 3
         self.show_money: bool = False
         self.location: Location = Location.PLANEWRECK
+        self.previous_location: Location = Location.PLANEWRECK
         self.completed: Completed = Completed.NONE
         self.max_hp: int = 100
         self.max_energy: int = 10
@@ -171,6 +170,11 @@ class Character:
     def complete(self, action: Completed):
         """Simple method to mark an action as completed"""
         self.completed |= action
+
+    def set_location(self, location: Location):
+        """Simple method to set the player's location"""
+        self.previous_location = self.location
+        self.location = location
 
 
 player = Character()

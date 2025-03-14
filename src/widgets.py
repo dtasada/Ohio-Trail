@@ -46,26 +46,32 @@ class RetroSelection(_Retro):
         self.command: Optional[Callable] = command
 
         # selection images, textures and rectangles
-        self.images: List[pygame.Surface] = [
-            FONT.render(
-                enum_to_str(text.name) if self.command is None else text,
-                True,
-                Color.WHITE,
+        self.images: List[pygame.Surface] = []
+        self.colored_images: List[pygame.Surface] = []
+        for text in actions:
+            text_str = enum_to_str(text.name) if self.command is None else text
+            try:
+                print("prevloc", player.previous_location)
+                print("enumtostr", enum_to_str(player.previous_location.name))
+                if text_str == f"Walk to {enum_to_str(player.previous_location.name)}":
+                    text_str.replace("Walk to", "Walk back to")
+            except Exception:
+                pass
+
+            self.images.append(
+                FONT.render(
+                    text_str,
+                    True,
+                    Color.WHITE,
+                )
             )
-            for text in actions
-        ]
-        self.colored_images: List[pygame.Surface] = [
-            FONT.render(
-                enum_to_str(text.name if self.command is None else text).split(" ")[0],
-                True,
-                action_to_color(
-                    enum_to_str(text.name if self.command is None else text).split(" ")[
-                        0
-                    ]
-                ),
+            self.colored_images.append(
+                FONT.render(
+                    enum_to_str(text_str).split(" ")[0],
+                    True,
+                    action_to_color(enum_to_str(text_str).split(" ")[0]),
+                )
             )
-            for text in actions
-        ]
         self.rects: List[pygame.Rect] = [
             img.get_rect(topleft=(self.x + self.xo, 50 + self.y + y * self.yo))
             for y, img in enumerate(self.images)
@@ -397,9 +403,9 @@ class Animation:
             ]
             self.rects = [tex.get_rect(topleft=self.pos) for tex in self.images]
         else:
-            self.images = [pygame.transform.scale_by(
-                pygame.image.load(self.path), self.scaling
-            )]
+            self.images = [
+                pygame.transform.scale_by(pygame.image.load(self.path), self.scaling)
+            ]
             self.rects = [self.images[0].get_rect(topleft=self.pos)]
         self.kill = False
 
@@ -619,7 +625,7 @@ class Fishing(Minigame):
                             self.finish()
                     else:
                         # foei foei you are reeling while under tension
-                        if chance(1 / 70):
+                        if chance(1 / 150):
                             self.finish(-1)
         # perhaps catch fish?
         if not self.detected and not self.started_reeling:

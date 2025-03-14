@@ -120,7 +120,7 @@ def select_planewreck():
     if Music.current != Music.PLANEWRECK:
         Music.set_music(Music.PLANEWRECK)
 
-    player.location = Location.PLANEWRECK
+    player.set_location(Location.PLANEWRECK)
     active_widgets.clear()
 
     selection = [Action.EXPLORE_PLANEWRECK, Action.CONVERSE]
@@ -199,9 +199,9 @@ def select_forest(*a):
         if Music.current != Music.HAPPY_FOREST:
             Music.set_music(Music.HAPPY_FOREST, 0.8)
 
-        player.location = Location.FOREST
+        player.set_location(Location.FOREST)
 
-        selection = [Action.EXPLORE_FOREST, Action.CHOP_WOOD, Action.WALK_TO_PLANEWRECK]
+        selection = [Action.CHOP_WOOD, Action.EXPLORE_FOREST, Action.WALK_TO_PLANEWRECK]
         if Completed.EXPLORED_FOREST & player.completed:
             selection.append(Action.WALK_TO_LAKE)
             selection.append(Action.WALK_TO_MOUNTAIN)
@@ -209,7 +209,7 @@ def select_forest(*a):
             if Completed.SET_UP_CAMP & player.completed:
                 selection.append(Action.WALK_TO_CAMP)
             else:
-                selection.append(Action.SET_UP_CAMP)
+                selection.insert(0, Action.SET_UP_CAMP)
 
             if Completed.MET_MERCHANT & player.completed:
                 selection.append(Action.TALK_TO_MERCHANT)
@@ -445,7 +445,7 @@ def buy_item(item):
 @checkpoint
 @action
 def select_lake(*args):
-    player.location = Location.LAKE
+    player.set_location(Location.LAKE)
     # TODO
     active_widgets.clear()
     active_widgets.append(
@@ -487,13 +487,13 @@ def finish_fishing(amount):
 @checkpoint
 @action
 def select_mountain(*args):
-    player.location = Location.MOUNTAIN
+    player.set_location(Location.MOUNTAIN)
     # TODO
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
             "You are at the mountain.",
-            selection=[Action.WALK_TO_CAVE],
+            selection=[Action.WALK_TO_FOREST, Action.WALK_TO_CAVE],
         )
     )
 
@@ -504,10 +504,7 @@ def go_cave():
     player.energy = player.max_energy
     # text
     active_widgets.append(
-        RetroEntry(
-            "... And the next step you take, you stumble upon this:",
-            selection=[Action.OK],
-        ),
+        RetroEntry("", selection=[Action.OK]),
     )
     # animation
     anim_note = Animation(
@@ -542,7 +539,7 @@ def set_up_camp():
 def select_camp():
     if Music.current != Music.CAMP:
         Music.set_music(Music.CAMP, 0.8)
-    player.location = Location.CAMP
+    player.set_location(Location.CAMP)
     # TODO
     active_widgets.clear()
     active_widgets.append(
@@ -560,7 +557,7 @@ def select_camp():
 @action
 @checkpoint
 def select_my_tent():
-    player.location = Location.MY_TENT
+    player.set_location(Location.MY_TENT)
     # TODO
     active_widgets.clear()
     active_widgets.append(
@@ -575,7 +572,7 @@ def select_my_tent():
 @checkpoint
 def select_campfire():
     # TODO
-    player.location = Location.CAMPFIRE
+    player.set_location(Location.CAMPFIRE)
     active_widgets.clear()
 
     if Completed.ADDED_WOOD & player.completed:
