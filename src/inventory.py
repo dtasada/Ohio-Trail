@@ -141,7 +141,7 @@ class Inventory:
 
         for i, item in enumerate(self.items):
             game.display.blit(
-                item.img,
+                pygame.transform.scale_by(item.img, 0.2),
                 pygame.Rect(top_left[0] + i * cell_size, top_left[1], 64, 64),
             )
 
@@ -193,4 +193,4 @@ class Inventory:
                 case pygame.K_RETURN:
                     self.items[self.index].select()
         """
-        
+
