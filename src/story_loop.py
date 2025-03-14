@@ -297,7 +297,7 @@ def respond_options():
     active_widgets.append(
         RetroSelection(
             actions=dialogue[dia.cur][dia.id]["responses"],
-            pos=(0, 60),
+            pos=(0, 140),
             command=respond,
         )
     )
@@ -552,6 +552,7 @@ def select_campfire():
     if Completed.ADDED_WOOD & player.completed:
         selection = [Action.CONVERSE, Action.ENJOY_WARMTH, Action.COOK_FOOD, Action.LEAVE_CAMPFIRE]
         dia.id = 5
+        dia.checkpoint = 5
     else:
         selection = [Action.ADD_WOOD, Action.LEAVE_CAMPFIRE]
     active_widgets.append(
@@ -624,7 +625,7 @@ def random_quicktime_event():
 
 
 def find_note():
-    ctive_widgets.clear()
+    active_widgets.clear()
     player.energy = player.max_energy
     active_widgets.append(
         RetroEntry(
