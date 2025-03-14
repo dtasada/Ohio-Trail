@@ -58,6 +58,7 @@ class Location(Enum):
     MOUNTAIN = auto()
     MY_TENT = auto()
     PLANEWRECK = auto()
+    CAVE = auto()
 
 
 class Completed(IntFlag):
@@ -114,7 +115,7 @@ class Bar:
                 self.rect.height * ratio,
             ),
         )
-        game.display.blit(self.tex, self.rect)
+        game.display.blit(self.img, self.rect)
 
 
 class Character:

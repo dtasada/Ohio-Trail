@@ -397,15 +397,14 @@ class Animation:
             ]
             self.rects = [tex.get_rect(topleft=self.pos) for tex in self.images]
         else:
-            self.img = pygame.transform.scale_by(
+            self.images = [pygame.transform.scale_by(
                 pygame.image.load(self.path), self.scaling
-            )
-            self.tex = pygame.Surface.from_surface(game.display, self.img)
-            self.rect = self.tex.get_rect()
+            )]
+            self.rects = [self.images[0].get_rect(topleft=self.pos)]
         self.kill = False
 
     def update(self):
-        if self.frame_count > 1:
+        if self.frame_count >= 1:
             self.index += (1 / 30) * self.framerate
             if int(self.index) >= len(self.images):
                 if not self.should_stay:
