@@ -3,11 +3,13 @@ from .inventory import *
 from .game import game
 from .widgets import *
 from enum import member
+from .dialogue import *
 from functools import partial
 
 
 def checkpoint(func):
     """Decorator that sets the decorated procedure as 'Action.last_action'."""
+
     def inner(*args, **kwargs):
         inner.__name__ = func.__name__
 
@@ -19,6 +21,7 @@ def checkpoint(func):
 
 def action(func):
     """Decorator that consumes energy when the decorated procedure is ran."""
+
     def inner(*args, **kwargs):
         player.energy -= 1
         func(*args, **kwargs)
@@ -104,7 +107,7 @@ def intro_wreck():
 
 You are one of only 5 survivors.{ZWS * 20}
 
-You and 4 NPCs are now stranded on an island.{ZWS *20}
+You and 4 other people are now stranded on an island.{ZWS *20}
 
 Objective: survive for as long as possible.
 """
@@ -240,7 +243,7 @@ def chop_wood():
     active_widgets.clear()
     active_widgets.append(
         WoodChopping(
-           finish_chopping_wood,
+            finish_chopping_wood,
         )
     )
 
@@ -263,10 +266,67 @@ def talk_to_npcs():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You just talk to yourself for now.",
-            selection=[Action.OK],
+            "Who would you like to talk to?",
+            command=npc_selection,
         )
     )
+
+
+def npc_selection():
+    active_widgets.append(
+        RetroSelection(
+            actions=[name for name in dialogue.keys()], pos=(0, 60), command=talk_to
+        )
+    )
+
+
+def talk_to(name):
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
+
+    active_widgets.clear()
+    if name.lower() == "exit":
+        active_widgets.append(RetroEntry("You left", selection=[Action.OK]))
+    else:
+        cur_dialogue = name
+        dialogue_id = 0
+        dialogue_checkpoint = 0
+        active_widgets.append(
+            RetroEntry(dialogue[name][dialogue_id]["text"], command=respond_options)
+        )
+
+
+def respond_options():
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
+    dialogue_id = dialogue_checkpoint
+
+    active_widgets.append(
+        RetroSelection(
+            actions=dialogue[cur_dialogue][dialogue_id]["responses"],
+            pos=(0, 60),
+            command=respond,
+        )
+    )
+
+
+def respond(res):
+    global cur_dialogue, dialogue_id, dialogue_checkpoint
+
+    active_widgets.clear()
+    responses = dialogue[cur_dialogue][dialogue_id]["responses"]
+    dialogue_id += responses.index(res) + 1
+    dialogue_checkpoint = dialogue[cur_dialogue][dialogue_id]["checkpoint"]
+    if dialogue_checkpoint == "exit":
+        active_widgets.append(
+            RetroEntry(
+                f"{dialogue[cur_dialogue][dialogue_id]["text"] + ZWS * 10}" , command=talk_to_npcs
+            )
+        )
+    else:
+        active_widgets.append(
+            RetroEntry(
+                dialogue[cur_dialogue][dialogue_id]["text"], command=respond_options
+            )
+        )
 
 
 @action
@@ -402,7 +462,7 @@ def fish():
     active_widgets.clear()
     active_widgets.append(
         Fishing(
-           finish_fishing,
+            finish_fishing,
         )
     )
 
@@ -445,7 +505,7 @@ def set_up_camp():
     active_widgets.clear()
     active_widgets.append(
         RetroEntry(
-            "You and the NPCs have all set up a camp!",
+            "You and the others have all set up a camp!",
             selection=[Action.OK],
         )
     )
@@ -570,6 +630,7 @@ def find_note():
 
 class Action(Enum):
     """Enum of all possible actions in the game."""
+
     COOK_FOOD = member(partial(cook_food))
     ENJOY_WARMTH = member(partial(enjoy_warmth))
     EXPLORE_FOREST = member(partial(explore_forest))

@@ -26,8 +26,19 @@ with open(Path("assets", "text_data", "ohio.txt")) as f:
     ohio_cities = f.read().splitlines()
 
 
-def imgload(*path_, after_func=None, colorkey=None, frames=None, whitespace=0, frame_pause=0, end_frame=None, scale=1, rotation=0, tex=False):
-    """ Handy function that loads and returns a texture / a list of textures (spritesheet) """
+def imgload(
+    *path_,
+    after_func=None,
+    colorkey=None,
+    frames=None,
+    whitespace=0,
+    frame_pause=0,
+    end_frame=None,
+    scale=1,
+    rotation=0,
+    tex=False
+):
+    """Handy function that loads and returns a texture / a list of textures (spritesheet)"""
     if frames is None:
         ret = pygame.image.load(Path(*path_))
     else:
@@ -35,16 +46,30 @@ def imgload(*path_, after_func=None, colorkey=None, frames=None, whitespace=0, f
         img = pygame.image.load(Path(*path_))
         frames = (frames, img.get_width() / frames)
         for i in range(frames[0]):
-            ret.append(img.subsurface(i * frames[1], 0, frames[1] - whitespace, img.get_height()))
+            ret.append(
+                img.subsurface(
+                    i * frames[1], 0, frames[1] - whitespace, img.get_height()
+                )
+            )
         for i in range(frame_pause):
             ret.append(ret[0])
         if end_frame is not None:
             ret.append(ret[end_frame])
     if isinstance(ret, list):
         for i, r in enumerate(ret):
-            ret[i] = rotate(pygame.transform.scale_by(getattr(r, after_func)() if after_func is not None else r, scale), rotation)
+            ret[i] = rotate(
+                pygame.transform.scale_by(
+                    getattr(r, after_func)() if after_func is not None else r, scale
+                ),
+                rotation,
+            )
     elif isinstance(ret, pygame.Surface):
-        ret = rotate(pygame.transform.scale_by(getattr(ret, after_func)() if after_func is not None else ret, scale), rotation)
+        ret = rotate(
+            pygame.transform.scale_by(
+                getattr(ret, after_func)() if after_func is not None else ret, scale
+            ),
+            rotation,
+        )
     return ret
 
 
@@ -99,7 +124,7 @@ def pause4(func):
     return inner
 
 
-def write(text: str, pos: Point, size: int = 18, anchor: str = "topleft", color = None):
+def write(text: str, pos: Point, size: int = 18, anchor: str = "topleft", color=None):
     """Rendering function to draw text"""
     img = FONTS[size].render(text, True, Color.WHITE if color is None else color)
     rect = img.get_rect()
@@ -155,6 +180,7 @@ class Sound:
     ALERT = load(Path("assets", "sfx", "alert.mp3"))
     EXPLOSION = load(Path("assets", "sfx", "explosion.mp3"), 0.3)
     BUILD_UP = load(Path("assets", "sfx", "scary.mp3"))
+    CHOP = load(Path("assets", "sfx", "chop.wav"))
 
 
 class Music:
@@ -168,7 +194,7 @@ class Music:
         pygame.mixer.music.fadeout(1000)
         pygame.mixer.music.unload()
         pygame.mixer.music.load(music)
-        pygame.mixer.music.set_volume(0)
+        pygame.mixer.music.set_volume(volume)
         pygame.mixer.music.play(-1)
 
     @staticmethod
@@ -209,7 +235,7 @@ sfx_queue = []
 
 
 class Visuals:
-    """ Visual elements that don't fit into any other image category such as a fishing bobber """
+    """Visual elements that don't fit into any other image category such as a fishing bobber"""
+
     BOBBER = imgload(Path("assets", "items", "bobber.png"), scale=2)
     RADAR = imgload(Path("assets", "items", "radar.png"), scale=2, frames=9)
-    

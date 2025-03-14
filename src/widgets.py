@@ -276,9 +276,7 @@ class RetroEntry(_Retro):
                         if self.delay > 0:
                             if self.last_quit is None:
                                 self.last_quit = ticks()
-                            cond = (
-                                ticks() - self.last_quit >= self.delay
-                            )
+                            cond = ticks() - self.last_quit >= self.delay
                         if cond:
                             self.finish()
             else:
@@ -457,6 +455,7 @@ class WoodChopping(Minigame):
 
     def chop(self):
         if self.correct_x <= self.chop_x <= self.correct_x + self.correct_w:
+            Sound.CHOP.play()
             self.num_chopped += 1
         self.set_correct()
 
@@ -474,9 +473,7 @@ class WoodChopping(Minigame):
 
     def draw(self):
         # render the UI
-        remaining_seconds = floor(
-            10 - (ticks() - self.last_start) / 1000
-        )
+        remaining_seconds = floor(10 - (ticks() - self.last_start) / 1000)
         if remaining_seconds <= -1:
             self.finish()
         else:
@@ -491,9 +488,7 @@ class WoodChopping(Minigame):
 
         # render the game
         pygame.draw.rect(game.display, Color.WHITE, (self.x, self.y, self.w, self.h), 1)
-        self.chop_x = (
-            self.x + self.w / 2 + sin(ticks() * self.speed) * self.w / 2
-        )
+        self.chop_x = self.x + self.w / 2 + sin(ticks() * self.speed) * self.w / 2
         pygame.draw.rect(
             game.display,
             Color.WHITE,
@@ -518,7 +513,7 @@ class Wave:
         self.x, self.y, self.w, self.h = x, y, w, h
         self.alpha = 0
         self.direc = 1
-        
+
     def update(self, scroll):
         self.image = pygame.Surface((self.w, self.h))
         self.image.fill((255, 255, 255))
@@ -559,13 +554,13 @@ class Fishing(Minigame):
     def finish(self, num=1):
         active_widgets.remove(self)
         self.action(num)
-    
+
     def process_event(self, event):
         if event.key == pygame.K_SPACE:
             # if not bobblerd yet, just bobble the boblard
             if not self.bobbered:
                 self.bobbered = True
-    
+
     def detect_fish(self):
         self.detected = True
         game.start_shake([7, 0], 2000)
@@ -606,8 +601,16 @@ class Fishing(Minigame):
                     if self.tension_arrow_offset >= 40:
                         self.tension_arrow_offset = 0
                     # already tensioning, break apart
-                    if keys[(pygame.K_RIGHT if self.tension_direction == 1 else pygame.K_LEFT)]:
-                        if ticks() - self.last_released_tension >= random.randint(2000, 3000):
+                    if keys[
+                        (
+                            pygame.K_RIGHT
+                            if self.tension_direction == 1
+                            else pygame.K_LEFT
+                        )
+                    ]:
+                        if ticks() - self.last_released_tension >= random.randint(
+                            2000, 3000
+                        ):
                             self.tension = False
                 # fix the tension
                 if keys[pygame.K_SPACE]:
@@ -625,15 +628,28 @@ class Fishing(Minigame):
                 self.detect_fish()
         # scroll
         m = 0.1
-        self.scroll[0] += (self.bobber_rect.x - self.scroll[0] - game.width / 2 + self.bobber_rect.width / 2) * m
-        self.scroll[1] += (self.bobber_rect.y - self.scroll[1] - game.height / 2 + self.bobber_rect.height / 2) * m
-    
+        self.scroll[0] += (
+            self.bobber_rect.x
+            - self.scroll[0]
+            - game.width / 2
+            + self.bobber_rect.width / 2
+        ) * m
+        self.scroll[1] += (
+            self.bobber_rect.y
+            - self.scroll[1]
+            - game.height / 2
+            + self.bobber_rect.height / 2
+        ) * m
+
     def change_blink_pos(self):
         m = self.water_size / 2 - 10
         angle = random.uniform(0, 2 * pi)
-        self.blink_pos = (int(game.center[0] + m * cos(angle)), int(game.center[1] + m * sin(angle)))
+        self.blink_pos = (
+            int(game.center[0] + m * cos(angle)),
+            int(game.center[1] + m * sin(angle)),
+        )
         self.last_blink = ticks()
-    
+
     def update_blink(self):
         # change size of the blink
         self.blink_size -= 0.9
@@ -641,10 +657,15 @@ class Fishing(Minigame):
             self.blink_size = self.max_blink_size
         # check if blink needs to teleport to a different place
         if ticks() - self.last_blink >= 2700:
-           self.change_blink_pos()
+            self.change_blink_pos()
 
     def draw(self):
-        water_rect = (game.width / 2 - self.water_size / 2, game.height / 2 - self.water_size / 2, self.water_size, self.water_size)
+        water_rect = (
+            game.width / 2 - self.water_size / 2,
+            game.height / 2 - self.water_size / 2,
+            self.water_size,
+            self.water_size,
+        )
         pygame.draw.rect(game.display, pygame.Color("deepskyblue2"), water_rect)
         pygame.draw.rect(game.display, Color.WHITE, water_rect, 1)
         if not self.bobbered:
@@ -656,17 +677,29 @@ class Fishing(Minigame):
                 self.radar_index = 0
             finally:
                 game.display.blit(Visuals.RADAR[int(self.radar_index)], self.radar_rect)
-            game.display.blit(*write("Press <space> to throw bobber", (game.width / 2, 50), 14, "midtop"))
+            game.display.blit(
+                *write(
+                    "Press <space> to throw bobber", (game.width / 2, 50), 14, "midtop"
+                )
+            )
         else:
             # update and draw the waters
             if ticks() - self.last_wave >= 370:
                 w, h = random.randint(30, 50), 4
-                self.waves.append(Wave(
-                    random.randint(self.bobber_rect.centerx - self.water_size // 2, self.bobber_rect.centerx + self.water_size // 2 - w),
-                    random.randint(self.bobber_rect.centery - self.water_size // 2, self.bobber_rect.centery + self.water_size // 2 - w),
-                    w,
-                    h,
-                ))
+                self.waves.append(
+                    Wave(
+                        random.randint(
+                            self.bobber_rect.centerx - self.water_size // 2,
+                            self.bobber_rect.centerx + self.water_size // 2 - w,
+                        ),
+                        random.randint(
+                            self.bobber_rect.centery - self.water_size // 2,
+                            self.bobber_rect.centery + self.water_size // 2 - w,
+                        ),
+                        w,
+                        h,
+                    )
+                )
                 self.last_wave = ticks()
             for wave in self.waves[:]:
                 wave.update(self.scroll)
@@ -674,43 +707,146 @@ class Fishing(Minigame):
                     self.waves.remove(wave)
             scrolled_rect = self.bobber_rect.move(-self.scroll[0], -self.scroll[1])
             # black border
-            pygame.draw.rect(game.display, Color.BLACK, (0, 0, game.width, game.height / 2 - self.water_size / 2))  # top
-            pygame.draw.rect(game.display, Color.BLACK, (0, 0, game.width / 2 - self.water_size / 2, game.height))  # left
-            pygame.draw.rect(game.display, Color.BLACK, (game.width / 2 + self.water_size / 2, 0, game.width / 2 - self.water_size / 2, game.height))  # right
-            pygame.draw.rect(game.display, Color.BLACK, (0, game.height / 2 + self.water_size / 2, game.width, game.height / 2 - self.water_size / 2))  # bottom
+            pygame.draw.rect(
+                game.display,
+                Color.BLACK,
+                (0, 0, game.width, game.height / 2 - self.water_size / 2),
+            )  # top
+            pygame.draw.rect(
+                game.display,
+                Color.BLACK,
+                (0, 0, game.width / 2 - self.water_size / 2, game.height),
+            )  # left
+            pygame.draw.rect(
+                game.display,
+                Color.BLACK,
+                (
+                    game.width / 2 + self.water_size / 2,
+                    0,
+                    game.width / 2 - self.water_size / 2,
+                    game.height,
+                ),
+            )  # right
+            pygame.draw.rect(
+                game.display,
+                Color.BLACK,
+                (
+                    0,
+                    game.height / 2 + self.water_size / 2,
+                    game.width,
+                    game.height / 2 - self.water_size / 2,
+                ),
+            )  # bottom
 
             game.display.blit(Visuals.BOBBER, scrolled_rect)
-            pygame.draw.line(game.display, Color.BLACK, (game.width / 2 - self.water_size / 2, game.height / 2 + self.water_size / 2), scrolled_rect.midbottom)
-            
+            pygame.draw.line(
+                game.display,
+                Color.BLACK,
+                (
+                    game.width / 2 - self.water_size / 2,
+                    game.height / 2 + self.water_size / 2,
+                ),
+                scrolled_rect.midbottom,
+            )
+
             # render the blink
             if not self.detected:
-                game.display.blit(*write("Move to detect fish", (game.width / 2, 50), 14, "midtop"))
-                pygame.gfxdraw.filled_circle(game.display, *self.blink_pos, int(self.blink_size), pygame.Color("orange"))
-                pygame.gfxdraw.aacircle(game.display, *self.blink_pos, int(self.blink_size), Color.BLACK)
+                game.display.blit(
+                    *write("Move to detect fish", (game.width / 2, 50), 14, "midtop")
+                )
+                pygame.gfxdraw.filled_circle(
+                    game.display,
+                    *self.blink_pos,
+                    int(self.blink_size),
+                    pygame.Color("orange"),
+                )
+                pygame.gfxdraw.aacircle(
+                    game.display, *self.blink_pos, int(self.blink_size), Color.BLACK
+                )
             else:
                 if not self.started_reeling:
-                    game.display.blit(*write("Got bite !!", (game.width / 2, game.height / 2 - 60), 14, "midtop", pygame.Color("darkslategray1")))
+                    game.display.blit(
+                        *write(
+                            "Got bite !!",
+                            (game.width / 2, game.height / 2 - 60),
+                            14,
+                            "midtop",
+                            pygame.Color("darkslategray1"),
+                        )
+                    )
                     if ticks() - self.last_bite >= 2000:
                         self.started_reeling = True
                 else:
-                    game.display.blit(*write("Hold <space> to reel", (game.width / 2, 40), 14, "midtop", Color.WHITE))
+                    game.display.blit(
+                        *write(
+                            "Hold <space> to reel",
+                            (game.width / 2, 40),
+                            14,
+                            "midtop",
+                            Color.WHITE,
+                        )
+                    )
                     bar_width, bar_height = 180, 22
                     reel_width = self.reel_level / 100 * bar_width
-                    pygame.draw.rect(game.display, Color.WHITE, (game.width / 2 - bar_width / 2, 70, bar_width, bar_height), 1)
-                    pygame.draw.rect(game.display, Color.WHITE, (game.width / 2 - bar_width / 2, 70, reel_width, bar_height))
+                    pygame.draw.rect(
+                        game.display,
+                        Color.WHITE,
+                        (game.width / 2 - bar_width / 2, 70, bar_width, bar_height),
+                        1,
+                    )
+                    pygame.draw.rect(
+                        game.display,
+                        Color.WHITE,
+                        (game.width / 2 - bar_width / 2, 70, reel_width, bar_height),
+                    )
                     # tension !!!
                     if self.tension:
                         game.start_shake([2, 0], 500)
-                        game.display.blit(*write("tension !!!", (game.width / 2, game.height / 2 - 60), 14, "midtop", Color.WHITE))
+                        game.display.blit(
+                            *write(
+                                "tension !!!",
+                                (game.width / 2, game.height / 2 - 60),
+                                14,
+                                "midtop",
+                                Color.WHITE,
+                            )
+                        )
                         if self.tension_direction == 1:
-                            game.display.blit(*write(">", (game.width / 2 + 110 + self.tension_arrow_offset, game.height / 2 - 50), 22, "midright", Color.WHITE))
+                            game.display.blit(
+                                *write(
+                                    ">",
+                                    (
+                                        game.width / 2
+                                        + 110
+                                        + self.tension_arrow_offset,
+                                        game.height / 2 - 50,
+                                    ),
+                                    22,
+                                    "midright",
+                                    Color.WHITE,
+                                )
+                            )
                         else:
-                            game.display.blit(*write("<", (game.width / 2 - 110 - self.tension_arrow_offset, game.height / 2 - 50), 22, "midright", Color.WHITE))
+                            game.display.blit(
+                                *write(
+                                    "<",
+                                    (
+                                        game.width / 2
+                                        - 110
+                                        - self.tension_arrow_offset,
+                                        game.height / 2 - 50,
+                                    ),
+                                    22,
+                                    "midright",
+                                    Color.WHITE,
+                                )
+                            )
 
     def update(self):
         if self.bobbered:
             self.move()
             self.update_blink()
         self.draw()
+
 
 active_widgets: List[_Retro | TitleCard | Animation | Minigame] = []
