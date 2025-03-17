@@ -3,4 +3,4 @@
 from src.main import main
 
 
-main(debug=True)
+main()

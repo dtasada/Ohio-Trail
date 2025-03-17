@@ -1,14 +1,11 @@
-import pygame
-import sys
-
-from .character import *
 from .game import game
-from .inventory import *
 from .story_loop import *
 from .widgets import *
 
+import sys
 
-def main(debug=False):
+
+def main():
     running = True
     Music.set_music(Music.MAIN_MENU)
     active_widgets.append(
@@ -16,11 +13,7 @@ def main(debug=False):
             f"{title_card_string}{' ' * 8}{random_ahh}",
             (96, 76),
             24,
-            RetroEntry(
-                "Hello traveler, what is your name?",
-                accepts_input=True,
-                command=ask_background,
-            ),
+            RetroEntry("This is our presentation.", command=slide_2),
             sine=(15, 0.002),
         )
     )
@@ -32,22 +25,11 @@ def main(debug=False):
                 running = False
 
             elif event.type == pygame.KEYDOWN:
-                inventory.process_event(event)
                 for widget in active_widgets[:]:
-                    if isinstance(widget, RetroSelection):
-                        # selection
-                        widget.process_event(
-                            event, random_quicktime_event, game.quicktime_active
-                        )
-                    else:
-                        widget.process_event(event)
+                    widget.process_event(event)
 
                 for sfx in sfx_queue:
                     sfx.process_event(event)
-            # elif event.type == pygame.MOUSEBUTTONDOWN:
-            #     for widget in active_widgets[:]:
-            #         if isinstance(widget, Minigame):
-            #             widget.process_event(event)
 
         pygame.draw.rect(game.display, (0, 0, 0, 255), (0, 0, *game.display.size))
 
@@ -58,9 +40,6 @@ def main(debug=False):
 
         for sfx in sfx_queue:
             sfx.update()
-
-        player.update()
-        inventory.update()
 
         game.update_shake()
         game.window.blit(game.display, game.shake)

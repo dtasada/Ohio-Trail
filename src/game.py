@@ -14,7 +14,9 @@ class Game:
         pygame.display.set_caption("Ohio Trail")
         # window initialization
         self.width, self.height = 1100, 650
-        self.window = pygame.display.set_mode((self.width, self.height))
+        self.window = pygame.display.set_mode(
+            (self.width, self.height), pygame.FULLSCREEN
+        )
         self.display = pygame.display.get_surface()
         self.center = (self.width / 2, self.height / 2)
         # screenshake variables
